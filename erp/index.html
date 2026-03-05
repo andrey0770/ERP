@@ -1,0 +1,2184 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lenta ERP</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📊</text></svg>">
+    <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
+    <style>
+/* ── Reset & Base ─────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+    --bg: #0f1117;
+    --bg2: #1a1d27;
+    --bg3: #242836;
+    --text: #e4e6eb;
+    --text2: #8b8fa3;
+    --accent: #6c5ce7;
+    --accent2: #a29bfe;
+    --green: #00b894;
+    --red: #ff6b6b;
+    --yellow: #feca57;
+    --blue: #74b9ff;
+    --border: #2d3142;
+    --radius: 10px;
+    --shadow: 0 2px 8px rgba(0,0,0,0.3);
+}
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.5;
+    min-height: 100vh;
+}
+a { color: var(--accent2); text-decoration: none; }
+a:hover { text-decoration: underline; }
+
+/* ── Layout ───────────────────────────────────── */
+.app { display: flex; min-height: 100vh; }
+.sidebar {
+    width: 220px;
+    background: var(--bg2);
+    border-right: 1px solid var(--border);
+    padding: 10px 0;
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+    max-height: 100vh;
+}
+.sidebar-logo {
+    padding: 0 14px 10px;
+    font-size: 17px;
+    font-weight: 700;
+    color: var(--accent2);
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 4px;
+}
+.sidebar-logo small { display: block; font-size: 10px; color: var(--text2); font-weight: 400; }
+
+/* ── Nav Items (compact) ──────────────────── */
+.nav-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 14px;
+    color: var(--text2);
+    cursor: pointer;
+    transition: all 0.15s;
+    font-size: 13px;
+    border-left: 3px solid transparent;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.nav-item:hover { background: var(--bg3); color: var(--text); }
+.nav-item.active {
+    background: var(--bg3);
+    color: var(--accent2);
+    border-left-color: var(--accent);
+    font-weight: 600;
+}
+.nav-item .icon { font-size: 15px; width: 20px; text-align: center; flex-shrink: 0; }
+
+/* ── Nav Groups (accordion) ───────────────── */
+.nav-group { margin-top: 2px; }
+.nav-group-header {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 14px;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text2);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    cursor: pointer;
+    user-select: none;
+    transition: color 0.15s;
+}
+.nav-group-header:hover { color: var(--text); }
+.nav-group-header .chevron {
+    font-size: 10px;
+    transition: transform 0.2s;
+    margin-left: auto;
+    opacity: 0.5;
+}
+.nav-group-header .chevron.open { transform: rotate(90deg); }
+.nav-group-items {
+    overflow: hidden;
+    max-height: 0;
+    transition: max-height 0.25s ease;
+}
+.nav-group-items.expanded { max-height: 300px; }
+.nav-group-items .nav-item { padding-left: 20px; font-size: 12.5px; }
+
+/* ── Nav separator & spacer ───────────────── */
+.nav-sep { border-top: 1px solid var(--border); margin: 6px 14px; }
+.nav-spacer { flex: 1; }
+
+.main {
+    flex: 1;
+    padding: 20px 28px;
+    overflow-y: auto;
+    max-height: 100vh;
+}
+
+/* ── Header ───────────────────────────────────── */
+.page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+.page-header h1 { font-size: 22px; font-weight: 700; }
+.page-header .subtitle { color: var(--text2); font-size: 13px; margin-top: 2px; }
+
+/* ── Cards ────────────────────────────────────── */
+.cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 24px; }
+.card {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 16px;
+    box-shadow: var(--shadow);
+}
+.card-label { font-size: 12px; color: var(--text2); text-transform: uppercase; letter-spacing: 0.5px; }
+.card-value { font-size: 28px; font-weight: 700; margin-top: 4px; }
+.card-value.green { color: var(--green); }
+.card-value.red { color: var(--red); }
+.card-value.blue { color: var(--blue); }
+.card-value.yellow { color: var(--yellow); }
+
+/* ── Table ────────────────────────────────────── */
+.table-wrap {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+    box-shadow: var(--shadow);
+}
+table { width: 100%; border-collapse: collapse; }
+th {
+    background: var(--bg3);
+    padding: 10px 12px;
+    text-align: left;
+    font-size: 12px;
+    text-transform: uppercase;
+    color: var(--text2);
+    letter-spacing: 0.5px;
+    border-bottom: 1px solid var(--border);
+}
+td {
+    padding: 10px 12px;
+    border-bottom: 1px solid var(--border);
+    font-size: 13px;
+}
+tr:hover td { background: rgba(108, 92, 231, 0.05); }
+
+/* ── Buttons ──────────────────────────────────── */
+.btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 16px;
+    border: none;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.15s;
+}
+.btn-primary { background: var(--accent); color: #fff; }
+.btn-primary:hover { background: #5a4dd6; }
+.btn-success { background: var(--green); color: #fff; }
+.btn-danger { background: var(--red); color: #fff; }
+.btn-ghost { background: transparent; color: var(--text2); border: 1px solid var(--border); }
+.btn-ghost:hover { border-color: var(--accent); color: var(--accent2); }
+.btn-sm { padding: 4px 10px; font-size: 12px; }
+.btn + .btn { margin-left: 6px; }
+
+/* ── Forms ────────────────────────────────────── */
+.form-group { margin-bottom: 14px; }
+.form-group label { display: block; font-size: 12px; color: var(--text2); margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.3px; }
+.form-input, .form-select, .form-textarea {
+    width: 100%;
+    padding: 8px 12px;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    color: var(--text);
+    font-size: 14px;
+    outline: none;
+    transition: border-color 0.15s;
+}
+.form-input:focus, .form-select:focus, .form-textarea:focus { border-color: var(--accent); }
+.form-textarea { min-height: 80px; resize: vertical; font-family: inherit; }
+
+/* ── Filters Bar ──────────────────────────────── */
+.filters {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    flex-wrap: wrap;
+    margin-bottom: 16px;
+}
+.filters .form-input, .filters .form-select {
+    width: auto;
+    min-width: 130px;
+}
+
+/* ── Journal Input ─────────────────────────────── */
+.journal-input-wrap {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 16px;
+    margin-bottom: 20px;
+    box-shadow: var(--shadow);
+}
+.journal-input-wrap .input-row { display: flex; gap: 10px; }
+.journal-input-wrap .form-textarea { flex: 1; min-height: 50px; }
+.journal-input-wrap .btn { align-self: flex-end; }
+
+/* ── Badges ───────────────────────────────────── */
+.badge {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-size: 11px;
+    font-weight: 600;
+}
+.badge-finance { background: rgba(116,185,255,0.2); color: var(--blue); }
+.badge-inventory { background: rgba(0,184,148,0.2); color: var(--green); }
+.badge-task { background: rgba(254,202,87,0.2); color: var(--yellow); }
+.badge-logistics { background: rgba(162,155,254,0.2); color: var(--accent2); }
+.badge-note { background: rgba(139,143,163,0.2); color: var(--text2); }
+
+.badge-income { background: rgba(0,184,148,0.2); color: var(--green); }
+.badge-expense { background: rgba(255,107,107,0.2); color: var(--red); }
+.badge-transfer { background: rgba(116,185,255,0.2); color: var(--blue); }
+
+.badge-todo { background: rgba(139,143,163,0.2); color: var(--text2); }
+.badge-in_progress { background: rgba(116,185,255,0.2); color: var(--blue); }
+.badge-done { background: rgba(0,184,148,0.2); color: var(--green); }
+.badge-cancelled { background: rgba(255,107,107,0.15); color: var(--text2); }
+
+.badge-urgent { background: rgba(255,107,107,0.2); color: var(--red); }
+.badge-high { background: rgba(254,202,87,0.2); color: var(--yellow); }
+.badge-normal { background: rgba(139,143,163,0.15); color: var(--text2); }
+.badge-low { background: rgba(139,143,163,0.1); color: var(--text2); }
+
+.badge-supply-draft { background: rgba(139,143,163,0.2); color: var(--text2); }
+.badge-supply-ordered { background: rgba(116,185,255,0.2); color: var(--blue); }
+.badge-supply-shipped { background: rgba(162,155,254,0.2); color: var(--accent2); }
+.badge-supply-partial { background: rgba(254,202,87,0.2); color: var(--yellow); }
+.badge-supply-received { background: rgba(0,184,148,0.2); color: var(--green); }
+.badge-supply-cancelled { background: rgba(255,107,107,0.15); color: var(--text2); }
+
+.badge-deal-new { background: rgba(116,185,255,0.2); color: var(--blue); }
+.badge-deal-qualifying { background: rgba(162,155,254,0.2); color: var(--accent2); }
+.badge-deal-proposal { background: rgba(254,202,87,0.2); color: var(--yellow); }
+.badge-deal-negotiation { background: rgba(254,202,87,0.3); color: var(--yellow); }
+.badge-deal-won { background: rgba(0,184,148,0.2); color: var(--green); }
+.badge-deal-lost { background: rgba(255,107,107,0.15); color: var(--text2); }
+
+/* ── Modal ────────────────────────────────────── */
+.modal-overlay {
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,0.6);
+    display: flex; align-items: center; justify-content: center;
+    z-index: 100;
+}
+.modal {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 24px;
+    width: 90%;
+    max-width: 500px;
+    max-height: 90vh;
+    overflow-y: auto;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+}
+.modal h2 { margin-bottom: 16px; font-size: 18px; }
+.modal-buttons { display: flex; justify-content: flex-end; gap: 8px; margin-top: 20px; }
+
+/* ── AI Chat ──────────────────────────────────── */
+.ai-chat {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 16px;
+    margin-top: 20px;
+}
+.ai-messages { max-height: 400px; overflow-y: auto; margin-bottom: 12px; }
+.ai-msg { padding: 8px 12px; margin-bottom: 8px; border-radius: 8px; font-size: 13px; }
+.ai-msg.user { background: var(--accent); color: #fff; margin-left: 40px; }
+.ai-msg.assistant { background: var(--bg3); margin-right: 40px; }
+.ai-msg pre { white-space: pre-wrap; font-family: inherit; }
+
+/* ── Loading ──────────────────────────────────── */
+.spinner { display: inline-block; width: 16px; height: 16px; border: 2px solid var(--border); border-top-color: var(--accent); border-radius: 50%; animation: spin 0.6s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.loading-overlay { text-align: center; padding: 40px; color: var(--text2); }
+
+/* ── Toast ────────────────────────────────────── */
+.toast-container { position: fixed; top: 16px; right: 16px; z-index: 200; display: flex; flex-direction: column; gap: 8px; }
+.toast {
+    padding: 10px 16px;
+    border-radius: 8px;
+    font-size: 13px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+    animation: slideIn 0.2s ease-out;
+    max-width: 360px;
+}
+.toast-success { background: var(--green); color: #fff; }
+.toast-error { background: var(--red); color: #fff; }
+.toast-info { background: var(--blue); color: #fff; }
+@keyframes slideIn { from { transform: translateX(100px); opacity: 0; } }
+
+/* ── Responsive ───────────────────────────────── */
+@media (max-width: 768px) {
+    .sidebar { width: 56px; }
+    .sidebar .nav-label, .sidebar-logo small, .sidebar-logo span { display: none; }
+    .sidebar .nav-group-header { display: none; }
+    .sidebar .nav-group-items { max-height: 300px !important; }
+    .sidebar .nav-group-items .nav-item { padding-left: 0; }
+    .sidebar .nav-item { justify-content: center; padding: 10px; }
+    .sidebar .nav-item .icon { margin: 0; }
+    .sidebar .nav-sep { display: none; }
+    .main { padding: 12px; }
+    .cards { grid-template-columns: repeat(2, 1fr); }
+    table { font-size: 12px; }
+    td, th { padding: 6px 8px; }
+}
+    </style>
+</head>
+<body>
+
+<div id="app">
+    <!-- Toast notifications -->
+    <div class="toast-container">
+        <div v-for="t in toasts" :key="t.id" :class="'toast toast-' + t.type">{{ t.message }}</div>
+    </div>
+
+    <div class="app">
+        <!-- Sidebar -->
+        <nav class="sidebar">
+            <div class="sidebar-logo">
+                <span>📊 Lenta ERP</span>
+                <small>v0.2.0</small>
+            </div>
+
+            <!-- Top-level items -->
+            <div :class="['nav-item', { active: currentRoute === 'dashboard' }]" @click="navigate('dashboard')">
+                <span class="icon">🏠</span><span class="nav-label">Дашборд</span>
+            </div>
+            <div :class="['nav-item', { active: currentRoute === 'journal' }]" @click="navigate('journal')">
+                <span class="icon">📓</span><span class="nav-label">Лента событий</span>
+            </div>
+
+            <!-- Group: Торговля -->
+            <div class="nav-group">
+                <div class="nav-group-header" @click="toggleGroup('trade')">
+                    📦 Торговля
+                    <span :class="['chevron', { open: expandedGroups.trade }]">▶</span>
+                </div>
+                <div :class="['nav-group-items', { expanded: expandedGroups.trade }]">
+                    <div :class="['nav-item', { active: currentRoute === 'supplies' }]" @click="navigate('supplies')">
+                        <span class="icon">🚚</span><span class="nav-label">Закупки</span>
+                    </div>
+                    <div :class="['nav-item', { active: currentRoute === 'sales' }]" @click="navigate('sales')">
+                        <span class="icon">🛒</span><span class="nav-label">Продажи</span>
+                    </div>
+                    <div :class="['nav-item', { active: currentRoute === 'inventory' }]" @click="navigate('inventory')">
+                        <span class="icon">🏭</span><span class="nav-label">Склад</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Group: Финансы -->
+            <div class="nav-group">
+                <div class="nav-group-header" @click="toggleGroup('finance')">
+                    💰 Финансы
+                    <span :class="['chevron', { open: expandedGroups.finance }]">▶</span>
+                </div>
+                <div :class="['nav-group-items', { expanded: expandedGroups.finance }]">
+                    <div :class="['nav-item', { active: currentRoute === 'finance' }]" @click="navigate('finance')">
+                        <span class="icon">💸</span><span class="nav-label">Расходы / Доходы</span>
+                    </div>
+                    <div :class="['nav-item', { active: currentRoute === 'reports' }]" @click="navigate('reports')">
+                        <span class="icon">📊</span><span class="nav-label">Отчёты</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Group: CRM -->
+            <div class="nav-group">
+                <div class="nav-group-header" @click="toggleGroup('crm')">
+                    👥 CRM
+                    <span :class="['chevron', { open: expandedGroups.crm }]">▶</span>
+                </div>
+                <div :class="['nav-group-items', { expanded: expandedGroups.crm }]">
+                    <div :class="['nav-item', { active: currentRoute === 'crm' }]" @click="navigate('crm')">
+                        <span class="icon">👤</span><span class="nav-label">Клиенты</span>
+                    </div>
+                    <div :class="['nav-item', { active: currentRoute === 'deals' }]" @click="navigate('deals')">
+                        <span class="icon">🤝</span><span class="nav-label">Сделки</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Group: Задачи -->
+            <div class="nav-group">
+                <div class="nav-group-header" @click="toggleGroup('tasks')">
+                    ✅ Задачи
+                    <span :class="['chevron', { open: expandedGroups.tasks }]">▶</span>
+                </div>
+                <div :class="['nav-group-items', { expanded: expandedGroups.tasks }]">
+                    <div :class="['nav-item', { active: currentRoute === 'tasks_my' }]" @click="navigate('tasks_my')">
+                        <span class="icon">📌</span><span class="nav-label">Мои задачи</span>
+                    </div>
+                    <div :class="['nav-item', { active: currentRoute === 'tasks_from' }]" @click="navigate('tasks_from')">
+                        <span class="icon">📤</span><span class="nav-label">От меня</span>
+                    </div>
+                    <div :class="['nav-item', { active: currentRoute === 'tasks' }]" @click="navigate('tasks')">
+                        <span class="icon">📋</span><span class="nav-label">Все задачи</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="nav-spacer"></div>
+            <div class="nav-sep"></div>
+
+            <!-- Bottom items -->
+            <div :class="['nav-item', { active: currentRoute === 'ai' }]" @click="navigate('ai')">
+                <span class="icon">🤖</span><span class="nav-label">AI-ассистент</span>
+            </div>
+            <div :class="['nav-item', { active: currentRoute === 'settings' }]" @click="navigate('settings')">
+                <span class="icon">⚙️</span><span class="nav-label">Настройки</span>
+            </div>
+        </nav>
+
+        <!-- Main content -->
+        <div class="main">
+            <!-- Dashboard -->
+            <template v-if="currentRoute === 'dashboard'">
+                <div class="page-header">
+                    <div>
+                        <h1>Дашборд</h1>
+                        <div class="subtitle">Обзор бизнеса</div>
+                    </div>
+                    <button class="btn btn-ghost" @click="loadDashboard">🔄 Обновить</button>
+                </div>
+
+                <div class="cards">
+                    <div class="card">
+                        <div class="card-label">Доход (месяц)</div>
+                        <div class="card-value green">{{ formatMoney(dash.income) }}</div>
+                    </div>
+                    <div class="card">
+                        <div class="card-label">Расход (месяц)</div>
+                        <div class="card-value red">{{ formatMoney(dash.expense) }}</div>
+                    </div>
+                    <div class="card">
+                        <div class="card-label">Прибыль</div>
+                        <div class="card-value" :class="dash.profit >= 0 ? 'green' : 'red'">{{ formatMoney(dash.profit) }}</div>
+                    </div>
+                    <div class="card">
+                        <div class="card-label">Задач открыто</div>
+                        <div class="card-value blue">{{ dash.openTasks }}</div>
+                    </div>
+                    <div class="card">
+                        <div class="card-label">Просрочено</div>
+                        <div class="card-value" :class="dash.overdue > 0 ? 'red' : 'green'">{{ dash.overdue }}</div>
+                    </div>
+                    <div class="card">
+                        <div class="card-label">Товаров</div>
+                        <div class="card-value">{{ dash.products }}</div>
+                    </div>
+                    <div class="card">
+                        <div class="card-label">Низкий остаток</div>
+                        <div class="card-value" :class="dash.lowStock > 0 ? 'yellow' : 'green'">{{ dash.lowStock }}</div>
+                    </div>
+                    <div class="card">
+                        <div class="card-label">Записей в журнале</div>
+                        <div class="card-value">{{ dash.journalEntries }}</div>
+                    </div>
+                </div>
+
+                <!-- Quick journal entry -->
+                <div class="journal-input-wrap">
+                    <div style="font-weight: 600; margin-bottom: 8px;">⚡ Быстрая запись</div>
+                    <div class="input-row">
+                        <textarea class="form-textarea" v-model="quickEntry" 
+                                  placeholder="Опиши операцию... Например: Купил 10 кг мела за 5000 у ИП Иванов, наличка"
+                                  @keydown.ctrl.enter="submitQuickEntry"></textarea>
+                        <button class="btn btn-primary" @click="submitQuickEntry" :disabled="!quickEntry.trim() || submitting">
+                            <span v-if="submitting" class="spinner"></span>
+                            <span v-else>📝 Записать</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Recent journal entries -->
+                <div class="table-wrap" v-if="recentJournal.length">
+                    <table>
+                        <thead>
+                            <tr><th>Дата</th><th>Категория</th><th>Источник</th><th>Запись</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr v-for="j in recentJournal" :key="j.id">
+                                <td>{{ formatDate(j.created_at) }}</td>
+                                <td><span :class="'badge badge-' + (j.category || 'note')">{{ j.category || 'без категории' }}</span></td>
+                                <td>{{ j.source }}</td>
+                                <td>{{ j.raw_text_preview }}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </template>
+
+            <!-- Journal -->
+            <template v-if="currentRoute === 'journal'">
+                <div class="page-header">
+                    <div>
+                        <h1>📓 Журнал операций</h1>
+                        <div class="subtitle">Все записи по хронологии</div>
+                    </div>
+                </div>
+
+                <div class="journal-input-wrap">
+                    <div style="font-weight: 600; margin-bottom: 8px;">Новая запись</div>
+                    <div class="input-row">
+                        <textarea class="form-textarea" v-model="quickEntry"
+                                  placeholder="Любая операция: финансовая, складская, задача, заметка..."
+                                  @keydown.ctrl.enter="submitQuickEntry"></textarea>
+                        <button class="btn btn-primary" @click="submitQuickEntry" :disabled="!quickEntry.trim() || submitting">
+                            <span v-if="submitting" class="spinner"></span>
+                            <span v-else>📝 Записать</span>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="filters">
+                    <select class="form-select" v-model="journalFilter.category" @change="loadJournal">
+                        <option value="">Все категории</option>
+                        <option value="finance">💰 Финансы</option>
+                        <option value="inventory">📦 Склад</option>
+                        <option value="task">✅ Задачи</option>
+                        <option value="logistics">🚚 Логистика</option>
+                        <option value="note">📝 Заметка</option>
+                    </select>
+                    <input type="date" class="form-input" v-model="journalFilter.from" @change="loadJournal">
+                    <input type="date" class="form-input" v-model="journalFilter.to" @change="loadJournal">
+                    <input class="form-input" placeholder="🔍 Поиск..." v-model="journalFilter.q" @input="debounceSearchJournal">
+                </div>
+
+                <div class="table-wrap">
+                    <table>
+                        <thead>
+                            <tr><th style="width:140px">Дата</th><th style="width:90px">Категория</th><th style="width:80px">Источник</th><th>Запись</th><th style="width:100px">Теги</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr v-for="j in journal.items" :key="j.id" style="cursor:pointer" @click="showJournalEntry(j.id)">
+                                <td>{{ formatDateTime(j.created_at) }}</td>
+                                <td><span :class="'badge badge-' + (j.category || 'note')">{{ j.category || '—' }}</span></td>
+                                <td>{{ j.source }}</td>
+                                <td>{{ j.raw_text_preview }}</td>
+                                <td>
+                                    <span v-for="tag in (j.tags||[])" :key="tag" class="badge badge-note" style="margin-right:3px">{{ tag }}</span>
+                                </td>
+                            </tr>
+                            <tr v-if="!journal.items?.length"><td colspan="5" style="text-align:center;color:var(--text2)">Нет записей</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div style="margin-top:10px;text-align:center" v-if="journal.total > journal.items?.length">
+                    <button class="btn btn-ghost" @click="loadMoreJournal">Загрузить ещё ({{ journal.total - journal.items.length }} осталось)</button>
+                </div>
+            </template>
+
+            <!-- Products -->
+            <template v-if="currentRoute === 'products'">
+                <div class="page-header">
+                    <div>
+                        <h1>📦 Товары</h1>
+                        <div class="subtitle">Каталог товаров ({{ products.total || 0 }})</div>
+                    </div>
+                    <div>
+                        <button class="btn btn-primary" @click="showModal='productCreate'">+ Добавить</button>
+                    </div>
+                </div>
+
+                <div class="filters">
+                    <input class="form-input" placeholder="🔍 Поиск по SKU, названию..." v-model="productFilter.q" @input="debounceSearchProducts">
+                </div>
+
+                <div class="table-wrap">
+                    <table>
+                        <thead>
+                            <tr><th>SKU</th><th>Название</th><th>Штрихкод</th><th>Закупка</th><th>Продажа</th><th>Остаток</th><th>Мин.</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr v-for="p in products.items" :key="p.id" :style="p.stock <= p.min_stock ? 'background:rgba(255,107,107,0.06)' : ''">
+                                <td style="font-family:monospace">{{ p.sku }}</td>
+                                <td>{{ p.name }}</td>
+                                <td style="font-family:monospace;font-size:12px">{{ p.barcode || '—' }}</td>
+                                <td>{{ p.purchase_price ? formatMoney(p.purchase_price) : '—' }}</td>
+                                <td>{{ p.sell_price ? formatMoney(p.sell_price) : '—' }}</td>
+                                <td :style="p.stock <= p.min_stock ? 'color:var(--red);font-weight:600' : ''">{{ p.stock }}</td>
+                                <td>{{ p.min_stock }}</td>
+                            </tr>
+                            <tr v-if="!products.items?.length"><td colspan="7" style="text-align:center;color:var(--text2)">Нет товаров</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </template>
+
+            <!-- Finance -->
+            <template v-if="currentRoute === 'finance'">
+                <div class="page-header">
+                    <div>
+                        <h1>💰 Финансы</h1>
+                        <div class="subtitle">Доходы, расходы, счета</div>
+                    </div>
+                    <div>
+                        <button class="btn btn-primary" @click="showModal='financeCreate'">+ Транзакция</button>
+                        <button class="btn btn-ghost" @click="loadFinanceSummary">📊 Сводка</button>
+                    </div>
+                </div>
+
+                <!-- Accounts -->
+                <div class="cards" v-if="financeAccounts.length">
+                    <div class="card" v-for="acc in financeAccounts" :key="acc.id">
+                        <div class="card-label">{{ acc.name }} ({{ acc.type }})</div>
+                        <div class="card-value" :class="acc.balance >= 0 ? 'green' : 'red'">{{ formatMoney(acc.balance) }}</div>
+                    </div>
+                </div>
+
+                <div class="filters">
+                    <select class="form-select" v-model="financeFilter.type" @change="loadFinance">
+                        <option value="">Все типы</option>
+                        <option value="income">Доход</option>
+                        <option value="expense">Расход</option>
+                        <option value="transfer">Перевод</option>
+                    </select>
+                    <input type="date" class="form-input" v-model="financeFilter.from" @change="loadFinance">
+                    <input type="date" class="form-input" v-model="financeFilter.to" @change="loadFinance">
+                    <input class="form-input" placeholder="🔍 Поиск..." v-model="financeFilter.q" @input="debounceSearchFinance">
+                </div>
+
+                <div class="table-wrap">
+                    <table>
+                        <thead>
+                            <tr><th>Дата</th><th>Тип</th><th>Сумма</th><th>Категория</th><th>Контрагент</th><th>Счёт</th><th>Описание</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr v-for="tx in finance.items" :key="tx.id">
+                                <td>{{ tx.date }}</td>
+                                <td><span :class="'badge badge-' + tx.type">{{ {income:'Доход',expense:'Расход',transfer:'Перевод'}[tx.type] }}</span></td>
+                                <td :style="tx.type==='income' ? 'color:var(--green)' : tx.type==='expense' ? 'color:var(--red)' : ''">
+                                    {{ tx.type === 'income' ? '+' : tx.type === 'expense' ? '-' : '' }}{{ formatMoney(tx.amount) }}
+                                </td>
+                                <td>{{ tx.category || '—' }}</td>
+                                <td>{{ tx.counterparty || '—' }}</td>
+                                <td>{{ tx.account_name || '—' }}</td>
+                                <td style="max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ tx.description || '—' }}</td>
+                            </tr>
+                            <tr v-if="!finance.items?.length"><td colspan="7" style="text-align:center;color:var(--text2)">Нет транзакций</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </template>
+
+            <!-- Inventory -->
+            <template v-if="currentRoute === 'inventory'">
+                <div class="page-header">
+                    <div>
+                        <h1>🏭 Склад</h1>
+                        <div class="subtitle">Остатки и движение</div>
+                    </div>
+                    <div>
+                        <button class="btn btn-success" @click="showModal='inventoryReceive'">📥 Приход</button>
+                        <button class="btn btn-danger" @click="showModal='inventoryShip'">📤 Расход</button>
+                    </div>
+                </div>
+
+                <div class="table-wrap" style="margin-bottom:20px">
+                    <table>
+                        <thead>
+                            <tr><th>SKU</th><th>Товар</th><th>Склад</th><th>Остаток</th><th>Резерв</th><th>Мин.</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr v-for="inv in inventoryList" :key="inv.id" 
+                                :style="inv.quantity <= inv.min_stock ? 'background:rgba(255,107,107,0.06)' : ''">
+                                <td style="font-family:monospace">{{ inv.sku }}</td>
+                                <td>{{ inv.product_name }}</td>
+                                <td>{{ inv.warehouse_name }}</td>
+                                <td :style="inv.quantity <= inv.min_stock ? 'color:var(--red);font-weight:600' : ''">{{ inv.quantity }} {{ inv.unit }}</td>
+                                <td>{{ inv.reserved || 0 }}</td>
+                                <td>{{ inv.min_stock }}</td>
+                            </tr>
+                            <tr v-if="!inventoryList.length"><td colspan="6" style="text-align:center;color:var(--text2)">Нет данных</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <h3 style="margin-bottom:12px">Последние движения</h3>
+                <div class="table-wrap">
+                    <table>
+                        <thead>
+                            <tr><th>Дата</th><th>Тип</th><th>Товар</th><th>Кол-во</th><th>Цена</th><th>Склад</th><th>Причина</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr v-for="m in movements" :key="m.id">
+                                <td>{{ formatDateTime(m.created_at) }}</td>
+                                <td><span class="badge" :class="m.quantity > 0 ? 'badge-income' : 'badge-expense'">{{ m.type }}</span></td>
+                                <td>{{ m.product_name }}</td>
+                                <td :style="m.quantity > 0 ? 'color:var(--green)' : 'color:var(--red)'">{{ m.quantity > 0 ? '+' : '' }}{{ m.quantity }}</td>
+                                <td>{{ m.unit_price ? formatMoney(m.unit_price) : '—' }}</td>
+                                <td>{{ m.warehouse_name }}</td>
+                                <td>{{ m.reason || '—' }}</td>
+                            </tr>
+                            <tr v-if="!movements.length"><td colspan="7" style="text-align:center;color:var(--text2)">Нет движений</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </template>
+
+            <!-- Supplies (Закупки) -->
+            <template v-if="currentRoute === 'supplies'">
+                <div class="page-header">
+                    <div>
+                        <h1>🚚 Закупки</h1>
+                        <div class="subtitle">Заказы поставщикам · {{ supplies.total || 0 }} поставок</div>
+                    </div>
+                    <button class="btn btn-primary" @click="showModal='supplyCreate'">+ Поставка</button>
+                </div>
+
+                <!-- Stats -->
+                <div class="cards">
+                    <div class="card">
+                        <div class="card-label">Ожидают</div>
+                        <div class="card-value yellow">{{ supplyStats.pending || 0 }}</div>
+                    </div>
+                    <div class="card">
+                        <div class="card-label">В пути</div>
+                        <div class="card-value blue">{{ supplyStats.shipped || 0 }}</div>
+                    </div>
+                    <div class="card">
+                        <div class="card-label">Получено</div>
+                        <div class="card-value green">{{ supplyStats.received || 0 }}</div>
+                    </div>
+                    <div class="card">
+                        <div class="card-label">Общая сумма (откр.)</div>
+                        <div class="card-value">{{ formatMoney(supplyStats.open_total || 0) }}</div>
+                    </div>
+                </div>
+
+                <!-- Filters -->
+                <div class="filters">
+                    <select class="form-select" v-model="supplyFilter.status" @change="loadSupplies">
+                        <option value="">Все статусы</option>
+                        <option value="draft">Черновик</option>
+                        <option value="ordered">Заказано</option>
+                        <option value="shipped">В пути</option>
+                        <option value="partial">Частично получено</option>
+                        <option value="received">Получено</option>
+                        <option value="cancelled">Отменено</option>
+                    </select>
+                    <input class="form-input" type="text" v-model="supplyFilter.q" placeholder="Поиск..." @input="debounceSearchSupplies">
+                </div>
+
+                <!-- Supplies table -->
+                <div class="table-wrap">
+                    <table>
+                        <thead>
+                            <tr><th>№</th><th>Дата</th><th>Поставщик</th><th>Позиций</th><th>Сумма</th><th>Статус</th><th>Ожид. дата</th><th>Примечание</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr v-for="s in supplies.items" :key="s.id" style="cursor:pointer" @click="showSupplyDetail(s.id)">
+                                <td style="font-family:monospace">{{ s.number || '#' + s.id }}</td>
+                                <td>{{ formatDate(s.created_at) }}</td>
+                                <td><strong>{{ s.supplier_name || '—' }}</strong></td>
+                                <td>{{ s.item_count || 0 }}</td>
+                                <td>{{ formatMoney(s.total_amount) }}</td>
+                                <td>
+                                    <span :class="'badge badge-supply-' + s.status">{{ supplyStatusLabel(s.status) }}</span>
+                                </td>
+                                <td>{{ formatDate(s.expected_date) }}</td>
+                                <td style="max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ s.notes || '—' }}</td>
+                            </tr>
+                            <tr v-if="!supplies.items?.length"><td colspan="8" style="text-align:center;color:var(--text2)">Нет поставок</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </template>
+
+            <!-- Sales (Продажи) -->
+            <template v-if="currentRoute === 'sales'">
+                <div class="page-header">
+                    <div>
+                        <h1>🛒 Продажи</h1>
+                        <div class="subtitle">История продаж и заказов</div>
+                    </div>
+                </div>
+
+                <div class="cards">
+                    <div class="card">
+                        <div class="card-label">Продаж сегодня</div>
+                        <div class="card-value green">{{ salesStats.today_count || 0 }}</div>
+                    </div>
+                    <div class="card">
+                        <div class="card-label">Сумма сегодня</div>
+                        <div class="card-value green">{{ formatMoney(salesStats.today_amount || 0) }}</div>
+                    </div>
+                    <div class="card">
+                        <div class="card-label">За месяц</div>
+                        <div class="card-value blue">{{ formatMoney(salesStats.month_amount || 0) }}</div>
+                    </div>
+                    <div class="card">
+                        <div class="card-label">Средний чек</div>
+                        <div class="card-value">{{ formatMoney(salesStats.avg_check || 0) }}</div>
+                    </div>
+                </div>
+
+                <div class="filters">
+                    <input type="date" class="form-input" v-model="salesFilter.from" @change="loadSales">
+                    <input type="date" class="form-input" v-model="salesFilter.to" @change="loadSales">
+                    <input class="form-input" placeholder="🔍 Поиск..." v-model="salesFilter.q" @input="debounceSearchSales">
+                </div>
+
+                <div class="table-wrap">
+                    <table>
+                        <thead>
+                            <tr><th>Дата</th><th>Товар</th><th>Кол-во</th><th>Цена</th><th>Сумма</th><th>Клиент</th><th>Канал</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr v-for="s in sales.items" :key="s.id">
+                                <td>{{ formatDateTime(s.created_at) }}</td>
+                                <td>{{ s.product_name || '—' }}</td>
+                                <td>{{ s.quantity }}</td>
+                                <td>{{ formatMoney(s.unit_price) }}</td>
+                                <td style="color:var(--green);font-weight:600">{{ formatMoney(s.quantity * s.unit_price) }}</td>
+                                <td>{{ s.customer || '—' }}</td>
+                                <td><span class="badge">{{ s.channel || 'manual' }}</span></td>
+                            </tr>
+                            <tr v-if="!sales.items?.length"><td colspan="7" style="text-align:center;color:var(--text2)">Нет продаж. Продажи создаются через расход со склада (sale)</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </template>
+
+            <!-- Tasks -->
+            <template v-if="currentRoute === 'tasks' || currentRoute === 'tasks_my' || currentRoute === 'tasks_from'">
+                <div class="page-header">
+                    <div>
+                        <h1>{{ { tasks: '✅ Все задачи', tasks_my: '📌 Мои задачи', tasks_from: '📤 От меня' }[currentRoute] }}</h1>
+                        <div class="subtitle">Планирование и контроль</div>
+                    </div>
+                    <button class="btn btn-primary" @click="showModal='taskCreate'">+ Задача</button>
+                </div>
+
+                <div class="cards" v-if="taskStats">
+                    <div class="card">
+                        <div class="card-label">Просрочено</div>
+                        <div class="card-value" :class="taskStats.overdue > 0 ? 'red' : 'green'">{{ taskStats.overdue }}</div>
+                    </div>
+                    <div class="card">
+                        <div class="card-label">На сегодня</div>
+                        <div class="card-value yellow">{{ taskStats.due_today }}</div>
+                    </div>
+                </div>
+
+                <div class="filters">
+                    <select class="form-select" v-model="taskFilter.status" @change="loadTasks">
+                        <option value="">Все статусы</option>
+                        <option value="todo">К выполнению</option>
+                        <option value="in_progress">В работе</option>
+                        <option value="done">Выполнено</option>
+                        <option value="cancelled">Отменено</option>
+                    </select>
+                    <select class="form-select" v-model="taskFilter.priority" @change="loadTasks">
+                        <option value="">Все приоритеты</option>
+                        <option value="urgent">🔴 Срочно</option>
+                        <option value="high">🟡 Высокий</option>
+                        <option value="normal">⚪ Обычный</option>
+                        <option value="low">🔵 Низкий</option>
+                    </select>
+                </div>
+
+                <div class="table-wrap">
+                    <table>
+                        <thead>
+                            <tr><th style="width:40px"></th><th>Задача</th><th>Приоритет</th><th>Статус</th><th>Исполнитель</th><th>Срок</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr v-for="t in tasks.items" :key="t.id" :style="t.status==='done' ? 'opacity:0.5' : ''">
+                                <td>
+                                    <input type="checkbox" :checked="t.status==='done'" @change="toggleTask(t)">
+                                </td>
+                                <td :style="t.status==='done' ? 'text-decoration:line-through' : ''">{{ t.title }}</td>
+                                <td><span :class="'badge badge-' + t.priority">{{ t.priority }}</span></td>
+                                <td><span :class="'badge badge-' + t.status">{{ {todo:'⬜',in_progress:'🔄',done:'✅',cancelled:'❌'}[t.status] }} {{ t.status }}</span></td>
+                                <td>{{ t.assignee || '—' }}</td>
+                                <td :style="isOverdue(t) ? 'color:var(--red);font-weight:600' : ''">{{ t.due_date || '—' }}</td>
+                            </tr>
+                            <tr v-if="!tasks.items?.length"><td colspan="6" style="text-align:center;color:var(--text2)">Нет задач</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </template>
+
+            <!-- AI Assistant -->
+            <template v-if="currentRoute === 'ai'">
+                <div class="page-header">
+                    <div>
+                        <h1>🤖 AI Помощник</h1>
+                        <div class="subtitle">Задай вопрос о состоянии дел</div>
+                    </div>
+                </div>
+
+                <div class="ai-chat">
+                    <div class="ai-messages" ref="aiMessages">
+                        <div v-for="msg in aiChat" :key="msg.id" :class="'ai-msg ' + msg.role">
+                            <pre>{{ msg.text }}</pre>
+                        </div>
+                        <div v-if="aiLoading" class="ai-msg assistant"><span class="spinner"></span> Думаю...</div>
+                    </div>
+                    <div class="input-row">
+                        <input class="form-input" v-model="aiQuestion" 
+                               placeholder="Например: Какие основные расходы за этот месяц? Какие задачи просрочены?"
+                               @keydown.enter="askAI">
+                        <button class="btn btn-primary" @click="askAI" :disabled="!aiQuestion.trim() || aiLoading">Спросить</button>
+                    </div>
+                </div>
+            </template>
+
+            <!-- Reports (Отчёты) -->
+            <template v-if="currentRoute === 'reports'">
+                <div class="page-header">
+                    <div>
+                        <h1>📊 Отчёты</h1>
+                        <div class="subtitle">Финансовая аналитика</div>
+                    </div>
+                    <div class="filters">
+                        <input type="date" class="form-input" v-model="financeFilter.from" @change="loadFinance">
+                        <input type="date" class="form-input" v-model="financeFilter.to" @change="loadFinance">
+                    </div>
+                </div>
+
+                <div class="cards">
+                    <div class="card">
+                        <div class="card-label">Доходы</div>
+                        <div class="card-value green">{{ formatMoney(reportData.income) }}</div>
+                    </div>
+                    <div class="card">
+                        <div class="card-label">Расходы</div>
+                        <div class="card-value red">{{ formatMoney(reportData.expense) }}</div>
+                    </div>
+                    <div class="card">
+                        <div class="card-label">Прибыль</div>
+                        <div class="card-value" :class="reportData.profit >= 0 ? 'green' : 'red'">{{ formatMoney(reportData.profit) }}</div>
+                    </div>
+                    <div class="card">
+                        <div class="card-label">Транзакций</div>
+                        <div class="card-value">{{ reportData.count || 0 }}</div>
+                    </div>
+                </div>
+
+                <!-- Top categories -->
+                <div class="card" style="margin-bottom:16px">
+                    <h3 style="margin-bottom:12px">📁 Топ категорий расходов</h3>
+                    <div v-for="cat in reportData.top_expenses" :key="cat.category" style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--border)">
+                        <span>{{ cat.category || 'Без категории' }}</span>
+                        <span style="color:var(--red);font-weight:600">{{ formatMoney(cat.total) }}</span>
+                    </div>
+                    <div v-if="!reportData.top_expenses?.length" style="color:var(--text2);padding:10px">Нет данных</div>
+                </div>
+
+                <!-- Top income categories -->
+                <div class="card">
+                    <h3 style="margin-bottom:12px">📈 Топ категорий доходов</h3>
+                    <div v-for="cat in reportData.top_income" :key="cat.category" style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--border)">
+                        <span>{{ cat.category || 'Без категории' }}</span>
+                        <span style="color:var(--green);font-weight:600">{{ formatMoney(cat.total) }}</span>
+                    </div>
+                    <div v-if="!reportData.top_income?.length" style="color:var(--text2);padding:10px">Нет данных</div>
+                </div>
+            </template>
+
+            <!-- CRM -->
+            <template v-if="currentRoute === 'crm'">
+                <div class="page-header">
+                    <div>
+                        <h1>👥 CRM</h1>
+                        <div class="subtitle">Контакты и взаимодействия · {{ crmStats.total_contacts || 0 }} контактов</div>
+                    </div>
+                    <div style="display:flex;gap:8px">
+                        <button class="btn btn-primary" @click="showModal='contactCreate'">+ Контакт</button>
+                        <button class="btn btn-ghost" @click="showModal='interactionCreate'">+ Взаимодействие</button>
+                    </div>
+                </div>
+
+                <!-- CRM Stats Cards -->
+                <div class="cards">
+                    <div class="card">
+                        <div class="card-label">Контакты</div>
+                        <div class="card-value blue">{{ crmStats.total_contacts || 0 }}</div>
+                    </div>
+                    <div class="card">
+                        <div class="card-label">Контрагенты</div>
+                        <div class="card-value">{{ crmStats.total_counterparties || 0 }}</div>
+                    </div>
+                    <div class="card">
+                        <div class="card-label">Взаимодействия</div>
+                        <div class="card-value green">{{ crmStats.total_interactions || 0 }}</div>
+                    </div>
+                    <div class="card">
+                        <div class="card-label">Просрочено действий</div>
+                        <div class="card-value" :class="crmStats.overdue_actions ? 'red' : ''">{{ crmStats.overdue_actions || 0 }}</div>
+                    </div>
+                </div>
+
+                <!-- Upcoming actions -->
+                <div v-if="crmUpcoming.length" class="card" style="margin-bottom:16px">
+                    <h3 style="margin-bottom:8px">📅 Предстоящие действия</h3>
+                    <table class="table">
+                        <thead><tr><th>Дата</th><th>Контакт</th><th>Действие</th><th>Из взаимодействия</th></tr></thead>
+                        <tbody>
+                            <tr v-for="u in crmUpcoming" :key="u.id">
+                                <td>{{ formatDate(u.next_action_date) }}</td>
+                                <td>{{ u.contact_name || u.counterparty_name || '—' }}</td>
+                                <td>{{ u.next_action }}</td>
+                                <td>{{ u.subject || u.type }}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Search -->
+                <div class="input-row" style="margin-bottom:16px">
+                    <input class="form-input" v-model="crmFilter.q" placeholder="Поиск контактов..." @input="debounceSearchCrm">
+                </div>
+
+                <!-- Contacts list -->
+                <div class="card">
+                    <h3 style="margin-bottom:8px">Контакты</h3>
+                    <table class="table" v-if="crmContacts.length">
+                        <thead><tr><th>Имя</th><th>Компания</th><th>Телефон</th><th>Email</th><th>Источник</th><th>Взаимодействий</th><th>Последнее</th></tr></thead>
+                        <tbody>
+                            <tr v-for="c in crmContacts" :key="c.id" style="cursor:pointer" @click="showContactDetail(c.id)">
+                                <td><strong>{{ [c.first_name, c.last_name].filter(Boolean).join(' ') || '—' }}</strong></td>
+                                <td>{{ c.company || '—' }}</td>
+                                <td>{{ c.phone || '—' }}</td>
+                                <td>{{ c.email || '—' }}</td>
+                                <td><span v-if="c.source" class="badge">{{ c.source }}</span></td>
+                                <td>{{ c.interaction_count || 0 }}</td>
+                                <td>{{ formatDateTime(c.last_interaction) }}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <div v-else style="color:var(--text2);padding:20px;text-align:center">Нет контактов. Добавь первый!</div>
+                </div>
+
+                <!-- Interactions history -->
+                <div class="card" style="margin-top:16px">
+                    <h3 style="margin-bottom:8px">Последние взаимодействия</h3>
+                    <table class="table" v-if="crmInteractions.length">
+                        <thead><tr><th>Дата</th><th>Тип</th><th>Контакт</th><th>Тема</th><th>Результат</th><th>Сл. действие</th></tr></thead>
+                        <tbody>
+                            <tr v-for="i in crmInteractions" :key="i.id">
+                                <td>{{ formatDateTime(i.created_at) }}</td>
+                                <td><span class="badge" :class="'badge-' + i.type">{{ interactionTypeLabel(i.type) }}</span></td>
+                                <td>{{ i.contact_name || i.counterparty_name || '—' }}</td>
+                                <td>{{ i.subject || '—' }}</td>
+                                <td>{{ i.result || '—' }}</td>
+                                <td>
+                                    <span v-if="i.next_action">{{ i.next_action }}<br><small>{{ formatDate(i.next_action_date) }}</small></span>
+                                    <span v-else>—</span>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <div v-else style="color:var(--text2);padding:20px;text-align:center">Нет взаимодействий</div>
+                </div>
+            </template>
+
+            <!-- Deals (Сделки) -->
+            <template v-if="currentRoute === 'deals'">
+                <div class="page-header">
+                    <div>
+                        <h1>🤝 Сделки</h1>
+                        <div class="subtitle">Воронка продаж · {{ deals.total || 0 }} сделок</div>
+                    </div>
+                    <button class="btn btn-primary" @click="showModal='dealCreate'">+ Сделка</button>
+                </div>
+
+                <div class="cards">
+                    <div class="card">
+                        <div class="card-label">Новые</div>
+                        <div class="card-value blue">{{ dealStats.new || 0 }}</div>
+                    </div>
+                    <div class="card">
+                        <div class="card-label">В работе</div>
+                        <div class="card-value yellow">{{ dealStats.in_progress || 0 }}</div>
+                    </div>
+                    <div class="card">
+                        <div class="card-label">Выиграно</div>
+                        <div class="card-value green">{{ dealStats.won || 0 }}</div>
+                    </div>
+                    <div class="card">
+                        <div class="card-label">Сумма воронки</div>
+                        <div class="card-value">{{ formatMoney(dealStats.pipeline_amount || 0) }}</div>
+                    </div>
+                </div>
+
+                <div class="filters">
+                    <select class="form-select" v-model="dealFilter.stage" @change="loadDeals">
+                        <option value="">Все этапы</option>
+                        <option value="new">Новая</option>
+                        <option value="qualifying">Квалификация</option>
+                        <option value="proposal">Предложение</option>
+                        <option value="negotiation">Переговоры</option>
+                        <option value="won">Выиграна</option>
+                        <option value="lost">Проиграна</option>
+                    </select>
+                    <input class="form-input" placeholder="🔍 Поиск..." v-model="dealFilter.q" @input="debounceSearchDeals">
+                </div>
+
+                <div class="table-wrap">
+                    <table>
+                        <thead>
+                            <tr><th>Сделка</th><th>Клиент</th><th>Сумма</th><th>Этап</th><th>Ответственный</th><th>Дата</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr v-for="d in deals.items" :key="d.id">
+                                <td><strong>{{ d.title }}</strong></td>
+                                <td>{{ d.contact_name || d.company || '—' }}</td>
+                                <td style="font-weight:600">{{ formatMoney(d.amount) }}</td>
+                                <td><span :class="'badge badge-deal-' + d.stage">{{ dealStageLabel(d.stage) }}</span></td>
+                                <td>{{ d.assignee || '—' }}</td>
+                                <td>{{ formatDate(d.created_at) }}</td>
+                            </tr>
+                            <tr v-if="!deals.items?.length"><td colspan="6" style="text-align:center;color:var(--text2)">Нет сделок</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </template>
+
+            <!-- Settings -->
+            <template v-if="currentRoute === 'settings'">
+                <div class="page-header">
+                    <h1>⚙️ Настройки</h1>
+                </div>
+
+                <div class="card" style="max-width:500px;margin-bottom:16px">
+                    <h3 style="margin-bottom:12px">База данных</h3>
+                    <button class="btn btn-primary" @click="runMigrations">🔄 Запустить миграции</button>
+                    <button class="btn btn-ghost" @click="checkStatus" style="margin-left:8px">📊 Статус системы</button>
+                    <pre v-if="systemInfo" style="margin-top:12px;font-size:12px;background:var(--bg);padding:12px;border-radius:6px;overflow:auto">{{ JSON.stringify(systemInfo, null, 2) }}</pre>
+                </div>
+
+                <div class="card" style="max-width:500px">
+                    <h3 style="margin-bottom:12px">AI провайдеры</h3>
+                    <div v-if="aiProviders.length">
+                        <div v-for="p in aiProviders" :key="p.name" style="padding:8px 0;border-bottom:1px solid var(--border)">
+                            <strong>{{ p.name }}</strong> — {{ p.model }}
+                            <span v-if="p.active" class="badge badge-done" style="margin-left:8px">активный</span>
+                            <span v-if="!p.configured" class="badge badge-expense" style="margin-left:8px">не настроен</span>
+                        </div>
+                    </div>
+                </div>
+            </template>
+        </div>
+    </div>
+
+    <!-- ══ Modals ═══════════════════════════════════ -->
+
+    <!-- Create Product Modal -->
+    <div class="modal-overlay" v-if="showModal==='productCreate'" @click.self="showModal=null">
+        <div class="modal">
+            <h2>Новый товар</h2>
+            <div class="form-group"><label>SKU (артикул) *</label><input class="form-input" v-model="newProduct.sku"></div>
+            <div class="form-group"><label>Название *</label><input class="form-input" v-model="newProduct.name"></div>
+            <div class="form-group"><label>Штрихкод</label><input class="form-input" v-model="newProduct.barcode"></div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+                <div class="form-group"><label>Закупочная цена</label><input class="form-input" type="number" v-model="newProduct.purchase_price"></div>
+                <div class="form-group"><label>Цена продажи</label><input class="form-input" type="number" v-model="newProduct.sell_price"></div>
+            </div>
+            <div class="form-group"><label>Мин. остаток</label><input class="form-input" type="number" v-model="newProduct.min_stock"></div>
+            <div class="modal-buttons">
+                <button class="btn btn-ghost" @click="showModal=null">Отмена</button>
+                <button class="btn btn-primary" @click="createProduct">Создать</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Create Finance Transaction Modal -->
+    <div class="modal-overlay" v-if="showModal==='financeCreate'" @click.self="showModal=null">
+        <div class="modal">
+            <h2>Новая транзакция</h2>
+            <div class="form-group">
+                <label>Тип *</label>
+                <select class="form-select" v-model="newFinance.type">
+                    <option value="income">Доход</option>
+                    <option value="expense">Расход</option>
+                    <option value="transfer">Перевод</option>
+                </select>
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+                <div class="form-group"><label>Сумма *</label><input class="form-input" type="number" step="0.01" v-model="newFinance.amount"></div>
+                <div class="form-group"><label>Дата</label><input class="form-input" type="date" v-model="newFinance.date"></div>
+            </div>
+            <div class="form-group"><label>Категория</label><input class="form-input" v-model="newFinance.category" placeholder="закупка, аренда, ЗП..."></div>
+            <div class="form-group"><label>Контрагент</label><input class="form-input" v-model="newFinance.counterparty"></div>
+            <div class="form-group">
+                <label>Счёт</label>
+                <select class="form-select" v-model="newFinance.account_id">
+                    <option :value="null">—</option>
+                    <option v-for="acc in financeAccounts" :key="acc.id" :value="acc.id">{{ acc.name }}</option>
+                </select>
+            </div>
+            <div class="form-group"><label>Описание</label><textarea class="form-textarea" v-model="newFinance.description"></textarea></div>
+            <div class="modal-buttons">
+                <button class="btn btn-ghost" @click="showModal=null">Отмена</button>
+                <button class="btn btn-primary" @click="createFinance">Создать</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Create Task Modal -->
+    <div class="modal-overlay" v-if="showModal==='taskCreate'" @click.self="showModal=null">
+        <div class="modal">
+            <h2>Новая задача</h2>
+            <div class="form-group"><label>Название *</label><input class="form-input" v-model="newTask.title"></div>
+            <div class="form-group"><label>Описание</label><textarea class="form-textarea" v-model="newTask.description"></textarea></div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+                <div class="form-group">
+                    <label>Приоритет</label>
+                    <select class="form-select" v-model="newTask.priority">
+                        <option value="low">Низкий</option>
+                        <option value="normal">Обычный</option>
+                        <option value="high">Высокий</option>
+                        <option value="urgent">Срочно</option>
+                    </select>
+                </div>
+                <div class="form-group"><label>Срок</label><input class="form-input" type="date" v-model="newTask.due_date"></div>
+            </div>
+            <div class="form-group"><label>Исполнитель</label><input class="form-input" v-model="newTask.assignee"></div>
+            <div class="modal-buttons">
+                <button class="btn btn-ghost" @click="showModal=null">Отмена</button>
+                <button class="btn btn-primary" @click="createTask">Создать</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Inventory Receive Modal -->
+    <div class="modal-overlay" v-if="showModal==='inventoryReceive'" @click.self="showModal=null">
+        <div class="modal">
+            <h2>📥 Приход товара</h2>
+            <div class="form-group">
+                <label>Товар *</label>
+                <select class="form-select" v-model="newMovement.product_id">
+                    <option :value="null">Выбрать...</option>
+                    <option v-for="p in allProducts" :key="p.id" :value="p.id">{{ p.sku }} — {{ p.name }}</option>
+                </select>
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+                <div class="form-group"><label>Количество *</label><input class="form-input" type="number" v-model="newMovement.quantity"></div>
+                <div class="form-group"><label>Цена за ед.</label><input class="form-input" type="number" step="0.01" v-model="newMovement.unit_price"></div>
+            </div>
+            <div class="form-group"><label>Причина / Документ</label><input class="form-input" v-model="newMovement.reason"></div>
+            <div class="modal-buttons">
+                <button class="btn btn-ghost" @click="showModal=null">Отмена</button>
+                <button class="btn btn-success" @click="submitMovement('receive')">Оприходовать</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Create Contact Modal -->
+    <div class="modal-overlay" v-if="showModal==='contactCreate'" @click.self="showModal=null">
+        <div class="modal">
+            <h2>👤 Новый контакт</h2>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+                <div class="form-group"><label>Имя</label><input class="form-input" v-model="newContact.first_name"></div>
+                <div class="form-group"><label>Фамилия</label><input class="form-input" v-model="newContact.last_name"></div>
+            </div>
+            <div class="form-group"><label>Компания</label><input class="form-input" v-model="newContact.company"></div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+                <div class="form-group"><label>Телефон</label><input class="form-input" v-model="newContact.phone"></div>
+                <div class="form-group"><label>Email</label><input class="form-input" type="email" v-model="newContact.email"></div>
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+                <div class="form-group"><label>Telegram</label><input class="form-input" v-model="newContact.telegram"></div>
+                <div class="form-group"><label>WhatsApp</label><input class="form-input" v-model="newContact.whatsapp"></div>
+            </div>
+            <div class="form-group">
+                <label>Источник</label>
+                <select class="form-select" v-model="newContact.source">
+                    <option value="">—</option>
+                    <option value="ozon">Ozon</option>
+                    <option value="сайт">Сайт</option>
+                    <option value="звонок">Звонок</option>
+                    <option value="рекомендация">Рекомендация</option>
+                    <option value="выставка">Выставка</option>
+                    <option value="другое">Другое</option>
+                </select>
+            </div>
+            <div class="form-group"><label>Заметки</label><textarea class="form-textarea" v-model="newContact.notes"></textarea></div>
+            <div class="modal-buttons">
+                <button class="btn btn-ghost" @click="showModal=null">Отмена</button>
+                <button class="btn btn-primary" @click="createContact">Создать</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Create Interaction Modal -->
+    <div class="modal-overlay" v-if="showModal==='interactionCreate'" @click.self="showModal=null">
+        <div class="modal">
+            <h2>💬 Новое взаимодействие</h2>
+            <div class="form-group">
+                <label>Контакт</label>
+                <select class="form-select" v-model="newInteraction.contact_id">
+                    <option :value="null">—</option>
+                    <option v-for="c in crmContacts" :key="c.id" :value="c.id">{{ [c.first_name, c.last_name, c.company].filter(Boolean).join(' · ') }}</option>
+                </select>
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+                <div class="form-group">
+                    <label>Тип *</label>
+                    <select class="form-select" v-model="newInteraction.type">
+                        <option value="call">Звонок</option>
+                        <option value="email">Email</option>
+                        <option value="meeting">Встреча</option>
+                        <option value="message">Сообщение</option>
+                        <option value="order">Заказ</option>
+                        <option value="delivery">Доставка</option>
+                        <option value="complaint">Рекламация</option>
+                        <option value="note">Заметка</option>
+                        <option value="other">Другое</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Направление</label>
+                    <select class="form-select" v-model="newInteraction.direction">
+                        <option value="incoming">Входящее</option>
+                        <option value="outgoing">Исходящее</option>
+                        <option value="internal">Внутреннее</option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-group"><label>Тема</label><input class="form-input" v-model="newInteraction.subject"></div>
+            <div class="form-group"><label>Содержание</label><textarea class="form-textarea" v-model="newInteraction.content"></textarea></div>
+            <div class="form-group"><label>Результат</label><input class="form-input" v-model="newInteraction.result" placeholder="Договорились, отказ, перезвон..."></div>
+            <div style="display:grid;grid-template-columns:2fr 1fr;gap:10px">
+                <div class="form-group"><label>Следующее действие</label><input class="form-input" v-model="newInteraction.next_action" placeholder="Перезвонить, отправить КП..."></div>
+                <div class="form-group"><label>Дата</label><input class="form-input" type="date" v-model="newInteraction.next_action_date"></div>
+            </div>
+            <div class="modal-buttons">
+                <button class="btn btn-ghost" @click="showModal=null">Отмена</button>
+                <button class="btn btn-primary" @click="createInteraction">Создать</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Inventory Ship Modal -->
+    <div class="modal-overlay" v-if="showModal==='inventoryShip'" @click.self="showModal=null">
+        <div class="modal">
+            <h2>📤 Расход товара</h2>
+            <div class="form-group">
+                <label>Товар *</label>
+                <select class="form-select" v-model="newMovement.product_id">
+                    <option :value="null">Выбрать...</option>
+                    <option v-for="p in allProducts" :key="p.id" :value="p.id">{{ p.sku }} — {{ p.name }} ({{ p.stock }})</option>
+                </select>
+            </div>
+            <div class="form-group"><label>Количество *</label><input class="form-input" type="number" v-model="newMovement.quantity"></div>
+            <div class="form-group"><label>Причина</label><input class="form-input" v-model="newMovement.reason"></div>
+            <div class="modal-buttons">
+                <button class="btn btn-ghost" @click="showModal=null">Отмена</button>
+                <button class="btn btn-danger" @click="submitMovement('ship')">Списать</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Supply Create Modal -->
+    <div class="modal-overlay" v-if="showModal==='supplyCreate'" @click.self="showModal=null">
+        <div class="modal" style="max-width:560px">
+            <h2>🚚 Новая поставка</h2>
+            <div style="display:grid;grid-template-columns:2fr 1fr;gap:10px">
+                <div class="form-group"><label>Поставщик *</label><input class="form-input" v-model="newSupply.supplier_name" placeholder="Название компании"></div>
+                <div class="form-group"><label>Номер</label><input class="form-input" v-model="newSupply.number" placeholder="ПСТ-001"></div>
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+                <div class="form-group">
+                    <label>Статус</label>
+                    <select class="form-select" v-model="newSupply.status">
+                        <option value="draft">Черновик</option>
+                        <option value="ordered">Заказано</option>
+                        <option value="shipped">В пути</option>
+                    </select>
+                </div>
+                <div class="form-group"><label>Ожидаемая дата</label><input class="form-input" type="date" v-model="newSupply.expected_date"></div>
+            </div>
+
+            <!-- Items -->
+            <div style="margin-top:8px;margin-bottom:8px">
+                <label style="font-size:12px;color:var(--text2);text-transform:uppercase;letter-spacing:0.3px">Позиции</label>
+                <div v-for="(item, idx) in newSupply.items" :key="idx" style="display:grid;grid-template-columns:2fr 1fr 1fr auto;gap:6px;margin-top:6px;align-items:end">
+                    <div class="form-group" style="margin-bottom:0">
+                        <select class="form-select" v-model="item.product_id" style="font-size:12px">
+                            <option :value="null">Товар...</option>
+                            <option v-for="p in allProducts" :key="p.id" :value="p.id">{{ p.sku }} — {{ p.name }}</option>
+                        </select>
+                    </div>
+                    <div class="form-group" style="margin-bottom:0">
+                        <input class="form-input" type="number" v-model="item.quantity" placeholder="Кол-во" style="font-size:12px">
+                    </div>
+                    <div class="form-group" style="margin-bottom:0">
+                        <input class="form-input" type="number" step="0.01" v-model="item.unit_price" placeholder="Цена" style="font-size:12px">
+                    </div>
+                    <button class="btn btn-ghost btn-sm" @click="newSupply.items.splice(idx,1)" style="padding:6px 8px" v-if="newSupply.items.length > 1">✕</button>
+                </div>
+                <button class="btn btn-ghost btn-sm" style="margin-top:6px" @click="newSupply.items.push({product_id:null,quantity:1,unit_price:0})">+ Позиция</button>
+            </div>
+
+            <div class="form-group"><label>Примечание</label><textarea class="form-textarea" v-model="newSupply.notes" rows="2"></textarea></div>
+            <div class="modal-buttons">
+                <button class="btn btn-ghost" @click="showModal=null">Отмена</button>
+                <button class="btn btn-primary" @click="createSupply">Создать</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Deal Create Modal -->
+    <div class="modal-overlay" v-if="showModal==='dealCreate'" @click.self="showModal=null">
+        <div class="modal">
+            <h2>🤝 Новая сделка</h2>
+            <div class="form-group"><label>Название *</label><input class="form-input" v-model="newDeal.title" placeholder="Поставка столов для клуба"></div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+                <div class="form-group">
+                    <label>Клиент</label>
+                    <select class="form-select" v-model="newDeal.contact_id">
+                        <option :value="null">—</option>
+                        <option v-for="c in crmContacts" :key="c.id" :value="c.id">{{ [c.first_name, c.last_name, c.company].filter(Boolean).join(' · ') }}</option>
+                    </select>
+                </div>
+                <div class="form-group"><label>Сумма</label><input class="form-input" type="number" step="0.01" v-model="newDeal.amount" placeholder="0"></div>
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+                <div class="form-group">
+                    <label>Этап</label>
+                    <select class="form-select" v-model="newDeal.stage">
+                        <option value="new">Новая</option>
+                        <option value="qualifying">Квалификация</option>
+                        <option value="proposal">Предложение</option>
+                        <option value="negotiation">Переговоры</option>
+                    </select>
+                </div>
+                <div class="form-group"><label>Ответственный</label><input class="form-input" v-model="newDeal.assignee"></div>
+            </div>
+            <div class="form-group"><label>Описание</label><textarea class="form-textarea" v-model="newDeal.description" rows="2"></textarea></div>
+            <div class="modal-buttons">
+                <button class="btn btn-ghost" @click="showModal=null">Отмена</button>
+                <button class="btn btn-primary" @click="createDeal">Создать</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+const { createApp, ref, reactive, computed, onMounted, nextTick, watch } = Vue;
+
+// ── API Configuration ───────────────────────────
+const API_BASE = (() => {
+    const loc = window.location;
+    if (loc.hostname === 'localhost' || loc.hostname === '127.0.0.1') {
+        return 'http://localhost/erp/api/index.php';
+    }
+    // ERP API lives on sborka (PHP 8.3)
+    return 'https://sborka.billiarder.ru/erp/api/index.php';
+})();
+const API_TOKEN = ''; // set if api_token configured in config.php
+
+async function api(action, data = null) {
+    const params = new URLSearchParams({ action });
+    const opts = {
+        headers: { 'Content-Type': 'application/json' },
+    };
+    if (API_TOKEN) opts.headers['Authorization'] = `Bearer ${API_TOKEN}`;
+
+    if (data && typeof data === 'object' && !Array.isArray(data) && Object.keys(data).some(k => data[k] !== undefined)) {
+        // POST with body
+        opts.method = 'POST';
+        opts.body = JSON.stringify(data);
+    } else {
+        opts.method = 'GET';
+        // Append any simple params to URL
+        if (data && typeof data === 'object') {
+            Object.entries(data).forEach(([k, v]) => {
+                if (v !== undefined && v !== null && v !== '') params.set(k, v);
+            });
+        }
+    }
+
+    const url = `${API_BASE}?${params}`;
+    const resp = await fetch(url, opts);
+    const json = await resp.json();
+    if (!resp.ok || json.error) throw new Error(json.error || `HTTP ${resp.status}`);
+    return json;
+}
+
+// ── Vue App ─────────────────────────────────────
+createApp({
+    setup() {
+        // Navigation
+        const currentRoute = ref('dashboard');
+        const expandedGroups = reactive({ trade: true, finance: true, crm: true, tasks: true });
+
+        function toggleGroup(group) {
+            expandedGroups[group] = !expandedGroups[group];
+        }
+
+        // Auto-expand group when navigating to a child route
+        const routeGroups = { supplies: 'trade', sales: 'trade', inventory: 'trade', products: 'trade', finance: 'finance', reports: 'finance', crm: 'crm', deals: 'crm', tasks: 'tasks', tasks_my: 'tasks', tasks_from: 'tasks' };
+
+        function navigate(route) {
+            currentRoute.value = route;
+            if (routeGroups[route]) expandedGroups[routeGroups[route]] = true;
+            loadRouteData(route);
+        }
+
+        // Toasts
+        const toasts = ref([]);
+        let toastId = 0;
+        function toast(message, type = 'info') {
+            const id = ++toastId;
+            toasts.value.push({ id, message, type });
+            setTimeout(() => { toasts.value = toasts.value.filter(t => t.id !== id); }, 3500);
+        }
+
+        // Dashboard
+        const dash = reactive({ income: 0, expense: 0, profit: 0, openTasks: 0, overdue: 0, products: 0, lowStock: 0, journalEntries: 0 });
+        const recentJournal = ref([]);
+
+        async function loadDashboard() {
+            try {
+                const [fin, taskSt, journalSt, prodCount] = await Promise.all([
+                    api('finance.summary').catch(() => ({ income: 0, expense: 0, profit: 0 })),
+                    api('tasks.stats').catch(() => ({ overdue: 0, due_today: 0 })),
+                    api('journal.stats').catch(() => ({ total: 0 })),
+                    api('products.low_stock').catch(() => ({ items: [] })),
+                ]);
+                dash.income = fin.income || 0;
+                dash.expense = fin.expense || 0;
+                dash.profit = fin.profit || 0;
+                dash.openTasks = taskSt.by_status?.find(s => s.status !== 'done' && s.status !== 'cancelled')?.cnt || 0;
+                dash.overdue = taskSt.overdue || 0;
+                dash.journalEntries = journalSt.total || 0;
+                dash.lowStock = prodCount.items?.length || 0;
+
+                // Recent journal
+                const jList = await api('journal.list', { limit: 10 }).catch(() => ({ items: [] }));
+                recentJournal.value = jList.items || [];
+
+                // Product count
+                const pList = await api('products.list', { limit: 1 }).catch(() => ({ total: 0 }));
+                dash.products = pList.total || 0;
+            } catch (e) { console.warn('Dashboard load error:', e); }
+        }
+
+        // Quick entry
+        const quickEntry = ref('');
+        const submitting = ref(false);
+
+        async function submitQuickEntry() {
+            if (!quickEntry.value.trim() || submitting.value) return;
+            submitting.value = true;
+            try {
+                const result = await api('journal.create', { text: quickEntry.value, source: 'web' });
+                toast('Запись создана' + (result.ai_parsed ? ' (AI обработал)' : ''), 'success');
+                quickEntry.value = '';
+                loadRouteData(currentRoute.value);
+            } catch (e) {
+                toast('Ошибка: ' + e.message, 'error');
+            } finally {
+                submitting.value = false;
+            }
+        }
+
+        // Journal
+        const journal = reactive({ items: [], total: 0 });
+        const journalFilter = reactive({ category: '', from: '', to: '', q: '' });
+        let journalSearchTimer = null;
+
+        async function loadJournal() {
+            try {
+                const data = await api('journal.list', { ...journalFilter, limit: 50 });
+                journal.items = data.items || [];
+                journal.total = data.total || 0;
+            } catch (e) { toast('Ошибка загрузки журнала: ' + e.message, 'error'); }
+        }
+
+        function debounceSearchJournal() {
+            clearTimeout(journalSearchTimer);
+            journalSearchTimer = setTimeout(() => {
+                if (journalFilter.q.length >= 2) {
+                    api('journal.search', { q: journalFilter.q, limit: 50 })
+                        .then(data => { journal.items = data.items || []; journal.total = data.items?.length || 0; })
+                        .catch(() => {});
+                } else {
+                    loadJournal();
+                }
+            }, 400);
+        }
+
+        async function loadMoreJournal() {
+            try {
+                const data = await api('journal.list', { ...journalFilter, limit: 50, offset: journal.items.length });
+                journal.items.push(...(data.items || []));
+            } catch (e) { toast('Ошибка: ' + e.message, 'error'); }
+        }
+
+        function showJournalEntry(id) {
+            // TODO: modal with full entry + AI parsed data
+            api('journal.get', { id }).then(data => {
+                alert(JSON.stringify(data, null, 2));
+            }).catch(e => toast(e.message, 'error'));
+        }
+
+        // Products
+        const products = reactive({ items: [], total: 0 });
+        const allProducts = ref([]); // for selects
+        const productFilter = reactive({ q: '' });
+        let productSearchTimer = null;
+        const showModal = ref(null);
+        const newProduct = reactive({ sku: '', name: '', barcode: '', purchase_price: null, sell_price: null, min_stock: 0 });
+
+        async function loadProducts() {
+            try {
+                const data = await api('products.list', { ...productFilter, limit: 200 });
+                products.items = data.items || [];
+                products.total = data.total || 0;
+                allProducts.value = products.items;
+            } catch (e) { toast('Ошибка загрузки товаров: ' + e.message, 'error'); }
+        }
+
+        function debounceSearchProducts() {
+            clearTimeout(productSearchTimer);
+            productSearchTimer = setTimeout(loadProducts, 400);
+        }
+
+        async function createProduct() {
+            try {
+                await api('products.create', { ...newProduct });
+                toast('Товар создан', 'success');
+                showModal.value = null;
+                Object.assign(newProduct, { sku: '', name: '', barcode: '', purchase_price: null, sell_price: null, min_stock: 0 });
+                loadProducts();
+            } catch (e) { toast('Ошибка: ' + e.message, 'error'); }
+        }
+
+        // Finance
+        const finance = reactive({ items: [], total: 0 });
+        const financeAccounts = ref([]);
+        const financeFilter = reactive({ type: '', from: '', to: '', q: '' });
+        let financeSearchTimer = null;
+        const newFinance = reactive({ type: 'expense', amount: null, date: new Date().toISOString().split('T')[0], category: '', counterparty: '', account_id: null, description: '' });
+
+        async function loadFinance() {
+            try {
+                const [data, accs] = await Promise.all([
+                    api('finance.list', { ...financeFilter, limit: 100 }),
+                    api('finance.accounts'),
+                ]);
+                finance.items = data.items || [];
+                finance.total = data.total || 0;
+                financeAccounts.value = accs.items || [];
+            } catch (e) { toast('Ошибка загрузки финансов: ' + e.message, 'error'); }
+        }
+
+        function debounceSearchFinance() {
+            clearTimeout(financeSearchTimer);
+            financeSearchTimer = setTimeout(loadFinance, 400);
+        }
+
+        async function loadFinanceSummary() {
+            try {
+                const data = await api('finance.summary');
+                alert(JSON.stringify(data, null, 2)); // TODO: красивый UI
+            } catch (e) { toast(e.message, 'error'); }
+        }
+
+        async function createFinance() {
+            try {
+                await api('finance.create', { ...newFinance });
+                toast('Транзакция создана', 'success');
+                showModal.value = null;
+                loadFinance();
+            } catch (e) { toast('Ошибка: ' + e.message, 'error'); }
+        }
+
+        // Sales (Продажи) — данные из inventory_movements type=sale
+        const sales = reactive({ items: [], total: 0 });
+        const salesStats = reactive({ today_count: 0, today_amount: 0, month_amount: 0, avg_check: 0 });
+        const salesFilter = reactive({ from: '', to: '', q: '' });
+        let salesSearchTimer = null;
+
+        async function loadSales() {
+            try {
+                const data = await api('inventory.movements', { type: 'sale', ...salesFilter, limit: 100 });
+                sales.items = (data.items || []).map(m => ({
+                    ...m,
+                    quantity: Math.abs(m.quantity),
+                    customer: m.reason || '',
+                    channel: 'manual'
+                }));
+                sales.total = sales.items.length;
+                // stats
+                const today = new Date().toISOString().split('T')[0];
+                const todaySales = sales.items.filter(s => (s.created_at || '').startsWith(today));
+                salesStats.today_count = todaySales.length;
+                salesStats.today_amount = todaySales.reduce((s, i) => s + i.quantity * (i.unit_price || 0), 0);
+                salesStats.month_amount = sales.items.reduce((s, i) => s + i.quantity * (i.unit_price || 0), 0);
+                salesStats.avg_check = sales.total ? Math.round(salesStats.month_amount / sales.total) : 0;
+            } catch (e) { toast('Ошибка загрузки продаж: ' + e.message, 'error'); }
+        }
+
+        function debounceSearchSales() {
+            clearTimeout(salesSearchTimer);
+            salesSearchTimer = setTimeout(loadSales, 400);
+        }
+
+        // Reports (Отчёты)
+        const reportData = reactive({ income: 0, expense: 0, profit: 0, count: 0, top_expenses: [], top_income: [] });
+
+        // Reports load happens inside loadFinance — we just also pull summary+cashflow
+        // Override loadRouteData for reports to fill reportData
+        watch(() => finance.items, () => {
+            // recalc from loaded finance items
+            reportData.income = finance.items.filter(t => t.type === 'income').reduce((s, t) => s + parseFloat(t.amount || 0), 0);
+            reportData.expense = finance.items.filter(t => t.type === 'expense').reduce((s, t) => s + parseFloat(t.amount || 0), 0);
+            reportData.profit = reportData.income - reportData.expense;
+            reportData.count = finance.items.length;
+            // top expense categories
+            const expByCat = {};
+            finance.items.filter(t => t.type === 'expense').forEach(t => {
+                const cat = t.category || 'Без категории';
+                expByCat[cat] = (expByCat[cat] || 0) + parseFloat(t.amount || 0);
+            });
+            reportData.top_expenses = Object.entries(expByCat).map(([category, total]) => ({ category, total })).sort((a, b) => b.total - a.total).slice(0, 10);
+            // top income categories
+            const incByCat = {};
+            finance.items.filter(t => t.type === 'income').forEach(t => {
+                const cat = t.category || 'Без категории';
+                incByCat[cat] = (incByCat[cat] || 0) + parseFloat(t.amount || 0);
+            });
+            reportData.top_income = Object.entries(incByCat).map(([category, total]) => ({ category, total })).sort((a, b) => b.total - a.total).slice(0, 10);
+        }, { deep: true });
+
+        // Inventory
+        const inventoryList = ref([]);
+        const movements = ref([]);
+        const newMovement = reactive({ product_id: null, quantity: null, unit_price: null, reason: '' });
+
+        async function loadInventory() {
+            try {
+                const [inv, mov] = await Promise.all([
+                    api('inventory.list'),
+                    api('inventory.movements', { limit: 30 }),
+                ]);
+                inventoryList.value = inv.items || [];
+                movements.value = mov.items || [];
+            } catch (e) { toast('Ошибка загрузки склада: ' + e.message, 'error'); }
+        }
+
+        async function submitMovement(action) {
+            try {
+                const endpoint = action === 'receive' ? 'inventory.receive' : 'inventory.ship';
+                await api(endpoint, { ...newMovement });
+                toast(action === 'receive' ? 'Приход оформлен' : 'Расход оформлен', 'success');
+                showModal.value = null;
+                Object.assign(newMovement, { product_id: null, quantity: null, unit_price: null, reason: '' });
+                loadInventory();
+            } catch (e) { toast('Ошибка: ' + e.message, 'error'); }
+        }
+
+        // Tasks
+        const tasks = reactive({ items: [], total: 0 });
+        const taskStats = ref(null);
+        const taskFilter = reactive({ status: '', priority: '', assignee: '', creator: '' });
+        const newTask = reactive({ title: '', description: '', priority: 'normal', due_date: '', assignee: '' });
+
+        async function loadTasks() {
+            try {
+                const [data, stats] = await Promise.all([
+                    api('tasks.list', { ...taskFilter, limit: 100 }),
+                    api('tasks.stats'),
+                ]);
+                tasks.items = data.items || [];
+                tasks.total = data.total || 0;
+                taskStats.value = stats;
+            } catch (e) { toast('Ошибка загрузки задач: ' + e.message, 'error'); }
+        }
+
+        async function createTask() {
+            try {
+                await api('tasks.create', { ...newTask });
+                toast('Задача создана', 'success');
+                showModal.value = null;
+                Object.assign(newTask, { title: '', description: '', priority: 'normal', due_date: '', assignee: '' });
+                loadTasks();
+            } catch (e) { toast('Ошибка: ' + e.message, 'error'); }
+        }
+
+        async function toggleTask(task) {
+            try {
+                if (task.status === 'done') {
+                    await api('tasks.update', { id: task.id, status: 'todo' });
+                } else {
+                    await api('tasks.done', { id: task.id });
+                }
+                loadTasks();
+            } catch (e) { toast(e.message, 'error'); }
+        }
+
+        function isOverdue(task) {
+            return task.due_date && task.due_date < new Date().toISOString().split('T')[0] && task.status !== 'done' && task.status !== 'cancelled';
+        }
+
+        // CRM
+        const crmContacts = ref([]);
+        const crmInteractions = ref([]);
+        const crmUpcoming = ref([]);
+        const crmStats = reactive({ total_contacts: 0, total_counterparties: 0, total_interactions: 0, overdue_actions: 0 });
+        const crmFilter = reactive({ q: '' });
+        let crmSearchTimer = null;
+        const newContact = reactive({ first_name: '', last_name: '', company: '', phone: '', email: '', telegram: '', whatsapp: '', source: '', notes: '' });
+        const newInteraction = reactive({ contact_id: null, type: 'call', direction: 'outgoing', subject: '', content: '', result: '', next_action: '', next_action_date: '' });
+
+        async function loadCrm() {
+            try {
+                const [contacts, interactions, upcoming, stats] = await Promise.all([
+                    api('crm.contacts', { limit: 100 }),
+                    api('crm.interactions', { limit: 50 }),
+                    api('crm.upcoming', { days: 14 }),
+                    api('crm.stats'),
+                ]);
+                crmContacts.value = contacts.items || [];
+                crmInteractions.value = interactions.items || [];
+                crmUpcoming.value = [...(upcoming.overdue || []), ...(upcoming.upcoming || [])];
+                Object.assign(crmStats, stats);
+            } catch (e) { toast('Ошибка загрузки CRM: ' + e.message, 'error'); }
+        }
+
+        function debounceSearchCrm() {
+            clearTimeout(crmSearchTimer);
+            crmSearchTimer = setTimeout(async () => {
+                if (crmFilter.q.length >= 2) {
+                    try {
+                        const data = await api('crm.contacts', { q: crmFilter.q, limit: 100 });
+                        crmContacts.value = data.items || [];
+                    } catch (e) {}
+                } else {
+                    loadCrm();
+                }
+            }, 400);
+        }
+
+        async function createContact() {
+            try {
+                await api('crm.contact_create', { ...newContact });
+                toast('Контакт создан', 'success');
+                showModal.value = null;
+                Object.assign(newContact, { first_name: '', last_name: '', company: '', phone: '', email: '', telegram: '', whatsapp: '', source: '', notes: '' });
+                loadCrm();
+            } catch (e) { toast('Ошибка: ' + e.message, 'error'); }
+        }
+
+        async function createInteraction() {
+            try {
+                await api('crm.interaction_create', { ...newInteraction });
+                toast('Взаимодействие создано', 'success');
+                showModal.value = null;
+                Object.assign(newInteraction, { contact_id: null, type: 'call', direction: 'outgoing', subject: '', content: '', result: '', next_action: '', next_action_date: '' });
+                loadCrm();
+            } catch (e) { toast('Ошибка: ' + e.message, 'error'); }
+        }
+
+        function showContactDetail(id) {
+            api('crm.contact_get', { id }).then(data => {
+                const lines = [];
+                lines.push(`${data.first_name || ''} ${data.last_name || ''}`.trim());
+                if (data.company) lines.push(`Компания: ${data.company}`);
+                if (data.phone) lines.push(`Тел: ${data.phone}`);
+                if (data.email) lines.push(`Email: ${data.email}`);
+                if (data.telegram) lines.push(`TG: ${data.telegram}`);
+                if (data.notes) lines.push(`Заметки: ${data.notes}`);
+                if (data.interactions?.length) {
+                    lines.push(`\n--- Последние взаимодействия (${data.interactions.length}) ---`);
+                    data.interactions.slice(0, 10).forEach(i => {
+                        lines.push(`${i.created_at} [${i.type}] ${i.subject || ''} → ${i.result || ''}`);
+                    });
+                }
+                alert(lines.join('\n'));
+            }).catch(e => toast(e.message, 'error'));
+        }
+
+        function interactionTypeLabel(type) {
+            const map = { call: 'Звонок', email: 'Email', meeting: 'Встреча', message: 'Сообщение', note: 'Заметка', order: 'Заказ', delivery: 'Доставка', complaint: 'Рекламация', other: 'Другое' };
+            return map[type] || type;
+        }
+
+        // Deals (Сделки)
+        const deals = reactive({ items: [], total: 0 });
+        const dealStats = reactive({ new: 0, in_progress: 0, won: 0, pipeline_amount: 0 });
+        const dealFilter = reactive({ stage: '', q: '' });
+        let dealSearchTimer = null;
+        const newDeal = reactive({ title: '', contact_id: null, amount: null, stage: 'new', assignee: '', description: '' });
+
+        async function loadDeals() {
+            try {
+                const [data, stats] = await Promise.all([
+                    api('deals.list', { ...dealFilter, limit: 100 }),
+                    api('deals.stats'),
+                ]);
+                deals.items = data.items || [];
+                deals.total = data.total || 0;
+                Object.assign(dealStats, stats);
+            } catch (e) { toast('Ошибка загрузки сделок: ' + e.message, 'error'); }
+        }
+
+        function debounceSearchDeals() {
+            clearTimeout(dealSearchTimer);
+            dealSearchTimer = setTimeout(loadDeals, 400);
+        }
+
+        async function createDeal() {
+            if (!newDeal.title.trim()) return toast('Укажи название сделки', 'error');
+            try {
+                await api('deals.create', { ...newDeal });
+                toast('Сделка создана', 'success');
+                showModal.value = null;
+                Object.assign(newDeal, { title: '', contact_id: null, amount: null, stage: 'new', assignee: '', description: '' });
+                loadDeals();
+            } catch (e) { toast('Ошибка: ' + e.message, 'error'); }
+        }
+
+        function dealStageLabel(stage) {
+            const map = { new: 'Новая', qualifying: 'Квалификация', proposal: 'Предложение', negotiation: 'Переговоры', won: 'Выиграна', lost: 'Проиграна' };
+            return map[stage] || stage;
+        }
+
+        // Supplies (Поставки)
+        const supplies = reactive({ items: [], total: 0 });
+        const supplyStats = reactive({ pending: 0, shipped: 0, received: 0, open_total: 0 });
+        const supplyFilter = reactive({ status: '', q: '' });
+        let supplySearchTimer = null;
+        const newSupply = reactive({
+            supplier_name: '', number: '', status: 'draft', expected_date: '',
+            notes: '', items: [{ product_id: null, quantity: 1, unit_price: 0 }]
+        });
+
+        async function loadSupplies() {
+            try {
+                const [data, stats] = await Promise.all([
+                    api('supplies.list', { ...supplyFilter, limit: 100 }),
+                    api('supplies.stats'),
+                ]);
+                supplies.items = data.items || [];
+                supplies.total = data.total || 0;
+                Object.assign(supplyStats, stats);
+            } catch (e) { toast('Ошибка загрузки поставок: ' + e.message, 'error'); }
+        }
+
+        function debounceSearchSupplies() {
+            clearTimeout(supplySearchTimer);
+            supplySearchTimer = setTimeout(loadSupplies, 400);
+        }
+
+        async function createSupply() {
+            if (!newSupply.supplier_name.trim()) return toast('Укажи поставщика', 'error');
+            const validItems = newSupply.items.filter(i => i.product_id && i.quantity > 0);
+            if (!validItems.length) return toast('Добавь хотя бы одну позицию', 'error');
+            try {
+                await api('supplies.create', {
+                    supplier_name: newSupply.supplier_name,
+                    number: newSupply.number,
+                    status: newSupply.status,
+                    expected_date: newSupply.expected_date || null,
+                    notes: newSupply.notes,
+                    items: validItems
+                });
+                toast('Поставка создана', 'success');
+                showModal.value = null;
+                Object.assign(newSupply, { supplier_name: '', number: '', status: 'draft', expected_date: '', notes: '' });
+                newSupply.items = [{ product_id: null, quantity: 1, unit_price: 0 }];
+                loadSupplies();
+            } catch (e) { toast('Ошибка: ' + e.message, 'error'); }
+        }
+
+        async function showSupplyDetail(id) {
+            try {
+                const data = await api('supplies.get', { id });
+                const lines = [`=== Поставка #${data.number || data.id} ===`];
+                lines.push(`Поставщик: ${data.supplier_name}`);
+                lines.push(`Статус: ${supplyStatusLabel(data.status)}`);
+                lines.push(`Сумма: ${formatMoney(data.total_amount)}`);
+                if (data.expected_date) lines.push(`Ожид. дата: ${data.expected_date}`);
+                if (data.notes) lines.push(`Примечание: ${data.notes}`);
+                if (data.items?.length) {
+                    lines.push(`\n--- Позиции (${data.items.length}) ---`);
+                    data.items.forEach(i => {
+                        lines.push(`${i.product_name || i.product_id}: ${i.quantity} × ${formatMoney(i.unit_price)} = ${formatMoney(i.quantity * i.unit_price)}`);
+                    });
+                }
+                alert(lines.join('\n'));
+            } catch (e) { toast(e.message, 'error'); }
+        }
+
+        function supplyStatusLabel(status) {
+            const map = { draft: 'Черновик', ordered: 'Заказано', shipped: 'В пути', partial: 'Частично', received: 'Получено', cancelled: 'Отменено' };
+            return map[status] || status;
+        }
+
+        // AI
+        const aiChat = ref([]);
+        const aiQuestion = ref('');
+        const aiLoading = ref(false);
+
+        async function askAI() {
+            if (!aiQuestion.value.trim() || aiLoading.value) return;
+            const q = aiQuestion.value;
+            aiChat.value.push({ id: Date.now(), role: 'user', text: q });
+            aiQuestion.value = '';
+            aiLoading.value = true;
+
+            try {
+                const result = await api('ai.ask', { question: q });
+                aiChat.value.push({ id: Date.now(), role: 'assistant', text: result.answer || 'Нет ответа' });
+            } catch (e) {
+                aiChat.value.push({ id: Date.now(), role: 'assistant', text: '❌ Ошибка: ' + e.message });
+            } finally {
+                aiLoading.value = false;
+                await nextTick();
+                // Scroll to bottom
+            }
+        }
+
+        // Settings
+        const systemInfo = ref(null);
+        const aiProviders = ref([]);
+
+        async function runMigrations() {
+            try {
+                const result = await api('system.migrate');
+                systemInfo.value = result;
+                toast('Миграции выполнены', 'success');
+            } catch (e) { toast('Ошибка: ' + e.message, 'error'); }
+        }
+
+        async function checkStatus() {
+            try {
+                const result = await api('system.status');
+                systemInfo.value = result;
+            } catch (e) { toast('Ошибка: ' + e.message, 'error'); }
+        }
+
+        async function loadSettings() {
+            try {
+                const data = await api('ai.providers');
+                aiProviders.value = data.providers || [];
+            } catch (e) { console.warn(e); }
+        }
+
+        // Route data loader
+        function loadRouteData(route) {
+            switch (route) {
+                case 'dashboard': loadDashboard(); break;
+                case 'journal':   loadJournal(); break;
+                case 'products':  loadProducts(); break;
+                case 'finance':   loadFinance(); break;
+                case 'reports':   loadFinance(); break;
+                case 'inventory': loadInventory(); loadProducts(); break;
+                case 'supplies':  loadSupplies(); loadProducts(); break;
+                case 'sales':     loadSales(); break;
+                case 'tasks':     taskFilter.assignee = ''; taskFilter.creator = ''; loadTasks(); break;
+                case 'tasks_my':  taskFilter.assignee = 'me'; taskFilter.creator = ''; loadTasks(); break;
+                case 'tasks_from': taskFilter.assignee = ''; taskFilter.creator = 'me'; loadTasks(); break;
+                case 'crm':       loadCrm(); break;
+                case 'deals':     loadDeals(); break;
+                case 'settings':  loadSettings(); break;
+            }
+        }
+
+        // Formatting helpers
+        function formatMoney(val) {
+            const n = parseFloat(val) || 0;
+            return n.toLocaleString('ru-RU', { minimumFractionDigits: 0, maximumFractionDigits: 0 }) + ' ₽';
+        }
+        function formatDate(dt) {
+            if (!dt) return '—';
+            return new Date(dt).toLocaleDateString('ru-RU');
+        }
+        function formatDateTime(dt) {
+            if (!dt) return '—';
+            return new Date(dt).toLocaleString('ru-RU', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' });
+        }
+
+        // Init
+        onMounted(() => {
+            loadDashboard();
+        });
+
+        return {
+            // Navigation
+            currentRoute, expandedGroups, toggleGroup, navigate,
+            // Toasts
+            toasts, toast,
+            // Dashboard
+            dash, recentJournal, loadDashboard,
+            // Quick entry
+            quickEntry, submitting, submitQuickEntry,
+            // Journal
+            journal, journalFilter, loadJournal, loadMoreJournal, debounceSearchJournal, showJournalEntry,
+            // Products
+            products, allProducts, productFilter, loadProducts, debounceSearchProducts, createProduct, newProduct,
+            // Finance
+            finance, financeAccounts, financeFilter, loadFinance, debounceSearchFinance, loadFinanceSummary, createFinance, newFinance,
+            // Sales
+            sales, salesStats, salesFilter, loadSales, debounceSearchSales,
+            // Reports
+            reportData,
+            // Inventory
+            inventoryList, movements, newMovement, loadInventory, submitMovement,
+            // Supplies
+            supplies, supplyStats, supplyFilter, newSupply,
+            loadSupplies, debounceSearchSupplies, createSupply, showSupplyDetail, supplyStatusLabel,
+            // Tasks
+            tasks, taskStats, taskFilter, loadTasks, createTask, newTask, toggleTask, isOverdue,
+            // CRM
+            crmContacts, crmInteractions, crmUpcoming, crmStats, crmFilter,
+            newContact, newInteraction,
+            loadCrm, debounceSearchCrm, createContact, createInteraction, showContactDetail, interactionTypeLabel,
+            // Deals
+            deals, dealStats, dealFilter, newDeal,
+            loadDeals, debounceSearchDeals, createDeal, dealStageLabel,
+            // AI
+            aiChat, aiQuestion, aiLoading, askAI,
+            // Settings
+            systemInfo, aiProviders, runMigrations, checkStatus,
+            // Modals
+            showModal,
+            // Formatting
+            formatMoney, formatDate, formatDateTime,
+        };
+    }
+}).mount('#app');
+</script>
+</body>
+</html>
