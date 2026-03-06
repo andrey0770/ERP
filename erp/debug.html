@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+<head><title>Debug</title></head>
+<body>
+<div id="result"></div>
+<script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+<script>
+const el = document.getElementById('result');
+try {
+    const app = Vue.createApp({
+        template: `<div>
+            <p v-if="!items?.length">No items</p>
+            <p>{{ count ?? 0 }}</p>
+            <p>{{ count || 0 }}</p>
+        </div>`,
+        setup() {
+            const items = Vue.ref([]);
+            const count = Vue.ref(null);
+            return { items, count };
+        }
+    });
+    app.mount('#result');
+    el.innerHTML += '<br>Vue mounted OK. Version: ' + Vue.version;
+} catch(e) {
+    el.innerHTML = 'ERROR: ' + e.message + '<br><pre>' + e.stack + '</pre>';
+}
+</script>
+</body>
+</html>

@@ -11,6 +11,8 @@ venv/
 
 # Secrets (never commit)
 erp/api/config.php
+.env
+import/.env
 
 # OS
 .DS_Store
@@ -20,3 +22,5 @@ desktop.ini
 # Temp
 *.tmp
 *.log
+node_modules/
+package-lock.json

@@ -43,9 +43,19 @@ if (!checkAuth()) {
 }
 
 // ── Helpers ─────────────────────────────────────────
+// Cached JSON body
+$_JSON_BODY = null;
+function _getJsonBody(): array {
+    global $_JSON_BODY;
+    if ($_JSON_BODY === null) {
+        $raw = file_get_contents('php://input');
+        $_JSON_BODY = $raw ? (json_decode($raw, true) ?: []) : [];
+    }
+    return $_JSON_BODY;
+}
+
 function jsonInput(): array {
-    $raw = file_get_contents('php://input');
-    return $raw ? (json_decode($raw, true) ?: []) : [];
+    return _getJsonBody();
 }
 
 function jsonResponse($data, int $code = 200): never {
@@ -59,7 +69,8 @@ function errorResponse(string $msg, int $code = 400): never {
 }
 
 function param(string $key, $default = null) {
-    return $_GET[$key] ?? $_POST[$key] ?? $default;
+    $json = _getJsonBody();
+    return $_GET[$key] ?? $_POST[$key] ?? $json[$key] ?? $default;
 }
 
 // ── Routing ─────────────────────────────────────────

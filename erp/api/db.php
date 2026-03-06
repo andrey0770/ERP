@@ -337,6 +337,18 @@ class DB {
                 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
             ",
 
+            // ── v017: Marketplace fields for products ────────
+            'v017_marketplace_fields' => "
+                ALTER TABLE erp_products
+                    ADD COLUMN IF NOT EXISTS ya_market_sku VARCHAR(50) DEFAULT NULL AFTER ozon_sku,
+                    ADD COLUMN IF NOT EXISTS ya_offer_id VARCHAR(100) DEFAULT NULL AFTER ya_market_sku,
+                    ADD COLUMN IF NOT EXISTS marketplace_source VARCHAR(30) DEFAULT NULL COMMENT 'ozon_kp, ozon_bsh, yandex_market' AFTER ya_offer_id,
+                    ADD COLUMN IF NOT EXISTS description TEXT DEFAULT NULL AFTER name,
+                    ADD COLUMN IF NOT EXISTS brand VARCHAR(200) DEFAULT NULL AFTER description,
+                    ADD COLUMN IF NOT EXISTS weight DECIMAL(10,3) DEFAULT NULL COMMENT 'Вес в кг' AFTER brand,
+                    ADD COLUMN IF NOT EXISTS images JSON DEFAULT NULL COMMENT 'Массив URL картинок' AFTER image_url
+            ",
+
             // ── v016: Сделки (Deals / Pipeline) ─────────────
             'v016_deals' => "
                 CREATE TABLE IF NOT EXISTS erp_deals (

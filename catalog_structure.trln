@@ -1,0 +1,672 @@
+{
+  "formats": {
+    "CATEGORY": {
+      "childtype": "CATEGORY",
+      "fields": {
+        "Name": {
+          "fieldtype": "Text",
+          "format": ""
+        },
+        "Count": {
+          "fieldtype": "Number",
+          "format": ""
+        },
+        "Path": {
+          "fieldtype": "Text",
+          "format": ""
+        }
+      },
+      "icon": "folder-3",
+      "outputlines": [
+        "{*Name*} ({*Count*})"
+      ],
+      "titleline": "{*Name*} ({*Count*})"
+    }
+  },
+  "nodes": {
+    "fcdd071a-e623-458d-8800-8fbb63e1f893": {
+      "children": [
+        "7434e952-1c8c-4ade-abfd-94dd34b74066",
+        "be8b7b4b-f184-4279-9048-8bcc2db7378b",
+        "30987641-9d71-48d3-ae9c-f6d23b18e676",
+        "0b76f80f-e67d-4dfc-9556-26b82c4a6c3b",
+        "214c3a6e-e85a-451e-b830-743bb4564920",
+        "a84bc7b9-bd95-4ef9-a06f-8ed05c376e70",
+        "e2de5aef-6776-4770-badf-fd40cc3ef01b"
+      ],
+      "data": {
+        "Name": "Каталог Lenta",
+        "Count": "412",
+        "Path": ""
+      },
+      "format": "CATEGORY"
+    },
+    "7434e952-1c8c-4ade-abfd-94dd34b74066": {
+      "children": [
+        "0528bec8-9bd3-4533-a099-921acc4dac12",
+        "90f0f80c-44a8-45b0-9343-f2aead57a040",
+        "effc2715-65ac-4e3c-9bcf-1119f9d28717",
+        "f648b098-abbc-4031-8893-3b1d49affe84",
+        "cddaf0d2-c9c4-4d74-99b3-f161bccdac37",
+        "c26d8ed0-b7b4-4503-92b8-2c79fec1c6fa",
+        "9cf7a833-e6b7-4db4-940d-58bfe13c80f5",
+        "44efe3c4-a390-4f85-87d1-b58018ce9ed9",
+        "c190f545-e623-463c-baed-e2cb19d2ec40",
+        "fca387cb-b2fa-4739-b72c-53f5b235a378"
+      ],
+      "data": {
+        "Name": "Бильярд",
+        "Count": "409",
+        "Path": "Бильярд"
+      },
+      "format": "CATEGORY"
+    },
+    "be8b7b4b-f184-4279-9048-8bcc2db7378b": {
+      "children": [
+        "073fd7e8-387b-4211-8c9e-371dc3303bfc",
+        "13b44ec3-4cfd-4edc-b2a6-9b1f03ee603c"
+      ],
+      "data": {
+        "Name": "Дартс",
+        "Count": "0",
+        "Path": "Дартс"
+      },
+      "format": "CATEGORY"
+    },
+    "30987641-9d71-48d3-ae9c-f6d23b18e676": {
+      "children": [
+        "c06958df-d0f7-4b38-8837-5bad625fc6ea",
+        "66ecd88f-cc88-4a41-95b4-b46b67dfee99"
+      ],
+      "data": {
+        "Name": "Игровые столы",
+        "Count": "0",
+        "Path": "Игровые столы"
+      },
+      "format": "CATEGORY"
+    },
+    "0b76f80f-e67d-4dfc-9556-26b82c4a6c3b": {
+      "children": [
+        "bce09dc3-d412-4925-9b94-46e2bd7baccb",
+        "491a609d-8a9a-479c-8a71-41694b96e5a9"
+      ],
+      "data": {
+        "Name": "Настольный теннис",
+        "Count": "0",
+        "Path": "Настольный теннис"
+      },
+      "format": "CATEGORY"
+    },
+    "214c3a6e-e85a-451e-b830-743bb4564920": {
+      "children": [
+        "e74907b9-bf08-455e-bc1c-47cac42ec3d5",
+        "797fd694-e316-4af4-952f-7c46b6287b30",
+        "c9292d88-6c7a-4e43-b7c0-269494ea6e6b"
+      ],
+      "data": {
+        "Name": "Покер",
+        "Count": "1",
+        "Path": "Покер"
+      },
+      "format": "CATEGORY"
+    },
+    "a84bc7b9-bd95-4ef9-a06f-8ed05c376e70": {
+      "children": [
+        "9c56555d-a4fe-47fd-af40-9fe1db45cd9c"
+      ],
+      "data": {
+        "Name": "Прочее",
+        "Count": "2",
+        "Path": "Прочее"
+      },
+      "format": "CATEGORY"
+    },
+    "e2de5aef-6776-4770-badf-fd40cc3ef01b": {
+      "children": [
+        "0c7fb45b-7e53-4a64-ac3f-0484fa6705ef"
+      ],
+      "data": {
+        "Name": "Тренажеры",
+        "Count": "0",
+        "Path": "Тренажеры"
+      },
+      "format": "CATEGORY"
+    },
+    "0528bec8-9bd3-4533-a099-921acc4dac12": {
+      "children": [
+        "3122fa1f-8e73-4bfa-bd05-326e1cbac4d5",
+        "77c27684-7b2d-46f9-8fd9-46fcf503591c"
+      ],
+      "data": {
+        "Name": "Аксессуары",
+        "Count": "19",
+        "Path": "Бильярд > Аксессуары"
+      },
+      "format": "CATEGORY"
+    },
+    "90f0f80c-44a8-45b0-9343-f2aead57a040": {
+      "children": [
+        "b51bfe48-724f-4430-9876-3d24288f990d",
+        "9c9c8004-af9e-4e40-a7e8-3cea815a2c95"
+      ],
+      "data": {
+        "Name": "Аксессуары для киев",
+        "Count": "20",
+        "Path": "Бильярд > Аксессуары для киев"
+      },
+      "format": "CATEGORY"
+    },
+    "effc2715-65ac-4e3c-9bcf-1119f9d28717": {
+      "children": [
+        "b1b5a0c9-5e45-491b-bb92-a4001667be70",
+        "0e58bd61-6fee-48a2-a5d3-d2b1673b90e1",
+        "b06636ec-8d8f-48aa-b328-2e13ceb100f8",
+        "028b5305-0217-4538-8e79-8e1e31f8611e"
+      ],
+      "data": {
+        "Name": "Кии",
+        "Count": "23",
+        "Path": "Бильярд > Кии"
+      },
+      "format": "CATEGORY"
+    },
+    "f648b098-abbc-4031-8893-3b1d49affe84": {
+      "children": [
+        "50f2d2b0-b51e-4bdf-ab4e-1b5c8110f18b",
+        "e9a8e865-03cd-4a83-a87a-7c6974c8363a"
+      ],
+      "data": {
+        "Name": "Комплектующие столов",
+        "Count": "27",
+        "Path": "Бильярд > Комплектующие столов"
+      },
+      "format": "CATEGORY"
+    },
+    "cddaf0d2-c9c4-4d74-99b3-f161bccdac37": {
+      "children": [
+        "37509e54-ae1a-43ae-a0ac-b56d124096bd"
+      ],
+      "data": {
+        "Name": "Освещение",
+        "Count": "0",
+        "Path": "Бильярд > Освещение"
+      },
+      "format": "CATEGORY"
+    },
+    "c26d8ed0-b7b4-4503-92b8-2c79fec1c6fa": {
+      "children": [
+        "0b7ea2f9-a67a-4d9a-a0c1-abe9537ba0e5"
+      ],
+      "data": {
+        "Name": "Прочее",
+        "Count": "170",
+        "Path": "Бильярд > Прочее"
+      },
+      "format": "CATEGORY"
+    },
+    "9cf7a833-e6b7-4db4-940d-58bfe13c80f5": {
+      "children": [
+        "4534cc02-d0be-4b4a-820f-5e6c0dda049d"
+      ],
+      "data": {
+        "Name": "Столы",
+        "Count": "0",
+        "Path": "Бильярд > Столы"
+      },
+      "format": "CATEGORY"
+    },
+    "44efe3c4-a390-4f85-87d1-b58018ce9ed9": {
+      "children": [
+        "16a09ea5-ac24-4394-b5fe-49f127fe4e4a"
+      ],
+      "data": {
+        "Name": "Сукно и покрытия",
+        "Count": "60",
+        "Path": "Бильярд > Сукно и покрытия"
+      },
+      "format": "CATEGORY"
+    },
+    "c190f545-e623-463c-baed-e2cb19d2ec40": {
+      "children": [
+        "391b20e7-fcdd-4891-9d85-1f150b453ffd",
+        "754c4844-d9ce-4dea-9966-a67ddb2fca5d"
+      ],
+      "data": {
+        "Name": "Чехлы и тубусы",
+        "Count": "88",
+        "Path": "Бильярд > Чехлы и тубусы"
+      },
+      "format": "CATEGORY"
+    },
+    "fca387cb-b2fa-4739-b72c-53f5b235a378": {
+      "children": [
+        "4c013c21-2058-4f53-aed2-08a310a55e1c",
+        "84e71e44-f4f6-44c3-81e8-2a783b3b9764",
+        "4a93eb5d-a1e7-4daf-a0f1-109d87de9416",
+        "7460a17d-ab5e-46aa-8bf6-e972d6ad4a91",
+        "992bd412-0fe2-460d-a7df-84abb56bfbe4"
+      ],
+      "data": {
+        "Name": "Шары",
+        "Count": "2",
+        "Path": "Бильярд > Шары"
+      },
+      "format": "CATEGORY"
+    },
+    "3122fa1f-8e73-4bfa-bd05-326e1cbac4d5": {
+      "children": [],
+      "data": {
+        "Name": "Перчатки",
+        "Count": "19",
+        "Path": "Бильярд > Аксессуары > Перчатки"
+      },
+      "format": "CATEGORY"
+    },
+    "77c27684-7b2d-46f9-8fd9-46fcf503591c": {
+      "children": [],
+      "data": {
+        "Name": "Треугольники",
+        "Count": "0",
+        "Path": "Бильярд > Аксессуары > Треугольники"
+      },
+      "format": "CATEGORY"
+    },
+    "b51bfe48-724f-4430-9876-3d24288f990d": {
+      "children": [],
+      "data": {
+        "Name": "Мел",
+        "Count": "3",
+        "Path": "Бильярд > Аксессуары для киев > Мел"
+      },
+      "format": "CATEGORY"
+    },
+    "9c9c8004-af9e-4e40-a7e8-3cea815a2c95": {
+      "children": [],
+      "data": {
+        "Name": "Наклейки",
+        "Count": "17",
+        "Path": "Бильярд > Аксессуары для киев > Наклейки"
+      },
+      "format": "CATEGORY"
+    },
+    "b1b5a0c9-5e45-491b-bb92-a4001667be70": {
+      "children": [],
+      "data": {
+        "Name": "Прочие кии",
+        "Count": "0",
+        "Path": "Бильярд > Кии > Прочие кии"
+      },
+      "format": "CATEGORY"
+    },
+    "0e58bd61-6fee-48a2-a5d3-d2b1673b90e1": {
+      "children": [],
+      "data": {
+        "Name": "Пул",
+        "Count": "7",
+        "Path": "Бильярд > Кии > Пул"
+      },
+      "format": "CATEGORY"
+    },
+    "b06636ec-8d8f-48aa-b328-2e13ceb100f8": {
+      "children": [],
+      "data": {
+        "Name": "Русский бильярд",
+        "Count": "13",
+        "Path": "Бильярд > Кии > Русский бильярд"
+      },
+      "format": "CATEGORY"
+    },
+    "028b5305-0217-4538-8e79-8e1e31f8611e": {
+      "children": [],
+      "data": {
+        "Name": "Снукер",
+        "Count": "3",
+        "Path": "Бильярд > Кии > Снукер"
+      },
+      "format": "CATEGORY"
+    },
+    "50f2d2b0-b51e-4bdf-ab4e-1b5c8110f18b": {
+      "children": [],
+      "data": {
+        "Name": "Лузы",
+        "Count": "16",
+        "Path": "Бильярд > Комплектующие столов > Лузы"
+      },
+      "format": "CATEGORY"
+    },
+    "e9a8e865-03cd-4a83-a87a-7c6974c8363a": {
+      "children": [],
+      "data": {
+        "Name": "Резина для бортов",
+        "Count": "11",
+        "Path": "Бильярд > Комплектующие столов > Резина для бортов"
+      },
+      "format": "CATEGORY"
+    },
+    "37509e54-ae1a-43ae-a0ac-b56d124096bd": {
+      "children": [],
+      "data": {
+        "Name": "Светильники",
+        "Count": "0",
+        "Path": "Бильярд > Освещение > Светильники"
+      },
+      "format": "CATEGORY"
+    },
+    "0b7ea2f9-a67a-4d9a-a0c1-abe9537ba0e5": {
+      "children": [],
+      "data": {
+        "Name": "Аксессуары",
+        "Count": "170",
+        "Path": "Бильярд > Прочее > Аксессуары"
+      },
+      "format": "CATEGORY"
+    },
+    "4534cc02-d0be-4b4a-820f-5e6c0dda049d": {
+      "children": [],
+      "data": {
+        "Name": "Бильярдные столы",
+        "Count": "0",
+        "Path": "Бильярд > Столы > Бильярдные столы"
+      },
+      "format": "CATEGORY"
+    },
+    "16a09ea5-ac24-4394-b5fe-49f127fe4e4a": {
+      "children": [],
+      "data": {
+        "Name": "Сукно",
+        "Count": "60",
+        "Path": "Бильярд > Сукно и покрытия > Сукно"
+      },
+      "format": "CATEGORY"
+    },
+    "391b20e7-fcdd-4891-9d85-1f150b453ffd": {
+      "children": [],
+      "data": {
+        "Name": "Тубусы и футляры",
+        "Count": "19",
+        "Path": "Бильярд > Чехлы и тубусы > Тубусы и футляры"
+      },
+      "format": "CATEGORY"
+    },
+    "754c4844-d9ce-4dea-9966-a67ddb2fca5d": {
+      "children": [],
+      "data": {
+        "Name": "Чехлы для столов",
+        "Count": "69",
+        "Path": "Бильярд > Чехлы и тубусы > Чехлы для столов"
+      },
+      "format": "CATEGORY"
+    },
+    "4c013c21-2058-4f53-aed2-08a310a55e1c": {
+      "children": [],
+      "data": {
+        "Name": "Прочие шары",
+        "Count": "0",
+        "Path": "Бильярд > Шары > Прочие шары"
+      },
+      "format": "CATEGORY"
+    },
+    "84e71e44-f4f6-44c3-81e8-2a783b3b9764": {
+      "children": [],
+      "data": {
+        "Name": "Пул",
+        "Count": "1",
+        "Path": "Бильярд > Шары > Пул"
+      },
+      "format": "CATEGORY"
+    },
+    "4a93eb5d-a1e7-4daf-a0f1-109d87de9416": {
+      "children": [],
+      "data": {
+        "Name": "Русский бильярд",
+        "Count": "0",
+        "Path": "Бильярд > Шары > Русский бильярд"
+      },
+      "format": "CATEGORY"
+    },
+    "7460a17d-ab5e-46aa-8bf6-e972d6ad4a91": {
+      "children": [],
+      "data": {
+        "Name": "Снукер",
+        "Count": "1",
+        "Path": "Бильярд > Шары > Снукер"
+      },
+      "format": "CATEGORY"
+    },
+    "992bd412-0fe2-460d-a7df-84abb56bfbe4": {
+      "children": [],
+      "data": {
+        "Name": "Тренировочные",
+        "Count": "0",
+        "Path": "Бильярд > Шары > Тренировочные"
+      },
+      "format": "CATEGORY"
+    },
+    "073fd7e8-387b-4211-8c9e-371dc3303bfc": {
+      "children": [
+        "d14cdf81-76e0-442b-ba86-a3973aa300a7"
+      ],
+      "data": {
+        "Name": "Аксессуары",
+        "Count": "0",
+        "Path": "Дартс > Аксессуары"
+      },
+      "format": "CATEGORY"
+    },
+    "13b44ec3-4cfd-4edc-b2a6-9b1f03ee603c": {
+      "children": [
+        "57127171-8fee-42f6-a55d-7de1e0f0823c"
+      ],
+      "data": {
+        "Name": "Дротики",
+        "Count": "0",
+        "Path": "Дартс > Дротики"
+      },
+      "format": "CATEGORY"
+    },
+    "d14cdf81-76e0-442b-ba86-a3973aa300a7": {
+      "children": [],
+      "data": {
+        "Name": "Прочее",
+        "Count": "0",
+        "Path": "Дартс > Аксессуары > Прочее"
+      },
+      "format": "CATEGORY"
+    },
+    "57127171-8fee-42f6-a55d-7de1e0f0823c": {
+      "children": [],
+      "data": {
+        "Name": "Дротики",
+        "Count": "0",
+        "Path": "Дартс > Дротики > Дротики"
+      },
+      "format": "CATEGORY"
+    },
+    "c06958df-d0f7-4b38-8837-5bad625fc6ea": {
+      "children": [
+        "aa9212cc-b8a7-42a6-93a4-f6d5051d9bfa"
+      ],
+      "data": {
+        "Name": "Аэрохоккей",
+        "Count": "0",
+        "Path": "Игровые столы > Аэрохоккей"
+      },
+      "format": "CATEGORY"
+    },
+    "66ecd88f-cc88-4a41-95b4-b46b67dfee99": {
+      "children": [
+        "6d59bd5e-6a32-42e7-b0fb-85137bde2d92"
+      ],
+      "data": {
+        "Name": "Настольный футбол",
+        "Count": "0",
+        "Path": "Игровые столы > Настольный футбол"
+      },
+      "format": "CATEGORY"
+    },
+    "aa9212cc-b8a7-42a6-93a4-f6d5051d9bfa": {
+      "children": [],
+      "data": {
+        "Name": "Аэрохоккей",
+        "Count": "0",
+        "Path": "Игровые столы > Аэрохоккей > Аэрохоккей"
+      },
+      "format": "CATEGORY"
+    },
+    "6d59bd5e-6a32-42e7-b0fb-85137bde2d92": {
+      "children": [],
+      "data": {
+        "Name": "Кикер",
+        "Count": "0",
+        "Path": "Игровые столы > Настольный футбол > Кикер"
+      },
+      "format": "CATEGORY"
+    },
+    "bce09dc3-d412-4925-9b94-46e2bd7baccb": {
+      "children": [
+        "34bd92c8-085c-465a-9efb-e58261ee2979"
+      ],
+      "data": {
+        "Name": "Ракетки",
+        "Count": "0",
+        "Path": "Настольный теннис > Ракетки"
+      },
+      "format": "CATEGORY"
+    },
+    "491a609d-8a9a-479c-8a71-41694b96e5a9": {
+      "children": [
+        "1b90182b-cd9e-450d-896b-2b74b4539bd0"
+      ],
+      "data": {
+        "Name": "Столы",
+        "Count": "0",
+        "Path": "Настольный теннис > Столы"
+      },
+      "format": "CATEGORY"
+    },
+    "34bd92c8-085c-465a-9efb-e58261ee2979": {
+      "children": [],
+      "data": {
+        "Name": "Ракетки",
+        "Count": "0",
+        "Path": "Настольный теннис > Ракетки > Ракетки"
+      },
+      "format": "CATEGORY"
+    },
+    "1b90182b-cd9e-450d-896b-2b74b4539bd0": {
+      "children": [],
+      "data": {
+        "Name": "Теннисные столы",
+        "Count": "0",
+        "Path": "Настольный теннис > Столы > Теннисные столы"
+      },
+      "format": "CATEGORY"
+    },
+    "e74907b9-bf08-455e-bc1c-47cac42ec3d5": {
+      "children": [
+        "86ea9c07-886c-4691-b718-9623a3a27c4c"
+      ],
+      "data": {
+        "Name": "Карты",
+        "Count": "1",
+        "Path": "Покер > Карты"
+      },
+      "format": "CATEGORY"
+    },
+    "797fd694-e316-4af4-952f-7c46b6287b30": {
+      "children": [
+        "21f4f5a0-1e63-4a6e-b569-0a76f1f97fcb"
+      ],
+      "data": {
+        "Name": "Наборы",
+        "Count": "0",
+        "Path": "Покер > Наборы"
+      },
+      "format": "CATEGORY"
+    },
+    "c9292d88-6c7a-4e43-b7c0-269494ea6e6b": {
+      "children": [
+        "479825d7-aa99-4bb9-b312-ebff8e243992"
+      ],
+      "data": {
+        "Name": "Фишки",
+        "Count": "0",
+        "Path": "Покер > Фишки"
+      },
+      "format": "CATEGORY"
+    },
+    "86ea9c07-886c-4691-b718-9623a3a27c4c": {
+      "children": [],
+      "data": {
+        "Name": "Карты",
+        "Count": "1",
+        "Path": "Покер > Карты > Карты"
+      },
+      "format": "CATEGORY"
+    },
+    "21f4f5a0-1e63-4a6e-b569-0a76f1f97fcb": {
+      "children": [],
+      "data": {
+        "Name": "Наборы для покера",
+        "Count": "0",
+        "Path": "Покер > Наборы > Наборы для покера"
+      },
+      "format": "CATEGORY"
+    },
+    "479825d7-aa99-4bb9-b312-ebff8e243992": {
+      "children": [],
+      "data": {
+        "Name": "Фишки",
+        "Count": "0",
+        "Path": "Покер > Фишки > Фишки"
+      },
+      "format": "CATEGORY"
+    },
+    "9c56555d-a4fe-47fd-af40-9fe1db45cd9c": {
+      "children": [
+        "dc748edc-4390-421b-8e53-5df17d356157"
+      ],
+      "data": {
+        "Name": "Без категории",
+        "Count": "2",
+        "Path": "Прочее > Без категории"
+      },
+      "format": "CATEGORY"
+    },
+    "dc748edc-4390-421b-8e53-5df17d356157": {
+      "children": [],
+      "data": {
+        "Name": "Прочее",
+        "Count": "2",
+        "Path": "Прочее > Без категории > Прочее"
+      },
+      "format": "CATEGORY"
+    },
+    "0c7fb45b-7e53-4a64-ac3f-0484fa6705ef": {
+      "children": [
+        "6883359f-53f9-456f-814c-325badabcaa8"
+      ],
+      "data": {
+        "Name": "Тренажеры",
+        "Count": "0",
+        "Path": "Тренажеры > Тренажеры"
+      },
+      "format": "CATEGORY"
+    },
+    "6883359f-53f9-456f-814c-325badabcaa8": {
+      "children": [],
+      "data": {
+        "Name": "Тренажеры",
+        "Count": "0",
+        "Path": "Тренажеры > Тренажеры > Тренажеры"
+      },
+      "format": "CATEGORY"
+    }
+  },
+  "properties": {
+    "tlversion": "3.1.4",
+    "topnodes": [
+      "fcdd071a-e623-458d-8800-8fbb63e1f893"
+    ]
+  }
+}
