@@ -349,6 +349,12 @@ class DB {
                     ADD COLUMN IF NOT EXISTS images JSON DEFAULT NULL COMMENT 'Массив URL картинок' AFTER image_url
             ",
 
+            // ── v018: Supplier field for products ──────────
+            'v018_product_supplier' => "
+                ALTER TABLE erp_products
+                    ADD COLUMN IF NOT EXISTS supplier VARCHAR(200) DEFAULT NULL AFTER brand
+            ",
+
             // ── v016: Сделки (Deals / Pipeline) ─────────────
             'v016_deals' => "
                 CREATE TABLE IF NOT EXISTS erp_deals (
@@ -370,6 +376,34 @@ class DB {
                     INDEX idx_contact (contact_id),
                     INDEX idx_created (created_at)
                 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+            ",
+
+            // ── v019: Справочник поставщиков ────────────────
+            'v019_suppliers' => "
+                CREATE TABLE IF NOT EXISTS erp_suppliers (
+                    id INT AUTO_INCREMENT PRIMARY KEY,
+                    name VARCHAR(200) NOT NULL,
+                    alias VARCHAR(100) DEFAULT NULL COMMENT 'Сокращённое название',
+                    inn VARCHAR(12) DEFAULT NULL,
+                    phone VARCHAR(20) DEFAULT NULL,
+                    email VARCHAR(100) DEFAULT NULL,
+                    website VARCHAR(200) DEFAULT NULL,
+                    country VARCHAR(100) DEFAULT NULL,
+                    address VARCHAR(300) DEFAULT NULL,
+                    notes TEXT DEFAULT NULL,
+                    is_active TINYINT(1) NOT NULL DEFAULT 1,
+                    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+                    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+                    UNIQUE KEY uk_name (name),
+                    INDEX idx_alias (alias)
+                ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+            ",
+
+            // ── v020: Связь товаров с поставщиками ──────────
+            'v020_product_supplier_id' => "
+                ALTER TABLE erp_products
+                    ADD COLUMN IF NOT EXISTS supplier_id INT DEFAULT NULL AFTER supplier,
+                    ADD CONSTRAINT fk_product_supplier FOREIGN KEY (supplier_id) REFERENCES erp_suppliers(id) ON DELETE SET NULL
             ",
         ];
     }

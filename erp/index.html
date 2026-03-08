@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
@@ -8,690 +8,9 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
-    <style>
-/* ── Reset & Base ─────────────────────────────── */
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-:root {
-    --bg: #f3f4f6;
-    --bg2: #ffffff;
-    --bg3: #f9fafb;
-    --text: #111827;
-    --text2: #6b7280;
-    --accent: #4f46e5;
-    --accent-hover: #4338ca;
-    --accent2: #818cf8;
-    --green: #10b981;
-    --red: #ef4444;
-    --yellow: #f59e0b;
-    --blue: #3b82f6;
-    --border: #e5e7eb;
-    --radius: 12px;
-    --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-    --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-    --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-}
-
-@media (prefers-color-scheme: dark) {
-    :root {
-        --bg: #0f172a;
-        --bg2: #1e293b;
-        --bg3: #334155;
-        --text: #f8fafc;
-        --text2: #94a3b8;
-        --border: #334155;
-        --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.5);
-        --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.4), 0 2px 4px -1px rgba(0, 0, 0, 0.3);
-        --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.5), 0 4px 6px -2px rgba(0, 0, 0, 0.4);
-    }
-}
-
-body {
-    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-    background: var(--bg);
-    color: var(--text);
-    line-height: 1.5;
-    min-height: 100vh;
-    -webkit-font-smoothing: antialiased;
-}
-a { color: var(--accent); text-decoration: none; transition: color 0.2s; }
-a:hover { color: var(--accent-hover); }
-
-/* ── Layout ───────────────────────────────────── */
-.app { display: flex; min-height: 100vh; }
-.sidebar {
-    width: 260px;
-    background: var(--bg2);
-    border-right: 1px solid var(--border);
-    padding: 20px 0;
-    flex-shrink: 0;
-    display: flex;
-    flex-direction: column;
-    overflow-y: auto;
-    max-height: 100vh;
-    box-shadow: var(--shadow-sm);
-    z-index: 10;
-}
-.sidebar-logo {
-    padding: 0 24px 20px;
-    font-size: 20px;
-    font-weight: 700;
-    color: var(--text);
-    border-bottom: 1px solid var(--border);
-    margin-bottom: 12px;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-}
-.sidebar-logo small { font-size: 11px; color: var(--text2); font-weight: 500; padding-top: 4px; }
-
-/* ── Nav Items ────────────────────────────── */
-.nav-item {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    padding: 10px 24px;
-    color: var(--text2);
-    cursor: pointer;
-    transition: all 0.2s ease;
-    font-size: 14px;
-    font-weight: 500;
-    border-left: 3px solid transparent;
-}
-.nav-item:hover { background: var(--bg3); color: var(--text); }
-.nav-item.active {
-    background: rgba(79, 70, 229, 0.1);
-    color: var(--accent);
-    border-left-color: var(--accent);
-}
-.nav-item .icon { font-size: 18px; width: 24px; text-align: center; flex-shrink: 0; }
-
-/* ── Nav Groups ───────────────────────────── */
-.nav-group { margin-top: 8px; }
-.nav-group-header {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    padding: 10px 24px;
-    font-size: 12px;
-    font-weight: 600;
-    color: var(--text2);
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    cursor: pointer;
-    user-select: none;
-    transition: color 0.2s;
-}
-.nav-group-header:hover { color: var(--text); }
-.nav-group-header .chevron {
-    font-size: 10px;
-    transition: transform 0.2s;
-    margin-left: auto;
-    color: var(--text2);
-}
-.nav-group-header .chevron.open { transform: rotate(90deg); }
-.nav-group-items {
-    overflow: hidden;
-    max-height: 0;
-    transition: max-height 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
-.nav-group-items.expanded { max-height: 500px; }
-.nav-group-items .nav-item { padding-left: 36px; padding-top: 8px; padding-bottom: 8px; font-size: 13.5px; }
-
-/* ── Nav separator & spacer ───────────────── */
-.nav-sep { border-top: 1px solid var(--border); margin: 12px 24px; }
-.nav-spacer { flex: 1; min-height: 20px; }
-
-.main {
-    flex: 1;
-    padding: 32px 40px;
-    overflow-y: auto;
-    max-height: 100vh;
-}
-
-/* ── Header ───────────────────────────────────── */
-.page-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    margin-bottom: 32px;
-}
-.page-header h1 { font-size: 28px; font-weight: 700; color: var(--text); letter-spacing: -0.02em; }
-.page-header .subtitle { color: var(--text2); font-size: 14px; margin-top: 4px; }
-
-/* ── Cards ────────────────────────────────────── */
-.cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 20px; margin-bottom: 32px; }
-.card {
-    background: var(--bg2);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    padding: 20px;
-    box-shadow: var(--shadow-sm);
-    transition: transform 0.2s, box-shadow 0.2s;
-}
-.card:hover { transform: translateY(-2px); box-shadow: var(--shadow); }
-.card-label { font-size: 13px; color: var(--text2); font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; }
-.card-value { font-size: 32px; font-weight: 700; margin-top: 8px; color: var(--text); letter-spacing: -0.02em;}
-.card-value.green { color: var(--green); }
-.card-value.red { color: var(--red); }
-.card-value.blue { color: var(--blue); }
-.card-value.yellow { color: var(--yellow); }
-
-/* ── Table ────────────────────────────────────── */
-.table-wrap {
-    background: var(--bg2);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    overflow-x: auto;
-    box-shadow: var(--shadow-sm);
-}
-table { width: 100%; border-collapse: separate; border-spacing: 0; text-align: left; }
-th {
-    background: var(--bg3);
-    padding: 14px 20px;
-    font-size: 12px;
-    font-weight: 600;
-    text-transform: uppercase;
-    color: var(--text2);
-    letter-spacing: 0.05em;
-    border-bottom: 1px solid var(--border);
-}
-td {
-    padding: 16px 20px;
-    border-bottom: 1px solid var(--border);
-    font-size: 14px;
-    color: var(--text);
-}
-tr:last-child td { border-bottom: none; }
-tr:hover td { background: var(--bg3); }
-
-/* ── Buttons ──────────────────────────────────── */
-.btn {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    padding: 10px 18px;
-    border: 1px solid transparent;
-    border-radius: 8px;
-    font-size: 14px;
-    font-weight: 500;
-    cursor: pointer;
-    transition: all 0.2s;
-    box-shadow: var(--shadow-sm);
-}
-.btn-primary { background: var(--accent); color: #fff; }
-.btn-primary:hover { background: var(--accent-hover); box-shadow: var(--shadow); }
-.btn-success { background: var(--green); color: #fff; }
-.btn-success:hover { filter: brightness(1.1); box-shadow: var(--shadow); }
-.btn-danger { background: var(--red); color: #fff; }
-.btn-danger:hover { filter: brightness(1.1); box-shadow: var(--shadow); }
-.btn-ghost { background: var(--bg2); color: var(--text); border-color: var(--border); }
-.btn-ghost:hover { background: var(--bg3); border-color: var(--text2); }
-.btn-sm { padding: 6px 12px; font-size: 13px; border-radius: 6px; }
-
-/* ── Forms ────────────────────────────────────── */
-.form-group { margin-bottom: 16px; }
-.form-group label { display: block; font-size: 13px; font-weight: 500; color: var(--text2); margin-bottom: 6px; }
-.form-input, .form-select, .form-textarea {
-    width: 100%;
-    padding: 10px 14px;
-    background: var(--bg2);
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    color: var(--text);
-    font-size: 14px;
-    outline: none;
-    transition: border-color 0.2s, box-shadow 0.2s;
-}
-.form-input:focus, .form-select:focus, .form-textarea:focus { 
-    border-color: var(--accent); 
-    box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1); 
-}
-.form-textarea { min-height: 100px; resize: vertical; font-family: inherit; }
-
-/* ── Filters Bar ──────────────────────────────── */
-.filters {
-    display: flex;
-    gap: 12px;
-    align-items: center;
-    flex-wrap: wrap;
-    margin-bottom: 24px;
-    background: var(--bg2);
-    padding: 16px;
-    border-radius: var(--radius);
-    border: 1px solid var(--border);
-    box-shadow: var(--shadow-sm);
-}
-.filters .form-input, .filters .form-select {
-    width: auto;
-    min-width: 160px;
-    background: var(--bg);
-}
-
-/* ── Journal Input ─────────────────────────────── */
-.journal-input-wrap {
-    background: var(--bg2);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    padding: 20px;
-    margin-bottom: 24px;
-    box-shadow: var(--shadow-sm);
-}
-.journal-input-wrap .input-row { display: flex; gap: 12px; align-items: flex-start; }
-.journal-input-wrap .form-textarea { flex: 1; min-height: 52px; }
-.journal-input-wrap .btn { align-self: flex-start; height: 52px; padding: 0 24px; }
-
-/* ── Badges ───────────────────────────────────── */
-.badge {
-    display: inline-flex;
-    align-items: center;
-    padding: 4px 10px;
-    border-radius: 9999px;
-    font-size: 12px;
-    font-weight: 600;
-    line-height: 1;
-}
-.badge-finance { background: rgba(59, 130, 246, 0.1); color: var(--blue); }
-.badge-inventory { background: rgba(16, 185, 129, 0.1); color: var(--green); }
-.badge-task { background: rgba(245, 158, 11, 0.1); color: var(--yellow); }
-.badge-logistics { background: rgba(129, 140, 248, 0.1); color: var(--accent2); }
-.badge-note { background: rgba(107, 114, 128, 0.1); color: var(--text2); }
-
-.badge-income { background: rgba(16, 185, 129, 0.1); color: var(--green); }
-.badge-expense { background: rgba(239, 68, 68, 0.1); color: var(--red); }
-.badge-transfer { background: rgba(59, 130, 246, 0.1); color: var(--blue); }
-
-.badge-todo { background: rgba(107, 114, 128, 0.1); color: var(--text2); }
-.badge-in_progress { background: rgba(59, 130, 246, 0.1); color: var(--blue); }
-.badge-done { background: rgba(16, 185, 129, 0.1); color: var(--green); }
-.badge-cancelled { text-decoration: line-through; color: var(--text2); }
-
-.badge-urgent { background: rgba(239, 68, 68, 0.1); color: var(--red); }
-.badge-high { background: rgba(245, 158, 11, 0.1); color: var(--yellow); }
-.badge-normal { background: rgba(107, 114, 128, 0.1); color: var(--text2); }
-.badge-low { background: transparent; border: 1px solid var(--border); color: var(--text2); }
-
-.badge-supply-draft { background: rgba(107, 114, 128, 0.1); color: var(--text2); }
-.badge-supply-ordered { background: rgba(59, 130, 246, 0.1); color: var(--blue); }
-.badge-supply-shipped { background: rgba(129, 140, 248, 0.1); color: var(--accent2); }
-.badge-supply-partial { background: rgba(245, 158, 11, 0.1); color: var(--yellow); }
-.badge-supply-received { background: rgba(16, 185, 129, 0.1); color: var(--green); }
-.badge-supply-cancelled { text-decoration: line-through; color: var(--text2); }
-
-.badge-deal-new { background: rgba(59, 130, 246, 0.1); color: var(--blue); }
-.badge-deal-qualifying { background: rgba(129, 140, 248, 0.1); color: var(--accent2); }
-.badge-deal-proposal { background: rgba(245, 158, 11, 0.1); color: var(--yellow); }
-.badge-deal-negotiation { background: rgba(245, 158, 11, 0.2); color: var(--yellow); }
-.badge-deal-won { background: rgba(16, 185, 129, 0.1); color: var(--green); }
-.badge-deal-lost { text-decoration: line-through; color: var(--text2); }
-
-/* ── Modal ────────────────────────────────────── */
-.modal-overlay {
-    position: fixed; inset: 0;
-    background: rgba(15, 23, 42, 0.7);
-    backdrop-filter: blur(4px);
-    display: flex; align-items: center; justify-content: center;
-    z-index: 100;
-}
-.modal {
-    background: var(--bg2);
-    border: 1px solid var(--border);
-    border-radius: 16px;
-    padding: 32px;
-    width: 90%;
-    max-width: 540px;
-    max-height: 90vh;
-    overflow-y: auto;
-    box-shadow: var(--shadow-lg);
-}
-.modal h2 { margin-bottom: 24px; font-size: 20px; font-weight: 700; color: var(--text); }
-.modal-buttons { display: flex; justify-content: flex-end; gap: 12px; margin-top: 32px; padding-top: 16px; border-top: 1px solid var(--border); }
-
-/* ── AI Chat ──────────────────────────────────── */
-.ai-chat {
-    background: var(--bg2);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    padding: 24px;
-    margin-top: 24px;
-    box-shadow: var(--shadow-sm);
-}
-.ai-messages { max-height: 500px; overflow-y: auto; margin-bottom: 16px; padding-right: 8px; }
-.ai-msg { padding: 12px 16px; margin-bottom: 12px; border-radius: 12px; font-size: 14px; line-height: 1.6; }
-.ai-msg.user { background: var(--accent); color: #fff; margin-left: 48px; border-bottom-right-radius: 4px; }
-.ai-msg.assistant { background: var(--bg3); color: var(--text); border: 1px solid var(--border); margin-right: 48px; border-bottom-left-radius: 4px; }
-.ai-msg pre { white-space: pre-wrap; font-family: inherit; font-size: 13px; background: rgba(0,0,0,0.05); padding: 8px; border-radius: 6px; margin-top: 8px; }
-
-/* ── Loading ──────────────────────────────────── */
-.spinner { display: inline-block; width: 20px; height: 20px; border: 2px solid var(--border); border-top-color: var(--accent); border-radius: 50%; animation: spin 0.8s linear infinite; }
-@keyframes spin { to { transform: rotate(360deg); } }
-.loading-overlay { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 60px; color: var(--text2); gap: 16px; }
-
-/* ── Toast ────────────────────────────────────── */
-.toast-container { position: fixed; top: 24px; right: 24px; z-index: 200; display: flex; flex-direction: column; gap: 12px; }
-.toast {
-    padding: 14px 20px;
-    border-radius: 10px;
-    font-size: 14px;
-    font-weight: 500;
-    box-shadow: var(--shadow-lg);
-    animation: slideIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-    max-width: 400px;
-    display: flex;
-    align-items: center;
-    gap: 12px;
-}
-.toast-success { background: var(--bg2); color: var(--text); border-left: 4px solid var(--green); border: 1px solid var(--border); }
-.toast-error { background: var(--bg2); color: var(--text); border-left: 4px solid var(--red); border: 1px solid var(--border); }
-.toast-info { background: var(--bg2); color: var(--text); border-left: 4px solid var(--blue); border: 1px solid var(--border); }
-@keyframes slideIn { from { transform: translateX(100px); opacity: 0; } }
-
-/* ── Action Buttons in Tables ──────────────────── */
-.actions { display: flex; gap: 6px; }
-.btn-icon { display: inline-flex; align-items: center; justify-content: center; width: 32px; height: 32px; border-radius: 6px; border: 1px solid var(--border); background: var(--bg2); color: var(--text2); cursor: pointer; transition: all 0.2s; font-size: 14px; }
-.btn-icon:hover { background: var(--bg3); color: var(--text); border-color: var(--text2); }
-.btn-icon.danger:hover { color: var(--red); border-color: var(--red); background: rgba(239,68,68,0.05); }
-.btn-icon.success:hover { color: var(--green); border-color: var(--green); background: rgba(16,185,129,0.05); }
-
-/* ── Detail Panel ─────────────────────────────── */
-.detail-grid { display: grid; grid-template-columns: 140px 1fr; gap: 8px 16px; margin-bottom: 16px; }
-.detail-grid .label { font-size: 12px; color: var(--text2); text-transform: uppercase; letter-spacing: 0.04em; font-weight: 600; padding-top: 2px; }
-.detail-grid .value { font-size: 14px; color: var(--text); }
-.detail-section { margin-bottom: 20px; }
-.detail-section h3 { font-size: 14px; font-weight: 600; margin-bottom: 10px; color: var(--text); }
-
-/* ── Confirm Dialog ───────────────────────────── */
-.confirm-text { font-size: 15px; color: var(--text); line-height: 1.6; margin-bottom: 16px; }
-.confirm-text strong { color: var(--red); }
-
-/* ── Tags ─────────────────────────────────────── */
-.tag-list { display: flex; flex-wrap: wrap; gap: 4px; }
-.tag-list .badge { cursor: default; }
-
-/* ── Empty State ──────────────────────────────── */
-.empty-state { text-align: center; padding: 40px 20px; color: var(--text2); }
-.empty-state .icon { font-size: 48px; margin-bottom: 12px; opacity: 0.5; }
-.empty-state p { font-size: 14px; }
-
-/* ── Tabs ─────────────────────────────────────── */
-.tabs { display: flex; gap: 0; border-bottom: 1px solid var(--border); margin-bottom: 20px; }
-.tab { padding: 10px 18px; font-size: 14px; font-weight: 500; color: var(--text2); cursor: pointer; border-bottom: 2px solid transparent; transition: all 0.2s; }
-.tab:hover { color: var(--text); }
-.tab.active { color: var(--accent); border-bottom-color: var(--accent); }
-
-/* ── Wide Modal ───────────────────────────────── */
-.modal.wide { max-width: 700px; }
-
-/* ── Catalog Sidebar (replaces main nav on Склад) ─ */
-.catalog-sidebar {
-    flex-shrink: 0;
-    background: var(--bg2);
-    border-right: none;
-    padding: 0;
-    display: flex;
-    flex-direction: column;
-    overflow-y: auto;
-    max-height: 100vh;
-    box-shadow: var(--shadow-sm);
-    z-index: 10;
-    position: relative;
-}
-.catalog-sidebar-resize {
-    position: absolute; top: 0; right: -3px; width: 6px; height: 100%;
-    cursor: col-resize; z-index: 20; background: transparent;
-    transition: background 0.15s;
-}
-.catalog-sidebar-resize:hover,
-.catalog-sidebar-resize.dragging { background: var(--accent); opacity: 0.5; }
-.catalog-sidebar-header {
-    padding: 16px 16px 12px;
-    border-bottom: 1px solid var(--border);
-    display: flex; flex-direction: column; gap: 10px;
-}
-.catalog-sidebar-header .back-link {
-    display: flex; align-items: center; gap: 6px; font-size: 13px; color: var(--text2);
-    cursor: pointer; transition: color 0.15s; font-weight: 500;
-}
-.catalog-sidebar-header .back-link:hover { color: var(--accent); }
-.catalog-sidebar-header h3 { font-size: 16px; font-weight: 700; margin: 0; }
-.catalog-sidebar-body { flex: 1; overflow-y: auto; padding: 12px 0; }
-.catalog-sidebar-section { padding: 0 16px; margin-bottom: 4px; }
-.catalog-sidebar-section h4 {
-    font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em;
-    color: var(--text2); margin-bottom: 0; padding: 0 4px;
-}
-
-/* Accordion */
-.accordion-toggle {
-    display: flex; align-items: center; justify-content: space-between;
-    padding: 10px 4px; cursor: pointer; user-select: none; transition: color 0.15s;
-}
-.accordion-toggle:hover { color: var(--text); }
-.accordion-toggle h4 { margin: 0; }
-.accordion-toggle .acc-icon {
-    font-size: 14px; color: var(--text2); transition: transform 0.2s;
-}
-.accordion-toggle .acc-icon.open { transform: rotate(180deg); }
-.accordion-body { overflow: hidden; transition: max-height 0.25s ease; }
-.accordion-body.collapsed { max-height: 0 !important; overflow: hidden; }
-
-/* 3-level category tree */
-.cat-tree-toggle {
-    display: inline-flex; align-items: center; justify-content: center;
-    width: 18px; height: 18px; cursor: pointer; flex-shrink: 0;
-    font-size: 10px; color: var(--text2); border-radius: 3px;
-    transition: all 0.15s;
-}
-.cat-tree-toggle:hover { color: var(--accent); background: var(--bg3); }
-.cat-tree-toggle-placeholder { width: 18px; flex-shrink: 0; }
-.cat-level-3 { padding-left: 0; margin-left: 22px; border-left: 1px solid var(--border); }
-.cat-level-3 .cat-item { padding-left: 6px; }
-
-/* Bulk actions */
-.bulk-bar {
-    display: flex; align-items: center; gap: 12px;
-    padding: 10px 16px; background: var(--accent); color: #fff;
-    border-radius: var(--radius); margin-bottom: 12px;
-    font-size: 13px; font-weight: 500; animation: slideDown 0.2s;
-}
-@keyframes slideDown { from { opacity:0; transform:translateY(-8px); } to { opacity:1; transform:translateY(0); } }
-.bulk-bar .bulk-count { font-weight: 700; }
-.bulk-bar button { background: rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.3); color: #fff; padding: 5px 12px; border-radius: 6px; font-size: 12px; cursor: pointer; font-weight: 500; transition: background 0.15s; }
-.bulk-bar button:hover { background: rgba(255,255,255,0.35); }
-.bulk-bar .bulk-close { margin-left: auto; cursor: pointer; opacity: 0.7; font-size: 16px; }
-.bulk-bar .bulk-close:hover { opacity: 1; }
-.product-card-check, .product-row-check {
-    position: absolute; top: 8px; left: 8px; z-index: 5;
-    width: 20px; height: 20px; accent-color: var(--accent);
-    cursor: pointer;
-}
-.product-card { position: relative; }
-.product-card-check-visible { opacity: 1 !important; }
-
-/* Move to category modal tree */
-.move-cat-tree { list-style: none; padding: 0; margin: 0; max-height: 400px; overflow-y: auto; }
-.move-cat-tree li { margin: 0; }
-.move-cat-item {
-    display: flex; align-items: center; gap: 8px;
-    padding: 6px 10px; border-radius: 6px; cursor: pointer;
-    font-size: 13px; color: var(--text2); transition: all 0.15s;
-}
-.move-cat-item:hover { background: var(--bg3); color: var(--text); }
-.move-cat-item.selected { background: rgba(79,70,229,0.12); color: var(--accent); font-weight: 600; }
-.move-cat-item .cat-folder { color: #e8a838; font-size: 15px; }
-.move-cat-children { padding-left: 20px; }
-.catalog-sidebar .form-input { font-size: 13px; padding: 8px 12px; background: var(--bg); }
-/* Sidebar nav items */
-.catalog-nav { list-style: none; padding: 0; margin: 0 0 8px; }
-.catalog-nav-item {
-    display: flex; align-items: center; gap: 10px;
-    padding: 9px 20px; font-size: 13.5px; font-weight: 500; color: var(--text2);
-    cursor: pointer; transition: all 0.15s; border-left: 3px solid transparent;
-}
-.catalog-nav-item:hover { background: var(--bg3); color: var(--text); }
-.catalog-nav-item.active { background: rgba(79,70,229,0.1); color: var(--accent); border-left-color: var(--accent); }
-.catalog-nav-item i { font-size: 16px; width: 20px; text-align: center; }
-.catalog-nav-item .cnt { margin-left: auto; font-size: 11px; background: var(--bg); padding: 1px 7px; border-radius: 9999px; }
-.catalog-nav-item.active .cnt { background: rgba(79,70,229,0.12); }
-.catalog-nav-sep { border-top: 1px solid var(--border); margin: 8px 16px; }
-
-/* Category tree */
-.cat-tree { list-style: none; padding: 0; margin: 0; }
-.cat-tree li { margin: 0; }
-.cat-row {
-    display: flex; align-items: center; gap: 0; padding: 1px 0;
-}
-.cat-item {
-    display: flex; align-items: center; gap: 6px;
-    padding: 5px 8px; border-radius: 6px; cursor: pointer;
-    font-size: 13px; color: var(--text2); transition: all 0.15s;
-    user-select: none; flex: 1; min-width: 0;
-}
-.cat-item:hover { background: var(--bg3); color: var(--text); }
-.cat-item.active { background: rgba(79,70,229,0.12); color: var(--accent); font-weight: 600; }
-.cat-item .cat-label { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.cat-item .cat-count {
-    margin-left: auto; font-size: 11px; color: var(--text2);
-    padding: 0 4px; min-width: 24px; text-align: right; flex-shrink: 0;
-    font-variant-numeric: tabular-nums;
-}
-.cat-item.active .cat-count { color: var(--accent); }
-.cat-item .cat-folder {
-    font-size: 15px; flex-shrink: 0;
-    color: #e8a838;
-}
-.cat-item.active .cat-folder { color: #3b82f6; }
-.cat-children { padding-left: 0; margin-left: 22px; border-left: 1px solid var(--border); }
-.cat-children .cat-item { padding-left: 6px; }
-.cat-children .cat-children { margin-left: 22px; }
-.cat-children .cat-children .cat-item { padding-left: 6px; }
-
-/* Sidebar filters */
-.sidebar-filter { margin-bottom: 10px; }
-.sidebar-filter label {
-    display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--text2);
-    cursor: pointer; padding: 4px 4px; border-radius: 4px; transition: color 0.15s;
-}
-.sidebar-filter label:hover { color: var(--text); }
-.sidebar-filter input[type="checkbox"] { accent-color: var(--accent); width: 15px; height: 15px; }
-
-/* Catalog toolbar */
-.catalog-toolbar {
-    display: flex; align-items: center; gap: 12px; margin-bottom: 16px;
-    padding: 12px 16px; background: var(--bg2); border: 1px solid var(--border);
-    border-radius: var(--radius); flex-wrap: wrap;
-}
-.catalog-toolbar .form-input { width: 260px; font-size: 13px; padding: 8px 12px; background: var(--bg); }
-.catalog-toolbar .form-select { width: auto; font-size: 13px; padding: 8px 12px; background: var(--bg); }
-.catalog-stats { font-size: 13px; color: var(--text2); margin-left: auto; white-space: nowrap; }
-.view-toggle { display: flex; gap: 0; border: 1px solid var(--border); border-radius: 6px; overflow: hidden; }
-.view-toggle button {
-    background: var(--bg2); border: none; padding: 6px 10px; cursor: pointer;
-    color: var(--text2); font-size: 16px; transition: all 0.15s; line-height: 1;
-}
-.view-toggle button:not(:last-child) { border-right: 1px solid var(--border); }
-.view-toggle button.active { background: var(--accent); color: #fff; }
-.view-toggle button:hover:not(.active) { background: var(--bg3); }
-
-/* Product grid */
-.product-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
-    gap: 16px;
-}
-.product-card {
-    background: var(--bg2); border: 1px solid var(--border); border-radius: var(--radius);
-    overflow: hidden; cursor: pointer; transition: transform 0.2s, box-shadow 0.2s;
-    display: flex; flex-direction: column;
-}
-.product-card:hover { transform: translateY(-2px); box-shadow: var(--shadow); }
-.product-card-img {
-    width: 100%; aspect-ratio: 1; background: var(--bg); display: flex;
-    align-items: center; justify-content: center; overflow: hidden; position: relative;
-}
-.product-card-img img { width: 100%; height: 100%; object-fit: contain; }
-.product-card-img .no-img { font-size: 40px; color: var(--border); }
-.product-card-body { padding: 12px; flex: 1; display: flex; flex-direction: column; gap: 4px; }
-.product-card-sku { font-size: 11px; color: var(--text2); font-family: monospace; letter-spacing: 0.02em; }
-.product-card-name { font-size: 13px; font-weight: 600; color: var(--text); line-height: 1.3; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
-.product-card-brand { font-size: 11px; color: var(--accent2); font-weight: 500; }
-.product-card-prices { display: flex; gap: 8px; align-items: baseline; margin-top: auto; padding-top: 6px; }
-.product-card-prices .sell { font-size: 15px; font-weight: 700; color: var(--text); }
-.product-card-prices .buy { font-size: 12px; color: var(--text2); text-decoration: line-through; }
-.product-card-stock { font-size: 11px; padding: 2px 6px; border-radius: 4px; display: inline-block; margin-top: 4px; }
-.product-card-stock.in-stock { background: rgba(16,185,129,0.1); color: var(--green); }
-.product-card-stock.no-stock { background: rgba(239,68,68,0.06); color: var(--red); }
-.product-card-source {
-    position: absolute; top: 6px; right: 6px; font-size: 10px; font-weight: 600;
-    padding: 2px 6px; border-radius: 4px; background: rgba(0,0,0,0.6); color: #fff;
-    text-transform: uppercase;
-}
-
-/* Product list view */
-.product-list-table img.thumb { width: 40px; height: 40px; object-fit: contain; border-radius: 4px; background: var(--bg); }
-
-/* Subtabs - kept for potential reuse */
-.subtabs { display: flex; gap: 0; border-bottom: 2px solid var(--border); margin-bottom: 20px; }
-.subtab {
-    padding: 10px 20px; font-size: 14px; font-weight: 600; color: var(--text2);
-    cursor: pointer; border-bottom: 2px solid transparent; margin-bottom: -2px; transition: all 0.2s;
-    display: flex; align-items: center; gap: 6px;
-}
-.subtab:hover { color: var(--text); }
-.subtab.active { color: var(--accent); border-bottom-color: var(--accent); }
-.subtab .subtab-count { font-size: 11px; background: var(--bg); padding: 1px 7px; border-radius: 9999px; font-weight: 500; }
-.subtab.active .subtab-count { background: rgba(79,70,229,0.12); }
-
-/* Load more */
-.load-more-wrap { text-align: center; padding: 20px 0; }
-
-/* Product detail modal large */
-.modal.product-detail { max-width: 800px; }
-.product-detail-top { display: flex; gap: 24px; margin-bottom: 20px; }
-.product-detail-images { width: 300px; flex-shrink: 0; }
-.product-detail-images .main-img { width: 100%; aspect-ratio: 1; background: var(--bg); border-radius: 8px; overflow: hidden; display: flex; align-items: center; justify-content: center; }
-.product-detail-images .main-img img { width: 100%; height: 100%; object-fit: contain; }
-.product-detail-thumbs { display: flex; gap: 6px; margin-top: 8px; overflow-x: auto; padding-bottom: 4px; }
-.product-detail-thumbs img {
-    width: 52px; height: 52px; object-fit: contain; border-radius: 6px; border: 2px solid var(--border);
-    cursor: pointer; transition: border-color 0.15s; background: var(--bg);
-}
-.product-detail-thumbs img:hover, .product-detail-thumbs img.active { border-color: var(--accent); }
-.product-detail-info { flex: 1; }
-.product-detail-info h2 { font-size: 20px; margin-bottom: 8px; }
-.product-detail-info .brand { color: var(--accent2); font-size: 14px; margin-bottom: 12px; }
-.product-detail-info .prices { display: flex; gap: 16px; align-items: baseline; margin-bottom: 16px; }
-.product-detail-info .prices .sell { font-size: 24px; font-weight: 700; }
-.product-detail-info .prices .buy { font-size: 14px; color: var(--text2); }
-
-/* ── Responsive ───────────────────────────────── */
-@media (max-width: 768px) {
-    .sidebar { width: 72px; padding: 16px 0; }
-    .sidebar .nav-label, .sidebar-logo small, .sidebar-logo span { display: none; }
-    .sidebar .nav-group-header { display: none; }
-    .sidebar .nav-group-items { max-height: none !important; }
-    .sidebar .nav-group-items .nav-item { padding: 12px; justify-content: center;}
-    .sidebar .nav-item { justify-content: center; padding: 12px; }
-    .sidebar .nav-item .icon { margin: 0; font-size: 20px; }
-    .sidebar .nav-sep { display: none; }
-    .main { padding: 16px; }
-    .page-header h1 { font-size: 24px; }
-    .cards { grid-template-columns: 1fr; }
-    table { font-size: 13px; }
-    td, th { padding: 10px 12px; }
-    .catalog-layout { flex-direction: column; margin: 0; }
-    .catalog-sidebar { width: 100% !important; max-height: none; border-right: none; border-bottom: 1px solid var(--border); }
-    .catalog-sidebar-resize { display: none; }
-    .catalog-main { max-height: none; padding: 0; }
-    .product-grid { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; }
-    .product-detail-top { flex-direction: column; }
-    .product-detail-images { width: 100%; }
-    .subtabs { overflow-x: auto; }
-}
-    </style>
+    <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
-
 <div id="app">
     <!-- Toast notifications -->
     <div class="toast-container">
@@ -762,6 +81,9 @@ tr:hover td { background: var(--bg3); }
                     <div :class="['nav-item', { active: currentRoute === 'deals' }]" @click="navigate('deals')">
                         <span class="icon"><i class="ph ph-handshake"></i></span><span class="nav-label">Сделки</span>
                     </div>
+                    <div :class="['nav-item', { active: currentRoute === 'suppliers' }]" @click="navigate('suppliers')">
+                        <span class="icon"><i class="ph ph-truck"></i></span><span class="nav-label">Поставщики</span>
+                    </div>
                 </div>
             </div>
 
@@ -826,8 +148,38 @@ tr:hover td { background: var(--bg3); }
             <div class="catalog-sidebar-body" v-if="inventoryTab === 'catalog'">
                 <div class="catalog-nav-sep"></div>
 
+                <!-- Sidebar view mode toggle -->
+                <div style="display:flex;gap:4px;padding:0 12px 8px;">
+                    <button :class="['btn btn-sm', catalogSidebarMode==='tree' ? 'btn-primary' : 'btn-ghost']" @click="catalogSidebarMode='tree'" style="flex:1;font-size:12px;padding:4px 8px;">
+                        <i class="ph ph-tree-structure"></i> Дерево
+                    </button>
+                    <button :class="['btn btn-sm', catalogSidebarMode==='az' ? 'btn-primary' : 'btn-ghost']" @click="catalogSidebarMode='az'" style="flex:1;font-size:12px;padding:4px 8px;">
+                        <i class="ph ph-text-aa"></i> А — Я
+                    </button>
+                </div>
+
+                <!-- А-Я alphabetical view -->
+                <div v-if="catalogSidebarMode==='az'" class="catalog-sidebar-section" style="padding:0 8px;">
+                    <div style="display:flex;flex-wrap:wrap;gap:3px;margin-bottom:8px;">
+                        <span v-for="[letter] in leafCategoriesByLetter" :key="'nav'+letter"
+                              @click="$el.closest('.catalog-sidebar-section').querySelector('#az-'+letter)?.scrollIntoView({behavior:'smooth',block:'start'})"
+                              style="cursor:pointer;font-weight:600;font-size:12px;color:var(--accent);padding:1px 4px;border-radius:3px;"
+                              onmouseover="this.style.background='var(--bg3)'" onmouseout="this.style.background=''">{{ letter }}</span>
+                    </div>
+                    <div v-for="[letter, cats] in leafCategoriesByLetter" :key="letter" style="margin-bottom:6px;" :id="'az-'+letter">
+                        <div style="font-weight:700;font-size:13px;color:var(--accent);padding:2px 4px;border-bottom:1px solid var(--border);margin-bottom:2px;">{{ letter }}</div>
+                        <div v-for="c in cats" :key="c.id"
+                             :class="['cat-item', { active: catalogFilter.category_id == c.id }]"
+                             @click="selectCategory(c.id)"
+                             style="padding:2px 6px;cursor:pointer;border-radius:4px;font-size:12px;">
+                            <span class="cat-label" style="flex:1;">{{ c.name }}</span>
+                            <span class="cat-count">{{ c.count || 0 }}</span>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- Categories accordion -->
-                <div class="catalog-sidebar-section">
+                <div class="catalog-sidebar-section" v-show="catalogSidebarMode==='tree'">
                     <div class="accordion-toggle" @click="sidebarAccordion.categories = !sidebarAccordion.categories">
                         <h4>Категории</h4>
                         <i :class="['ph ph-caret-down acc-icon', { open: sidebarAccordion.categories }]"></i>
@@ -845,7 +197,7 @@ tr:hover td { background: var(--bg3); }
                                     </div>
                                 </div>
                             </li>
-                            <!-- Level 1: Sections -->
+                            <!-- Level 1 -->
                             <li v-for="cat in catalogCategories" :key="cat.id">
                                 <div class="cat-row">
                                     <span class="cat-tree-toggle" v-if="cat.children && cat.children.length" @click.stop="toggleCatExpand(cat.id)">
@@ -858,7 +210,7 @@ tr:hover td { background: var(--bg3); }
                                         <span class="cat-count">{{ cat.count || 0 }}</span>
                                     </div>
                                 </div>
-                                <!-- Level 2: Groups -->
+                                <!-- Level 2 -->
                                 <ul class="cat-tree cat-children" v-if="cat.children && cat.children.length && expandedCats[cat.id]">
                                     <li v-for="sub in cat.children" :key="sub.id">
                                         <div class="cat-row">
@@ -872,17 +224,33 @@ tr:hover td { background: var(--bg3); }
                                                 <span class="cat-count">{{ sub.count || 0 }}</span>
                                             </div>
                                         </div>
-                                        <!-- Level 3: Subcategories -->
-                                        <ul class="cat-tree cat-level-3" v-if="sub.children && sub.children.length && expandedCats[sub.id]">
+                                        <!-- Level 3 -->
+                                        <ul class="cat-tree cat-children" v-if="sub.children && sub.children.length && expandedCats[sub.id]">
                                             <li v-for="sub2 in sub.children" :key="sub2.id">
                                                 <div class="cat-row">
-                                                    <span class="cat-tree-toggle-placeholder"></span>
+                                                    <span class="cat-tree-toggle" v-if="sub2.children && sub2.children.length" @click.stop="toggleCatExpand(sub2.id)">
+                                                        <i :class="['ph', expandedCats[sub2.id] ? 'ph-caret-down' : 'ph-caret-right']"></i>
+                                                    </span>
+                                                    <span class="cat-tree-toggle-placeholder" v-else></span>
                                                     <div :class="['cat-item', { active: catalogFilter.category_id == sub2.id }]" @click="selectCategory(sub2.id)">
-                                                        <i class="ph ph-file-text" style="font-size:14px;flex-shrink:0;color:var(--text2)"></i>
+                                                        <i class="ph ph-folder cat-folder"></i>
                                                         <span class="cat-label">{{ sub2.name }}</span>
                                                         <span class="cat-count">{{ sub2.count || 0 }}</span>
                                                     </div>
                                                 </div>
+                                                <!-- Level 4 -->
+                                                <ul class="cat-tree cat-children" v-if="sub2.children && sub2.children.length && expandedCats[sub2.id]">
+                                                    <li v-for="sub3 in sub2.children" :key="sub3.id">
+                                                        <div class="cat-row">
+                                                            <span class="cat-tree-toggle-placeholder"></span>
+                                                            <div :class="['cat-item', { active: catalogFilter.category_id == sub3.id }]" @click="selectCategory(sub3.id)">
+                                                                <i class="ph ph-file-text" style="font-size:14px;flex-shrink:0;color:var(--text2)"></i>
+                                                                <span class="cat-label">{{ sub3.name }}</span>
+                                                                <span class="cat-count">{{ sub3.count || 0 }}</span>
+                                                            </div>
+                                                        </div>
+                                                    </li>
+                                                </ul>
                                             </li>
                                         </ul>
                                     </li>
@@ -941,6 +309,22 @@ tr:hover td { background: var(--bg3); }
                             <label>
                                 <input type="checkbox" :value="s" v-model="catalogFilter.sources" @change="loadCatalog">
                                 {{ sourceLabel(s) }}
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Suppliers accordion -->
+                <div class="catalog-sidebar-section" v-if="catalogSuppliers.length">
+                    <div class="accordion-toggle" @click="sidebarAccordion.suppliers = !sidebarAccordion.suppliers">
+                        <h4>Поставщик</h4>
+                        <i :class="['ph ph-caret-down acc-icon', { open: sidebarAccordion.suppliers }]"></i>
+                    </div>
+                    <div :class="['accordion-body', { collapsed: !sidebarAccordion.suppliers }]" :style="sidebarAccordion.suppliers ? 'max-height:600px' : ''">
+                        <div class="sidebar-filter" v-for="s in catalogSuppliers" :key="s">
+                            <label>
+                                <input type="checkbox" :value="s" v-model="catalogFilter.suppliers" @change="loadCatalog">
+                                {{ s }}
                             </label>
                         </div>
                     </div>
@@ -1226,6 +610,20 @@ tr:hover td { background: var(--bg3); }
                         <label style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text2);cursor:pointer;margin-left:4px" title="Массовое выделение">
                             <input type="checkbox" v-model="bulkMode" @change="!bulkMode && (bulkSelected.length=0)" style="accent-color:var(--accent)"> Выделение
                         </label>
+                        <div class="col-toggle-wrap" v-if="catalogView === 'list'">
+                            <div class="col-toggle-btn" @click.stop="colVisibleOpen = !colVisibleOpen"><i class="ph ph-columns"></i> Столбцы</div>
+                            <div class="col-toggle-popup" v-if="colVisibleOpen" @click.stop>
+                                <label><input type="checkbox" :checked="colVisible.image" @change="toggleColVisible('image')" style="accent-color:var(--accent)"> Фото</label>
+                                <label><input type="checkbox" :checked="colVisible.sku" @change="toggleColVisible('sku')" style="accent-color:var(--accent)"> SKU</label>
+                                <label><input type="checkbox" :checked="colVisible.name" @change="toggleColVisible('name')" style="accent-color:var(--accent)"> Наименование</label>
+                                <label><input type="checkbox" :checked="colVisible.brand" @change="toggleColVisible('brand')" style="accent-color:var(--accent)"> Бренд</label>
+                                <label><input type="checkbox" :checked="colVisible.supplier" @change="toggleColVisible('supplier')" style="accent-color:var(--accent)"> Поставщик</label>
+                                <label><input type="checkbox" :checked="colVisible.purchase_price" @change="toggleColVisible('purchase_price')" style="accent-color:var(--accent)"> Закупка</label>
+                                <label><input type="checkbox" :checked="colVisible.sell_price" @change="toggleColVisible('sell_price')" style="accent-color:var(--accent)"> Продажа</label>
+                                <label><input type="checkbox" :checked="colVisible.stock" @change="toggleColVisible('stock')" style="accent-color:var(--accent)"> Остаток</label>
+                                <label><input type="checkbox" :checked="colVisible.source" @change="toggleColVisible('source')" style="accent-color:var(--accent)"> Источник</label>
+                            </div>
+                        </div>
                         <span class="catalog-stats">
                             Показано {{ catalogProducts.length }} из {{ catalogTotal }}
                         </span>
@@ -1269,41 +667,95 @@ tr:hover td { background: var(--bg3); }
                             <thead>
                                 <tr>
                                     <th v-if="bulkMode" style="width:30px"><input type="checkbox" @change="$event.target.checked ? selectAllVisible() : bulkSelected.length=0" style="accent-color:var(--accent)"></th>
-                                    <th style="width:50px"></th>
-                                    <th>SKU</th>
-                                    <th>Наименование</th>
-                                    <th>Бренд</th>
-                                    <th>Закупка</th>
-                                    <th>Продажа</th>
-                                    <th>Остаток</th>
-                                    <th>Источник</th>
+                                    <th v-if="colVisible.image" style="width:50px"></th>
+                                    <th v-if="colVisible.sku" style="width:75px">
+                                        <div class="col-header">
+                                            <span class="col-sort" @click="setCatalogSort('sku')">SKU <i :class="['ph sort-icon', catalogFilter.sort==='sku' ? 'ph-sort-ascending active' : 'ph-arrows-down-up']"></i></span>
+                                        </div>
+                                        <input class="col-search-input" type="text" v-model="catalogFilter.filter_sku" @input="debounceCatalogSearch" placeholder="🔍">
+                                    </th>
+                                    <th v-if="colVisible.name">
+                                        <div class="col-header">
+                                            <span class="col-sort" @click="setCatalogSort('name')">Наименование <i :class="['ph sort-icon', catalogFilter.sort==='name' ? 'ph-sort-ascending active' : 'ph-arrows-down-up']"></i></span>
+                                        </div>
+                                        <input class="col-search-input" type="text" v-model="catalogFilter.filter_name" @input="debounceCatalogSearch" placeholder="🔍">
+                                    </th>
+                                    <th v-if="colVisible.brand">
+                                        <div class="col-header">
+                                            <span class="col-sort" @click="setCatalogSort('brand')">Бренд <i :class="['ph sort-icon', catalogFilter.sort==='brand' ? 'ph-sort-ascending active' : 'ph-arrows-down-up']"></i></span>
+                                            <i :class="['ph ph-funnel col-filter-btn', { active: catalogFilter.brands.length }]" @click.stop="toggleColFilter('brand')"></i>
+                                            <div class="col-filter-popup" v-if="colFilterOpen === 'brand'" @click.stop>
+                                                <label v-for="b in catalogBrands" :key="b"><input type="checkbox" :value="b" v-model="catalogFilter.brands" @change="loadCatalog" style="accent-color:var(--accent)"> {{ b }}</label>
+                                            </div>
+                                        </div>
+                                    </th>
+                                    <th v-if="colVisible.supplier">
+                                        <div class="col-header">
+                                            <span class="col-sort" @click="setCatalogSort('supplier')">Поставщик <i :class="['ph sort-icon', catalogFilter.sort==='supplier' ? 'ph-sort-ascending active' : 'ph-arrows-down-up']"></i></span>
+                                            <i :class="['ph ph-funnel col-filter-btn', { active: catalogFilter.suppliers.length }]" @click.stop="toggleColFilter('supplier')"></i>
+                                            <div class="col-filter-popup" v-if="colFilterOpen === 'supplier'" @click.stop>
+                                                <label v-for="s in catalogSuppliers" :key="s"><input type="checkbox" :value="s" v-model="catalogFilter.suppliers" @change="loadCatalog" style="accent-color:var(--accent)"> {{ s }}</label>
+                                            </div>
+                                        </div>
+                                    </th>
+                                    <th v-if="colVisible.purchase_price">
+                                        <div class="col-header">
+                                            <span class="col-sort" @click="setCatalogSort('price_asc')">Закупка <i :class="['ph sort-icon', catalogFilter.sort==='price_asc' ? 'ph-sort-ascending active' : (catalogFilter.sort==='price_desc' ? 'ph-sort-descending active' : 'ph-arrows-down-up')]"></i></span>
+                                        </div>
+                                    </th>
+                                    <th v-if="colVisible.sell_price">
+                                        <div class="col-header">
+                                            <span class="col-sort" @click="setCatalogSort(catalogFilter.sort==='price_desc' ? 'price_asc' : 'price_desc')">Продажа <i :class="['ph sort-icon', catalogFilter.sort==='price_desc' || catalogFilter.sort==='price_asc' ? 'active' : '', catalogFilter.sort==='price_desc' ? 'ph-sort-descending' : (catalogFilter.sort==='price_asc' ? 'ph-sort-ascending' : 'ph-arrows-down-up')]"></i></span>
+                                        </div>
+                                    </th>
+                                    <th v-if="colVisible.stock">
+                                        <div class="col-header">
+                                            <span class="col-sort" @click="setCatalogSort(catalogFilter.sort==='stock_desc' ? 'stock_asc' : 'stock_desc')">Остаток <i :class="['ph sort-icon', catalogFilter.sort.startsWith('stock_') ? 'active' : '', catalogFilter.sort==='stock_desc' ? 'ph-sort-descending' : (catalogFilter.sort==='stock_asc' ? 'ph-sort-ascending' : 'ph-arrows-down-up')]"></i></span>
+                                            <i :class="['ph ph-funnel col-filter-btn', { active: catalogFilter.in_stock || catalogFilter.zero_stock }]" @click.stop="toggleColFilter('stock')"></i>
+                                            <div class="col-filter-popup" v-if="colFilterOpen === 'stock'" @click.stop style="min-width:140px">
+                                                <label><input type="radio" name="sf" :checked="!catalogFilter.in_stock && !catalogFilter.zero_stock" @change="catalogFilter.in_stock=false;catalogFilter.zero_stock=false;loadCatalog()"> Все</label>
+                                                <label><input type="radio" name="sf" :checked="catalogFilter.in_stock" @change="catalogFilter.in_stock=true;catalogFilter.zero_stock=false;loadCatalog()"> В наличии</label>
+                                                <label><input type="radio" name="sf" :checked="catalogFilter.zero_stock" @change="catalogFilter.zero_stock=true;catalogFilter.in_stock=false;loadCatalog()"> Нулевой</label>
+                                            </div>
+                                        </div>
+                                    </th>
+                                    <th v-if="colVisible.source">
+                                        <div class="col-header">
+                                            <span>Источник</span>
+                                            <i :class="['ph ph-funnel col-filter-btn', { active: catalogFilter.sources.length }]" @click.stop="toggleColFilter('source')"></i>
+                                            <div class="col-filter-popup" v-if="colFilterOpen === 'source'" @click.stop>
+                                                <label v-for="s in catalogSources" :key="s"><input type="checkbox" :value="s" v-model="catalogFilter.sources" @change="loadCatalog" style="accent-color:var(--accent)"> {{ sourceLabel(s) }}</label>
+                                            </div>
+                                        </div>
+                                    </th>
                                     <th></th>
                                 </tr>
                             </thead>
                             <tbody>
                                 <tr v-for="p in catalogProducts" :key="p.id" @click="bulkMode ? toggleBulkSelect(p.id) : showProductDetail(p.id)" style="cursor:pointer" :style="bulkSelected.includes(p.id) ? 'background:rgba(79,70,229,0.06)' : ''">
                                     <td v-if="bulkMode"><input type="checkbox" :checked="bulkSelected.includes(p.id)" @click.stop="toggleBulkSelect(p.id)" style="accent-color:var(--accent)"></td>
-                                    <td>
+                                    <td v-if="colVisible.image">
                                         <img v-if="p.image_url" :src="p.image_url" class="thumb" loading="lazy">
                                         <i v-else class="ph ph-image" style="font-size:20px;color:var(--border)"></i>
                                     </td>
-                                    <td style="font-family:monospace;font-size:12px">{{ p.sku }}</td>
-                                    <td style="font-weight:500">{{ p.name }}</td>
-                                    <td style="font-size:12px;color:var(--accent2)">{{ p.brand || '—' }}</td>
-                                    <td>{{ p.purchase_price ? formatMoney(p.purchase_price) : '—' }}</td>
-                                    <td style="font-weight:600">{{ p.sell_price ? formatMoney(p.sell_price) : '—' }}</td>
-                                    <td>
+                                    <td v-if="colVisible.sku" style="font-family:monospace;font-size:12px">{{ p.sku }}</td>
+                                    <td v-if="colVisible.name" style="font-weight:500">{{ p.name }}</td>
+                                    <td v-if="colVisible.brand" style="font-size:12px;color:var(--accent2)">{{ p.brand || '—' }}</td>
+                                    <td v-if="colVisible.supplier" style="font-size:12px;color:var(--text2)">{{ p.supplier_alias || p.supplier || '—' }}</td>
+                                    <td v-if="colVisible.purchase_price">{{ p.purchase_price ? formatMoney(p.purchase_price) : '—' }}</td>
+                                    <td v-if="colVisible.sell_price" style="font-weight:600">{{ p.sell_price ? formatMoney(p.sell_price) : '—' }}</td>
+                                    <td v-if="colVisible.stock">
                                         <span :style="p.stock > 0 ? 'color:var(--green)' : 'color:var(--red)'">
                                             {{ p.stock || 0 }} {{ p.unit || 'шт' }}
                                         </span>
                                     </td>
-                                    <td><span class="badge badge-inventory" v-if="p.marketplace_source">{{ sourceLabel(p.marketplace_source) }}</span></td>
+                                    <td v-if="colVisible.source"><span class="badge badge-inventory" v-if="p.marketplace_source">{{ sourceLabel(p.marketplace_source) }}</span></td>
                                     <td class="actions">
                                         <button class="btn-icon" title="Редактировать" @click.stop="editProduct(p)"><i class="ph ph-pencil-simple"></i></button>
                                         <button class="btn-icon danger" title="Удалить" @click.stop="confirmDelete('product', p)"><i class="ph ph-trash"></i></button>
                                     </td>
                                 </tr>
-                                <tr v-if="!catalogProducts.length"><td colspan="9" style="text-align:center;color:var(--text2);padding:40px">Товары не найдены</td></tr>
+                                <tr v-if="!catalogProducts.length"><td :colspan="Object.values(colVisible).filter(Boolean).length + 2" style="text-align:center;color:var(--text2);padding:40px">Товары не найдены</td></tr>
                             </tbody>
                         </table>
                     </div>
@@ -1826,6 +1278,54 @@ tr:hover td { background: var(--bg3); }
                 </div>
             </template>
 
+            <!-- Suppliers (Поставщики) -->
+            <template v-if="currentRoute === 'suppliers'">
+                <div class="page-header">
+                    <div>
+                        <h1>🚚 Поставщики</h1>
+                        <div class="subtitle">Справочник поставщиков · {{ suppliersData.total || 0 }}</div>
+                    </div>
+                    <button class="btn btn-primary" @click="newSupplierData = { name:'', alias:'', inn:'', phone:'', email:'', website:'', country:'', address:'', notes:'' }; showModal='supplierCreate'">+ Поставщик</button>
+                </div>
+
+                <div class="cards">
+                    <div class="card">
+                        <div class="card-label">Всего</div>
+                        <div class="card-value blue">{{ supplierStats.total_suppliers || 0 }}</div>
+                    </div>
+                    <div class="card">
+                        <div class="card-label">С товарами</div>
+                        <div class="card-value green">{{ supplierStats.with_products || 0 }}</div>
+                    </div>
+                </div>
+
+                <div class="input-row" style="margin-bottom:16px">
+                    <input class="form-input" v-model="supplierFilter.q" placeholder="Поиск поставщиков..." @input="debounceSearchSuppliers2">
+                </div>
+
+                <div class="card">
+                    <table class="table" v-if="suppliersData.items?.length">
+                        <thead><tr><th>Название</th><th>Сокращение</th><th>Страна</th><th>Телефон</th><th>Email</th><th>Товаров</th><th></th></tr></thead>
+                        <tbody>
+                            <tr v-for="s in suppliersData.items" :key="s.id" style="cursor:pointer" @click="showSupplierDetail2(s.id)">
+                                <td><strong>{{ s.name }}</strong></td>
+                                <td>{{ s.alias || '—' }}</td>
+                                <td>{{ s.country || '—' }}</td>
+                                <td>{{ s.phone || '—' }}</td>
+                                <td>{{ s.email || '—' }}</td>
+                                <td>{{ s.product_count || 0 }}</td>
+                                <td>
+                                    <div class="actions">
+                                        <button class="btn-icon" @click.stop="editSupplier2(s)" title="Редактировать"><i class="ph ph-pencil-simple"></i></button>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <div v-else style="color:var(--text2);padding:20px;text-align:center">Нет поставщиков</div>
+                </div>
+            </template>
+
             <!-- Settings -->
             <template v-if="currentRoute === 'settings'">
                 <div class="page-header">
@@ -1978,6 +1478,7 @@ tr:hover td { background: var(--bg3); }
                         <div class="label">Категория</div><div class="value">{{ productDetail.category_name || '—' }}</div>
                         <div class="label">Вес</div><div class="value">{{ productDetail.weight ? productDetail.weight + ' кг' : '—' }}</div>
                         <div class="label">Источник</div><div class="value"><span class="badge badge-inventory" v-if="productDetail.marketplace_source">{{ sourceLabel(productDetail.marketplace_source) }}</span><span v-else>—</span></div>
+                        <div class="label">Поставщик</div><div class="value">{{ productDetail.supplier || '—' }}</div>
                     </div>
                     <div class="prices" style="margin-bottom:12px">
                         <span class="sell" v-if="productDetail.sell_price">Продажа: {{ formatMoney(productDetail.sell_price) }}</span>
@@ -2279,6 +1780,7 @@ tr:hover td { background: var(--bg3); }
             <div class="form-group"><label>Мин. остаток</label><input class="form-input" type="number" v-model="editData.min_stock"></div>
             <div class="form-group"><label>OZON Product ID</label><input class="form-input" v-model="editData.ozon_product_id"></div>
             <div class="form-group"><label>OZON SKU</label><input class="form-input" v-model="editData.ozon_sku"></div>
+            <div class="form-group"><label>Поставщик</label><input class="form-input" v-model="editData.supplier" list="supplier-list"><datalist id="supplier-list"><option v-for="s in catalogSuppliers" :key="s" :value="s"></option></datalist></div>
             <div class="modal-buttons">
                 <button class="btn btn-ghost" @click="showModal=null">Отмена</button>
                 <button class="btn btn-primary" @click="saveProduct">Сохранить</button>
@@ -2651,6 +2153,91 @@ tr:hover td { background: var(--bg3); }
     </div>
 
     <!-- ══ Confirm Delete Modal ═════════════════════════ -->
+    <!-- Supplier Create -->
+    <div class="modal-overlay" v-if="showModal==='supplierCreate'" @click.self="showModal=null">
+        <div class="modal">
+            <h2>🚚 Новый поставщик</h2>
+            <div class="form-group"><label>Название *</label><input class="form-input" v-model="newSupplierData.name" placeholder="Полное наименование"></div>
+            <div class="form-group"><label>Сокращение (alias)</label><input class="form-input" v-model="newSupplierData.alias" placeholder="Короткое название"></div>
+            <div class="input-row">
+                <div class="form-group" style="flex:1"><label>Страна</label><input class="form-input" v-model="newSupplierData.country"></div>
+                <div class="form-group" style="flex:1"><label>ИНН</label><input class="form-input" v-model="newSupplierData.inn"></div>
+            </div>
+            <div class="input-row">
+                <div class="form-group" style="flex:1"><label>Телефон</label><input class="form-input" v-model="newSupplierData.phone"></div>
+                <div class="form-group" style="flex:1"><label>Email</label><input class="form-input" v-model="newSupplierData.email"></div>
+            </div>
+            <div class="form-group"><label>Сайт</label><input class="form-input" v-model="newSupplierData.website"></div>
+            <div class="form-group"><label>Адрес</label><input class="form-input" v-model="newSupplierData.address"></div>
+            <div class="form-group"><label>Примечания</label><textarea class="form-input" v-model="newSupplierData.notes" rows="2"></textarea></div>
+            <div class="modal-buttons">
+                <button class="btn btn-ghost" @click="showModal=null">Отмена</button>
+                <button class="btn btn-primary" @click="createSupplier2">💾 Создать</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Supplier Detail -->
+    <div class="modal-overlay" v-if="showModal==='supplierDetail'" @click.self="showModal=null">
+        <div class="modal" style="max-width:700px">
+            <h2>{{ detailData.name }}</h2>
+            <div v-if="detailData.alias" style="color:var(--text2);margin-bottom:12px">{{ detailData.alias }}</div>
+            <div class="info-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:8px 20px;margin-bottom:16px">
+                <div v-if="detailData.country"><strong>Страна:</strong> {{ detailData.country }}</div>
+                <div v-if="detailData.inn"><strong>ИНН:</strong> {{ detailData.inn }}</div>
+                <div v-if="detailData.phone"><strong>Телефон:</strong> {{ detailData.phone }}</div>
+                <div v-if="detailData.email"><strong>Email:</strong> {{ detailData.email }}</div>
+                <div v-if="detailData.website"><strong>Сайт:</strong> {{ detailData.website }}</div>
+                <div v-if="detailData.address"><strong>Адрес:</strong> {{ detailData.address }}</div>
+            </div>
+            <div v-if="detailData.notes" style="margin-bottom:16px;color:var(--text2)">{{ detailData.notes }}</div>
+            <div v-if="detailData.products?.length">
+                <h3 style="margin-bottom:8px">Товары ({{ detailData.products.length }})</h3>
+                <table class="table">
+                    <thead><tr><th>SKU</th><th>Название</th><th>Бренд</th><th>Закупка</th><th>Продажа</th><th>Остаток</th></tr></thead>
+                    <tbody>
+                        <tr v-for="p in detailData.products" :key="p.id">
+                            <td>{{ p.sku }}</td>
+                            <td>{{ p.name }}</td>
+                            <td>{{ p.brand || '—' }}</td>
+                            <td>{{ p.purchase_price ? formatMoney(p.purchase_price) : '—' }}</td>
+                            <td>{{ p.sell_price ? formatMoney(p.sell_price) : '—' }}</td>
+                            <td>{{ p.stock }}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="modal-buttons">
+                <button class="btn btn-ghost" @click="showModal=null">Закрыть</button>
+                <button class="btn btn-primary" @click="editSupplier2(detailData)">✏️ Редактировать</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Supplier Edit -->
+    <div class="modal-overlay" v-if="showModal==='supplierEdit'" @click.self="showModal=null">
+        <div class="modal">
+            <h2>✏️ Редактирование поставщика</h2>
+            <div class="form-group"><label>Название</label><input class="form-input" v-model="editData.name"></div>
+            <div class="form-group"><label>Сокращение (alias)</label><input class="form-input" v-model="editData.alias"></div>
+            <div class="input-row">
+                <div class="form-group" style="flex:1"><label>Страна</label><input class="form-input" v-model="editData.country"></div>
+                <div class="form-group" style="flex:1"><label>ИНН</label><input class="form-input" v-model="editData.inn"></div>
+            </div>
+            <div class="input-row">
+                <div class="form-group" style="flex:1"><label>Телефон</label><input class="form-input" v-model="editData.phone"></div>
+                <div class="form-group" style="flex:1"><label>Email</label><input class="form-input" v-model="editData.email"></div>
+            </div>
+            <div class="form-group"><label>Сайт</label><input class="form-input" v-model="editData.website"></div>
+            <div class="form-group"><label>Адрес</label><input class="form-input" v-model="editData.address"></div>
+            <div class="form-group"><label>Примечания</label><textarea class="form-input" v-model="editData.notes" rows="2"></textarea></div>
+            <div class="modal-buttons">
+                <button class="btn btn-ghost" @click="showModal=null">Отмена</button>
+                <button class="btn btn-primary" @click="saveSupplier2">💾 Сохранить</button>
+            </div>
+        </div>
+    </div>
+
     <div class="modal-overlay" v-if="showModal==='confirmDelete'" @click.self="showModal=null">
         <div class="modal" style="max-width:400px">
             <h2>⚠️ Подтверждение</h2>
@@ -2663,1119 +2250,7 @@ tr:hover td { background: var(--bg3); }
     </div>
 </div>
 
-<script>
-const { createApp, ref, reactive, computed, onMounted, nextTick, watch } = Vue;
-
-// ── API Configuration ───────────────────────────
-const API_BASE = (() => {
-    const loc = window.location;
-    if (loc.hostname === 'localhost' || loc.hostname === '127.0.0.1') {
-        return 'http://localhost/erp/api/index.php';
-    }
-    // ERP API lives on sborka (PHP 8.3)
-    return 'https://sborka.billiarder.ru/erp/api/index.php';
-})();
-const API_TOKEN = ''; // set if api_token configured in config.php
-
-async function api(action, data = null) {
-    const params = new URLSearchParams({ action });
-    const opts = {
-        headers: { 'Content-Type': 'application/json' },
-    };
-    if (API_TOKEN) opts.headers['Authorization'] = `Bearer ${API_TOKEN}`;
-
-    if (data && typeof data === 'object' && !Array.isArray(data) && Object.keys(data).some(k => data[k] !== undefined)) {
-        // POST with body
-        opts.method = 'POST';
-        opts.body = JSON.stringify(data);
-    } else {
-        opts.method = 'GET';
-        // Append any simple params to URL
-        if (data && typeof data === 'object') {
-            Object.entries(data).forEach(([k, v]) => {
-                if (v !== undefined && v !== null && v !== '') params.set(k, v);
-            });
-        }
-    }
-
-    const url = `${API_BASE}?${params}`;
-    const resp = await fetch(url, opts);
-    const json = await resp.json();
-    if (!resp.ok || json.error) throw new Error(json.error || `HTTP ${resp.status}`);
-    return json;
-}
-
-// ── Vue App ─────────────────────────────────────
-const app = createApp({
-    setup() {
-        // Navigation
-        const currentRoute = ref('inventory');
-        const expandedGroups = reactive({ trade: true, finance: true, crm: true, tasks: true });
-
-        function toggleGroup(group) {
-            expandedGroups[group] = !expandedGroups[group];
-        }
-
-        // Auto-expand group when navigating to a child route
-        const routeGroups = { supplies: 'trade', sales: 'trade', inventory: 'trade', products: 'trade', finance: 'finance', reports: 'finance', crm: 'crm', deals: 'crm', tasks: 'tasks', tasks_my: 'tasks', tasks_from: 'tasks' };
-
-        function navigate(route) {
-            currentRoute.value = route;
-            if (routeGroups[route]) expandedGroups[routeGroups[route]] = true;
-            loadRouteData(route);
-        }
-
-        // Toasts
-        const toasts = ref([]);
-        let toastId = 0;
-        function toast(message, type = 'info') {
-            const id = ++toastId;
-            toasts.value.push({ id, message, type });
-            setTimeout(() => { toasts.value = toasts.value.filter(t => t.id !== id); }, 3500);
-        }
-
-        // ══ Shared edit/detail state ═══════════════════
-        const detailData = reactive({});
-        const editData = reactive({});
-        const deleteTarget = reactive({ type: '', id: 0, label: '' });
-        const summaryData = reactive({ income: 0, expense: 0, profit: 0, by_category: [] });
-
-        // Dashboard
-        const dash = reactive({ income: 0, expense: 0, profit: 0, openTasks: 0, overdue: 0, products: 0, lowStock: 0, journalEntries: 0 });
-        const recentJournal = ref([]);
-
-        async function loadDashboard() {
-            try {
-                const [fin, taskSt, journalSt, prodCount] = await Promise.all([
-                    api('finance.summary').catch(() => ({ income: 0, expense: 0, profit: 0 })),
-                    api('tasks.stats').catch(() => ({ overdue: 0, due_today: 0 })),
-                    api('journal.stats').catch(() => ({ total: 0 })),
-                    api('products.low_stock').catch(() => ({ items: [] })),
-                ]);
-                dash.income = fin.income || 0;
-                dash.expense = fin.expense || 0;
-                dash.profit = fin.profit || 0;
-                dash.openTasks = taskSt.by_status?.find(s => s.status !== 'done' && s.status !== 'cancelled')?.cnt || 0;
-                dash.overdue = taskSt.overdue || 0;
-                dash.journalEntries = journalSt.total || 0;
-                dash.lowStock = prodCount.items?.length || 0;
-
-                // Recent journal
-                const jList = await api('journal.list', { limit: 10 }).catch(() => ({ items: [] }));
-                recentJournal.value = jList.items || [];
-
-                // Product count
-                const pList = await api('products.list', { limit: 1 }).catch(() => ({ total: 0 }));
-                dash.products = pList.total || 0;
-            } catch (e) { console.warn('Dashboard load error:', e); }
-        }
-
-        // Quick entry
-        const quickEntry = ref('');
-        const submitting = ref(false);
-
-        async function submitQuickEntry() {
-            if (!quickEntry.value.trim() || submitting.value) return;
-            submitting.value = true;
-            try {
-                const result = await api('journal.create', { text: quickEntry.value, source: 'web' });
-                toast('Запись создана' + (result.ai_parsed ? ' (AI обработал)' : ''), 'success');
-                quickEntry.value = '';
-                loadRouteData(currentRoute.value);
-            } catch (e) {
-                toast('Ошибка: ' + e.message, 'error');
-            } finally {
-                submitting.value = false;
-            }
-        }
-
-        // Journal
-        const journal = reactive({ items: [], total: 0 });
-        const journalFilter = reactive({ category: '', from: '', to: '', q: '' });
-        let journalSearchTimer = null;
-
-        async function loadJournal() {
-            try {
-                const data = await api('journal.list', { ...journalFilter, limit: 50 });
-                journal.items = data.items || [];
-                journal.total = data.total || 0;
-            } catch (e) { toast('Ошибка загрузки журнала: ' + e.message, 'error'); }
-        }
-
-        function debounceSearchJournal() {
-            clearTimeout(journalSearchTimer);
-            journalSearchTimer = setTimeout(() => {
-                if (journalFilter.q.length >= 2) {
-                    api('journal.search', { q: journalFilter.q, limit: 50 })
-                        .then(data => { journal.items = data.items || []; journal.total = data.items?.length || 0; })
-                        .catch(() => {});
-                } else {
-                    loadJournal();
-                }
-            }, 400);
-        }
-
-        async function loadMoreJournal() {
-            try {
-                const data = await api('journal.list', { ...journalFilter, limit: 50, offset: journal.items.length });
-                journal.items.push(...(data.items || []));
-            } catch (e) { toast('Ошибка: ' + e.message, 'error'); }
-        }
-
-        function showJournalEntry(id) {
-            api('journal.get', { id }).then(data => {
-                Object.assign(detailData, data);
-                showModal.value = 'journalDetail';
-            }).catch(e => toast(e.message, 'error'));
-        }
-
-        // Products
-        const products = reactive({ items: [], total: 0 });
-        const allProducts = ref([]); // for selects
-        const productFilter = reactive({ q: '' });
-        let productSearchTimer = null;
-        const showModal = ref(null);
-        const newProduct = reactive({ sku: '', name: '', barcode: '', purchase_price: null, sell_price: null, min_stock: 0 });
-
-        async function loadProducts() {
-            try {
-                const data = await api('products.list', { ...productFilter, limit: 200 });
-                products.items = data.items || [];
-                products.total = data.total || 0;
-                allProducts.value = products.items;
-            } catch (e) { toast('Ошибка загрузки товаров: ' + e.message, 'error'); }
-        }
-
-        function debounceSearchProducts() {
-            clearTimeout(productSearchTimer);
-            productSearchTimer = setTimeout(loadProducts, 400);
-        }
-
-        async function createProduct() {
-            try {
-                await api('products.create', { ...newProduct });
-                toast('Товар создан', 'success');
-                showModal.value = null;
-                Object.assign(newProduct, { sku: '', name: '', barcode: '', purchase_price: null, sell_price: null, min_stock: 0 });
-                loadProducts();
-            } catch (e) { toast('Ошибка: ' + e.message, 'error'); }
-        }
-
-        function editProduct(p) {
-            Object.assign(editData, { ...p, _type: 'product' });
-            showModal.value = 'productEdit';
-        }
-
-        async function saveProduct() {
-            try {
-                await api('products.update', { id: editData.id, sku: editData.sku, name: editData.name, barcode: editData.barcode, purchase_price: editData.purchase_price, sell_price: editData.sell_price, min_stock: editData.min_stock, ozon_product_id: editData.ozon_product_id, ozon_sku: editData.ozon_sku });
-                toast('Товар обновлён', 'success');
-                showModal.value = null;
-                loadProducts();
-            } catch (e) { toast('Ошибка: ' + e.message, 'error'); }
-        }
-
-        // Finance
-        const finance = reactive({ items: [], total: 0 });
-        const financeAccounts = ref([]);
-        const financeFilter = reactive({ type: '', from: '', to: '', q: '' });
-        let financeSearchTimer = null;
-        const newFinance = reactive({ type: 'expense', amount: null, date: new Date().toISOString().split('T')[0], category: '', counterparty: '', account_id: null, description: '' });
-
-        async function loadFinance() {
-            try {
-                const [data, accs] = await Promise.all([
-                    api('finance.list', { ...financeFilter, limit: 100 }),
-                    api('finance.accounts'),
-                ]);
-                finance.items = data.items || [];
-                finance.total = data.total || 0;
-                financeAccounts.value = accs.items || [];
-            } catch (e) { toast('Ошибка загрузки финансов: ' + e.message, 'error'); }
-        }
-
-        function debounceSearchFinance() {
-            clearTimeout(financeSearchTimer);
-            financeSearchTimer = setTimeout(loadFinance, 400);
-        }
-
-        async function loadFinanceSummary() {
-            try {
-                const data = await api('finance.summary');
-                Object.assign(summaryData, data);
-                showModal.value = 'financeSummary';
-            } catch (e) { toast(e.message, 'error'); }
-        }
-
-        async function createFinance() {
-            try {
-                await api('finance.create', { ...newFinance });
-                toast('Транзакция создана', 'success');
-                showModal.value = null;
-                loadFinance();
-            } catch (e) { toast('Ошибка: ' + e.message, 'error'); }
-        }
-
-        function editFinance(tx) {
-            Object.assign(editData, { ...tx, _type: 'finance' });
-            showModal.value = 'financeEdit';
-        }
-
-        async function saveFinance() {
-            try {
-                await api('finance.update', { id: editData.id, type: editData.type, amount: editData.amount, date: editData.date, category: editData.category, counterparty: editData.counterparty, account_id: editData.account_id, description: editData.description });
-                toast('Транзакция обновлена', 'success');
-                showModal.value = null;
-                loadFinance();
-            } catch (e) { toast('Ошибка: ' + e.message, 'error'); }
-        }
-
-        // Finance Account
-        const newAccount = reactive({ name: '', type: 'bank', currency: 'RUB', balance: 0 });
-
-        async function createAccount() {
-            try {
-                await api('finance.account_create', { ...newAccount });
-                toast('Счёт создан', 'success');
-                showModal.value = null;
-                Object.assign(newAccount, { name: '', type: 'bank', currency: 'RUB', balance: 0 });
-                loadFinance();
-            } catch (e) { toast('Ошибка: ' + e.message, 'error'); }
-        }
-
-        // Sales (Продажи) — данные из inventory_movements type=sale
-        const sales = reactive({ items: [], total: 0 });
-        const salesStats = reactive({ today_count: 0, today_amount: 0, month_amount: 0, avg_check: 0 });
-        const salesFilter = reactive({ from: '', to: '', q: '' });
-        let salesSearchTimer = null;
-
-        async function loadSales() {
-            try {
-                const data = await api('inventory.movements', { type: 'sale', ...salesFilter, limit: 100 });
-                sales.items = (data.items || []).map(m => ({
-                    ...m,
-                    quantity: Math.abs(m.quantity),
-                    customer: m.reason || '',
-                    channel: 'manual'
-                }));
-                sales.total = sales.items.length;
-                // stats
-                const today = new Date().toISOString().split('T')[0];
-                const todaySales = sales.items.filter(s => (s.created_at || '').startsWith(today));
-                salesStats.today_count = todaySales.length;
-                salesStats.today_amount = todaySales.reduce((s, i) => s + i.quantity * (i.unit_price || 0), 0);
-                salesStats.month_amount = sales.items.reduce((s, i) => s + i.quantity * (i.unit_price || 0), 0);
-                salesStats.avg_check = sales.total ? Math.round(salesStats.month_amount / sales.total) : 0;
-            } catch (e) { toast('Ошибка загрузки продаж: ' + e.message, 'error'); }
-        }
-
-        function debounceSearchSales() {
-            clearTimeout(salesSearchTimer);
-            salesSearchTimer = setTimeout(loadSales, 400);
-        }
-
-        // Reports (Отчёты)
-        const reportData = reactive({ income: 0, expense: 0, profit: 0, count: 0, top_expenses: [], top_income: [] });
-
-        // Reports load happens inside loadFinance — we just also pull summary+cashflow
-        // Override loadRouteData for reports to fill reportData
-        watch(() => finance.items, () => {
-            // recalc from loaded finance items
-            reportData.income = finance.items.filter(t => t.type === 'income').reduce((s, t) => s + parseFloat(t.amount || 0), 0);
-            reportData.expense = finance.items.filter(t => t.type === 'expense').reduce((s, t) => s + parseFloat(t.amount || 0), 0);
-            reportData.profit = reportData.income - reportData.expense;
-            reportData.count = finance.items.length;
-            // top expense categories
-            const expByCat = {};
-            finance.items.filter(t => t.type === 'expense').forEach(t => {
-                const cat = t.category || 'Без категории';
-                expByCat[cat] = (expByCat[cat] || 0) + parseFloat(t.amount || 0);
-            });
-            reportData.top_expenses = Object.entries(expByCat).map(([category, total]) => ({ category, total })).sort((a, b) => b.total - a.total).slice(0, 10);
-            // top income categories
-            const incByCat = {};
-            finance.items.filter(t => t.type === 'income').forEach(t => {
-                const cat = t.category || 'Без категории';
-                incByCat[cat] = (incByCat[cat] || 0) + parseFloat(t.amount || 0);
-            });
-            reportData.top_income = Object.entries(incByCat).map(([category, total]) => ({ category, total })).sort((a, b) => b.total - a.total).slice(0, 10);
-        }, { deep: true });
-
-        // Inventory
-        const inventoryList = ref([]);
-        const movements = ref([]);
-        const newMovement = reactive({ product_id: null, quantity: null, unit_price: null, reason: '' });
-        const inventoryTab = ref('catalog');
-        const stockFilter = reactive({ q: '', low_only: false });
-        const movementFilter = reactive({ type: '', from: '', to: '' });
-        let stockSearchTimer = null;
-
-        // Catalog
-        const catalogProducts = ref([]);
-        const catalogTotal = ref(0);
-        const catalogCategories = ref([]);
-        const catalogBrands = ref([]);
-        const catalogSources = ref([]);
-        const catalogFilter = reactive({ q: '', category_id: null, has_image: false, no_image: false, in_stock: false, zero_stock: false, brands: [], sources: [], sort: 'name' });
-        const catalogView = ref('grid');
-        const catalogLoading = ref(false);
-        let catalogSearchTimer = null;
-        const catalogPageSize = 60;
-        const sidebarAccordion = reactive({ categories: true, filters: true, brands: false, sources: false });
-        const expandedCats = reactive({});
-        const catalogSidebarWidth = ref(parseInt(localStorage.getItem('catalogSidebarWidth')) || 300);
-
-        function startSidebarResize(e) {
-            e.preventDefault();
-            const startX = e.clientX;
-            const startW = catalogSidebarWidth.value;
-            const handle = e.target;
-            handle.classList.add('dragging');
-            document.body.style.cursor = 'col-resize';
-            document.body.style.userSelect = 'none';
-            function onMove(ev) {
-                const w = Math.max(220, Math.min(500, startW + ev.clientX - startX));
-                catalogSidebarWidth.value = w;
-            }
-            function onUp() {
-                handle.classList.remove('dragging');
-                document.body.style.cursor = '';
-                document.body.style.userSelect = '';
-                localStorage.setItem('catalogSidebarWidth', catalogSidebarWidth.value);
-                document.removeEventListener('mousemove', onMove);
-                document.removeEventListener('mouseup', onUp);
-            }
-            document.addEventListener('mousemove', onMove);
-            document.addEventListener('mouseup', onUp);
-        }
-
-        // Product detail
-        const productDetail = reactive({});
-        const productDetailImgIdx = ref(0);
-
-        const productDetailMainImg = computed(() => {
-            if (productDetail.images_arr && productDetail.images_arr.length) {
-                return productDetail.images_arr[productDetailImgIdx.value] || productDetail.image_url;
-            }
-            return productDetail.image_url;
-        });
-
-        async function loadCatalog(reset = true) {
-            catalogLoading.value = true;
-            try {
-                const params = { limit: catalogPageSize, offset: reset ? 0 : catalogProducts.value.length };
-                if (catalogFilter.q) params.q = catalogFilter.q;
-                if (catalogFilter.category_id) params.category_id = catalogFilter.category_id;
-                if (catalogFilter.sort) params.sort = catalogFilter.sort;
-                if (catalogFilter.has_image) params.has_image = 1;
-                if (catalogFilter.no_image) params.no_image = 1;
-                if (catalogFilter.in_stock) params.in_stock = 1;
-                if (catalogFilter.zero_stock) params.zero_stock = 1;
-                if (catalogFilter.brands.length) params.brand = catalogFilter.brands.join(',');
-                if (catalogFilter.sources.length) params.marketplace_source = catalogFilter.sources.join(',');
-
-                const data = await api('products.list', params);
-                if (reset) {
-                    catalogProducts.value = data.items || [];
-                } else {
-                    catalogProducts.value.push(...(data.items || []));
-                }
-                catalogTotal.value = data.total || 0;
-            } catch (e) { toast('Ошибка загрузки каталога: ' + e.message, 'error'); }
-            finally { catalogLoading.value = false; }
-        }
-
-        function loadMoreCatalog() { loadCatalog(false); }
-
-        function debounceCatalogSearch() {
-            clearTimeout(catalogSearchTimer);
-            catalogSearchTimer = setTimeout(() => loadCatalog(true), 400);
-        }
-
-        function selectCategory(catId) {
-            catalogFilter.category_id = catId;
-            loadCatalog(true);
-        }
-
-        function toggleCatExpand(catId) {
-            expandedCats[catId] = !expandedCats[catId];
-        }
-
-        function onFilterImageToggle(which) {
-            if (which === 'has_image' && catalogFilter.has_image) catalogFilter.no_image = false;
-            if (which === 'no_image' && catalogFilter.no_image) catalogFilter.has_image = false;
-            loadCatalog();
-        }
-
-        function onFilterStockToggle(which) {
-            if (which === 'in_stock' && catalogFilter.in_stock) catalogFilter.zero_stock = false;
-            if (which === 'zero_stock' && catalogFilter.zero_stock) catalogFilter.in_stock = false;
-            loadCatalog();
-        }
-
-        // ── Bulk operations ──
-        const bulkMode = ref(false);
-        const bulkSelected = reactive([]);
-        const bulkMoveTarget = ref(null);
-        const bulkMoveSearch = ref('');
-
-        function toggleBulkSelect(id) {
-            const idx = bulkSelected.indexOf(id);
-            if (idx >= 0) bulkSelected.splice(idx, 1);
-            else bulkSelected.push(id);
-            if (bulkSelected.length > 0) bulkMode.value = true;
-        }
-
-        function selectAllVisible() {
-            bulkSelected.length = 0;
-            catalogProducts.value.forEach(p => bulkSelected.push(p.id));
-        }
-
-        const flatCategoriesForMove = computed(() => {
-            const cats = catalogCategories.value;
-            const result = [];
-            function walk(nodes, prefix) {
-                for (const n of nodes) {
-                    const path = prefix ? prefix + ' > ' + n.name : n.name;
-                    result.push({ id: n.id, name: n.name, path, count: n.count || 0 });
-                    if (n.children && n.children.length) walk(n.children, path);
-                }
-            }
-            walk(cats, '');
-            return result;
-        });
-
-        const filteredMoveCategories = computed(() => {
-            const q = bulkMoveSearch.value.toLowerCase();
-            if (!q) return flatCategoriesForMove.value;
-            return flatCategoriesForMove.value.filter(c => c.path.toLowerCase().includes(q));
-        });
-
-        async function executeBulkMove() {
-            if (!bulkMoveTarget.value || !bulkSelected.length) return;
-            try {
-                await api('products.bulk_move', { ids: [...bulkSelected], category_id: bulkMoveTarget.value });
-                const target = flatCategoriesForMove.value.find(c => c.id === bulkMoveTarget.value);
-                toast(`${bulkSelected.length} товаров перемещено в "${target?.name || 'категорию'}"`, 'success');
-                bulkSelected.length = 0;
-                bulkMode.value = false;
-                bulkMoveTarget.value = null;
-                bulkMoveSearch.value = '';
-                showModal.value = null;
-                loadCatalog();
-                loadCategories();
-            } catch (e) { toast('Ошибка: ' + e.message, 'error'); }
-        }
-
-        async function loadCategories() {
-            try {
-                const data = await api('products.categories');
-                const cats = data.items || [];
-                // Build tree
-                const map = {};
-                cats.forEach(c => { map[c.id] = { ...c, children: [] }; });
-                const tree = [];
-                cats.forEach(c => {
-                    if (c.parent_id && map[c.parent_id]) {
-                        map[c.parent_id].children.push(map[c.id]);
-                    } else {
-                        tree.push(map[c.id]);
-                    }
-                });
-                catalogCategories.value = tree;
-            } catch (e) { console.warn('Categories load error:', e); }
-        }
-
-        async function loadCatalogMeta() {
-            try {
-                const data = await api('products.meta');
-                catalogBrands.value = data.brands || [];
-                catalogSources.value = data.sources || [];
-            } catch (e) { console.warn('Catalog meta error:', e); }
-        }
-
-        async function showProductDetail(id) {
-            try {
-                const data = await api('products.get', { id });
-                // Parse images JSON
-                let imagesArr = [];
-                if (data.images) {
-                    try { imagesArr = typeof data.images === 'string' ? JSON.parse(data.images) : data.images; } catch(e) {}
-                }
-                if (data.image_url && !imagesArr.includes(data.image_url)) {
-                    imagesArr.unshift(data.image_url);
-                }
-                Object.assign(productDetail, { ...data, images_arr: imagesArr });
-                productDetailImgIdx.value = 0;
-                showModal.value = 'productDetail';
-            } catch (e) { toast('Ошибка: ' + e.message, 'error'); }
-        }
-
-        function switchInventoryTab(tab) {
-            inventoryTab.value = tab;
-            if (tab === 'catalog') { loadCatalog(); loadCategories(); loadCatalogMeta(); }
-            else if (tab === 'stock') { loadInventory(); }
-            else if (tab === 'movements') { loadMovements(); }
-        }
-
-        async function loadMovements() {
-            try {
-                const params = { limit: 100 };
-                if (movementFilter.type) params.type = movementFilter.type;
-                if (movementFilter.from) params.from = movementFilter.from;
-                if (movementFilter.to) params.to = movementFilter.to;
-                const data = await api('inventory.movements', params);
-                movements.value = data.items || [];
-            } catch (e) { toast('Ошибка загрузки движений: ' + e.message, 'error'); }
-        }
-
-        const filteredInventory = computed(() => {
-            let list = inventoryList.value;
-            if (stockFilter.q) {
-                const q = stockFilter.q.toLowerCase();
-                list = list.filter(i => (i.product_name || '').toLowerCase().includes(q) || (i.sku || '').toLowerCase().includes(q));
-            }
-            if (stockFilter.low_only) {
-                list = list.filter(i => i.quantity <= i.min_stock);
-            }
-            return list;
-        });
-
-        function debounceStockSearch() {
-            // Client-side filtering via computed, no need for API call
-        }
-
-        function sourceLabel(src) {
-            const map = { ozon_kp: 'Ozon КП', ozon_bsh: 'Ozon БСХ', yandex_market: 'Яндекс.Маркет', moysklad: 'МойСклад' };
-            return map[src] || src || '';
-        }
-
-        function movementTypeLabel(type) {
-            const map = { purchase: 'Приход', sale: 'Расход', adjustment: 'Коррекция', transfer_in: 'Вход', transfer_out: 'Выход', return: 'Возврат' };
-            return map[type] || type;
-        }
-
-        async function loadInventory() {
-            try {
-                const [inv, mov] = await Promise.all([
-                    api('inventory.list'),
-                    api('inventory.movements', { limit: 30 }),
-                ]);
-                inventoryList.value = inv.items || [];
-                movements.value = mov.items || [];
-            } catch (e) { toast('Ошибка загрузки склада: ' + e.message, 'error'); }
-        }
-
-        async function submitMovement(action) {
-            try {
-                const endpoint = action === 'receive' ? 'inventory.receive' : 'inventory.ship';
-                await api(endpoint, { ...newMovement });
-                toast(action === 'receive' ? 'Приход оформлен' : 'Расход оформлен', 'success');
-                showModal.value = null;
-                Object.assign(newMovement, { product_id: null, quantity: null, unit_price: null, reason: '' });
-                loadInventory();
-            } catch (e) { toast('Ошибка: ' + e.message, 'error'); }
-        }
-
-        // Inventory Adjust
-        const adjustData = reactive({ product_id: null, quantity: null, reason: '' });
-
-        async function submitAdjust() {
-            try {
-                const result = await api('inventory.adjust', { ...adjustData });
-                toast(`Корректировка: ${result.previous} → ${result.new} (${result.diff > 0 ? '+' : ''}${result.diff})`, 'success');
-                showModal.value = null;
-                Object.assign(adjustData, { product_id: null, quantity: null, reason: '' });
-                loadInventory();
-            } catch (e) { toast('Ошибка: ' + e.message, 'error'); }
-        }
-
-        // Inventory Transfer
-        const transferData = reactive({ product_id: null, quantity: null, from_warehouse_id: 1, to_warehouse_id: 2 });
-
-        async function submitTransfer() {
-            try {
-                await api('inventory.transfer', { ...transferData });
-                toast('Перемещение выполнено', 'success');
-                showModal.value = null;
-                Object.assign(transferData, { product_id: null, quantity: null, from_warehouse_id: 1, to_warehouse_id: 2 });
-                loadInventory();
-            } catch (e) { toast('Ошибка: ' + e.message, 'error'); }
-        }
-
-        // Tasks
-        const tasks = reactive({ items: [], total: 0 });
-        const taskStats = ref(null);
-        const taskFilter = reactive({ status: '', priority: '', assignee: '', creator: '' });
-        const newTask = reactive({ title: '', description: '', priority: 'normal', due_date: '', assignee: '' });
-
-        async function loadTasks() {
-            try {
-                const [data, stats] = await Promise.all([
-                    api('tasks.list', { ...taskFilter, limit: 100 }),
-                    api('tasks.stats'),
-                ]);
-                tasks.items = data.items || [];
-                tasks.total = data.total || 0;
-                taskStats.value = stats;
-            } catch (e) { toast('Ошибка загрузки задач: ' + e.message, 'error'); }
-        }
-
-        async function createTask() {
-            try {
-                await api('tasks.create', { ...newTask });
-                toast('Задача создана', 'success');
-                showModal.value = null;
-                Object.assign(newTask, { title: '', description: '', priority: 'normal', due_date: '', assignee: '' });
-                loadTasks();
-            } catch (e) { toast('Ошибка: ' + e.message, 'error'); }
-        }
-
-        function editTask(t) {
-            Object.assign(editData, { ...t, _type: 'task' });
-            showModal.value = 'taskEdit';
-        }
-
-        async function saveTask() {
-            try {
-                await api('tasks.update', { id: editData.id, title: editData.title, description: editData.description, priority: editData.priority, status: editData.status, due_date: editData.due_date, assignee: editData.assignee });
-                toast('Задача обновлена', 'success');
-                showModal.value = null;
-                loadTasks();
-            } catch (e) { toast('Ошибка: ' + e.message, 'error'); }
-        }
-
-        async function toggleTask(task) {
-            try {
-                if (task.status === 'done') {
-                    await api('tasks.update', { id: task.id, status: 'todo' });
-                } else {
-                    await api('tasks.done', { id: task.id });
-                }
-                loadTasks();
-            } catch (e) { toast(e.message, 'error'); }
-        }
-
-        function isOverdue(task) {
-            return task.due_date && task.due_date < new Date().toISOString().split('T')[0] && task.status !== 'done' && task.status !== 'cancelled';
-        }
-
-        // CRM
-        const crmContacts = ref([]);
-        const crmInteractions = ref([]);
-        const crmUpcoming = ref([]);
-        const crmStats = reactive({ total_contacts: 0, total_counterparties: 0, total_interactions: 0, overdue_actions: 0 });
-        const crmFilter = reactive({ q: '' });
-        let crmSearchTimer = null;
-        const newContact = reactive({ first_name: '', last_name: '', company: '', phone: '', email: '', telegram: '', whatsapp: '', source: '', notes: '' });
-        const newInteraction = reactive({ contact_id: null, type: 'call', direction: 'outgoing', subject: '', content: '', result: '', next_action: '', next_action_date: '' });
-
-        async function loadCrm() {
-            try {
-                const [contacts, interactions, upcoming, stats] = await Promise.all([
-                    api('crm.contacts', { limit: 100 }),
-                    api('crm.interactions', { limit: 50 }),
-                    api('crm.upcoming', { days: 14 }),
-                    api('crm.stats'),
-                ]);
-                crmContacts.value = contacts.items || [];
-                crmInteractions.value = interactions.items || [];
-                crmUpcoming.value = [...(upcoming.overdue || []), ...(upcoming.upcoming || [])];
-                Object.assign(crmStats, stats);
-            } catch (e) { toast('Ошибка загрузки CRM: ' + e.message, 'error'); }
-        }
-
-        function debounceSearchCrm() {
-            clearTimeout(crmSearchTimer);
-            crmSearchTimer = setTimeout(async () => {
-                if (crmFilter.q.length >= 2) {
-                    try {
-                        const data = await api('crm.contacts', { q: crmFilter.q, limit: 100 });
-                        crmContacts.value = data.items || [];
-                    } catch (e) {}
-                } else {
-                    loadCrm();
-                }
-            }, 400);
-        }
-
-        async function createContact() {
-            try {
-                await api('crm.contact_create', { ...newContact });
-                toast('Контакт создан', 'success');
-                showModal.value = null;
-                Object.assign(newContact, { first_name: '', last_name: '', company: '', phone: '', email: '', telegram: '', whatsapp: '', source: '', notes: '' });
-                loadCrm();
-            } catch (e) { toast('Ошибка: ' + e.message, 'error'); }
-        }
-
-        async function createInteraction() {
-            try {
-                await api('crm.interaction_create', { ...newInteraction });
-                toast('Взаимодействие создано', 'success');
-                showModal.value = null;
-                Object.assign(newInteraction, { contact_id: null, type: 'call', direction: 'outgoing', subject: '', content: '', result: '', next_action: '', next_action_date: '' });
-                loadCrm();
-            } catch (e) { toast('Ошибка: ' + e.message, 'error'); }
-        }
-
-        function showContactDetail(id) {
-            api('crm.contact_get', { id }).then(data => {
-                Object.assign(detailData, data);
-                showModal.value = 'contactDetail';
-            }).catch(e => toast(e.message, 'error'));
-        }
-
-        function editContactFromDetail() {
-            Object.assign(editData, { ...detailData, _type: 'contact' });
-            showModal.value = 'contactEdit';
-        }
-
-        async function saveContact() {
-            try {
-                await api('crm.contact_update', { id: editData.id, first_name: editData.first_name, last_name: editData.last_name, company: editData.company, position: editData.position, phone: editData.phone, email: editData.email, telegram: editData.telegram, whatsapp: editData.whatsapp, address: editData.address, source: editData.source, notes: editData.notes });
-                toast('Контакт обновлён', 'success');
-                showModal.value = null;
-                loadCrm();
-            } catch (e) { toast('Ошибка: ' + e.message, 'error'); }
-        }
-
-        function interactionTypeLabel(type) {
-            const map = { call: 'Звонок', email: 'Email', meeting: 'Встреча', message: 'Сообщение', note: 'Заметка', order: 'Заказ', delivery: 'Доставка', complaint: 'Рекламация', other: 'Другое' };
-            return map[type] || type;
-        }
-
-        // Deals (Сделки)
-        const deals = reactive({ items: [], total: 0 });
-        const dealStats = reactive({ new: 0, in_progress: 0, won: 0, pipeline_amount: 0 });
-        const dealFilter = reactive({ stage: '', q: '' });
-        let dealSearchTimer = null;
-        const newDeal = reactive({ title: '', contact_id: null, amount: null, stage: 'new', assignee: '', description: '' });
-
-        async function loadDeals() {
-            try {
-                const [data, stats] = await Promise.all([
-                    api('deals.list', { ...dealFilter, limit: 100 }),
-                    api('deals.stats'),
-                ]);
-                deals.items = data.items || [];
-                deals.total = data.total || 0;
-                Object.assign(dealStats, stats);
-            } catch (e) { toast('Ошибка загрузки сделок: ' + e.message, 'error'); }
-        }
-
-        function debounceSearchDeals() {
-            clearTimeout(dealSearchTimer);
-            dealSearchTimer = setTimeout(loadDeals, 400);
-        }
-
-        async function createDeal() {
-            if (!newDeal.title.trim()) return toast('Укажи название сделки', 'error');
-            try {
-                await api('deals.create', { ...newDeal });
-                toast('Сделка создана', 'success');
-                showModal.value = null;
-                Object.assign(newDeal, { title: '', contact_id: null, amount: null, stage: 'new', assignee: '', description: '' });
-                loadDeals();
-            } catch (e) { toast('Ошибка: ' + e.message, 'error'); }
-        }
-
-        function editDeal(d) {
-            Object.assign(editData, { ...d, _type: 'deal' });
-            showModal.value = 'dealEdit';
-        }
-
-        async function saveDeal() {
-            try {
-                await api('deals.update', { id: editData.id, title: editData.title, contact_id: editData.contact_id, amount: editData.amount, stage: editData.stage, assignee: editData.assignee, description: editData.description, lost_reason: editData.lost_reason });
-                toast('Сделка обновлена', 'success');
-                showModal.value = null;
-                loadDeals();
-            } catch (e) { toast('Ошибка: ' + e.message, 'error'); }
-        }
-
-        function dealStageLabel(stage) {
-            const map = { new: 'Новая', qualifying: 'Квалификация', proposal: 'Предложение', negotiation: 'Переговоры', won: 'Выиграна', lost: 'Проиграна' };
-            return map[stage] || stage;
-        }
-
-        // Supplies (Поставки)
-        const supplies = reactive({ items: [], total: 0 });
-        const supplyStats = reactive({ pending: 0, shipped: 0, received: 0, open_total: 0 });
-        const supplyFilter = reactive({ status: '', q: '' });
-        let supplySearchTimer = null;
-        const newSupply = reactive({
-            supplier_name: '', number: '', status: 'draft', expected_date: '',
-            notes: '', items: [{ product_id: null, quantity: 1, unit_price: 0 }]
-        });
-
-        async function loadSupplies() {
-            try {
-                const [data, stats] = await Promise.all([
-                    api('supplies.list', { ...supplyFilter, limit: 100 }),
-                    api('supplies.stats'),
-                ]);
-                supplies.items = data.items || [];
-                supplies.total = data.total || 0;
-                Object.assign(supplyStats, stats);
-            } catch (e) { toast('Ошибка загрузки поставок: ' + e.message, 'error'); }
-        }
-
-        function debounceSearchSupplies() {
-            clearTimeout(supplySearchTimer);
-            supplySearchTimer = setTimeout(loadSupplies, 400);
-        }
-
-        async function createSupply() {
-            if (!newSupply.supplier_name.trim()) return toast('Укажи поставщика', 'error');
-            const validItems = newSupply.items.filter(i => i.product_id && i.quantity > 0);
-            if (!validItems.length) return toast('Добавь хотя бы одну позицию', 'error');
-            try {
-                await api('supplies.create', {
-                    supplier_name: newSupply.supplier_name,
-                    number: newSupply.number,
-                    status: newSupply.status,
-                    expected_date: newSupply.expected_date || null,
-                    notes: newSupply.notes,
-                    items: validItems
-                });
-                toast('Поставка создана', 'success');
-                showModal.value = null;
-                Object.assign(newSupply, { supplier_name: '', number: '', status: 'draft', expected_date: '', notes: '' });
-                newSupply.items = [{ product_id: null, quantity: 1, unit_price: 0 }];
-                loadSupplies();
-            } catch (e) { toast('Ошибка: ' + e.message, 'error'); }
-        }
-
-        async function showSupplyDetail(id) {
-            try {
-                const data = await api('supplies.get', { id });
-                Object.assign(detailData, data);
-                showModal.value = 'supplyDetail';
-            } catch (e) { toast(e.message, 'error'); }
-        }
-
-        function editSupplyFromDetail() {
-            Object.assign(editData, { ...detailData, _type: 'supply' });
-            showModal.value = 'supplyEdit';
-        }
-
-        async function saveSupply() {
-            try {
-                await api('supplies.update', { id: editData.id, supplier_name: editData.supplier_name, number: editData.number, status: editData.status, expected_date: editData.expected_date, notes: editData.notes });
-                toast('Поставка обновлена', 'success');
-                showModal.value = null;
-                loadSupplies();
-            } catch (e) { toast('Ошибка: ' + e.message, 'error'); }
-        }
-
-        async function receiveSupply(id) {
-            try {
-                await api('supplies.receive', { id });
-                toast('Поставка получена, товар оприходован', 'success');
-                showModal.value = null;
-                loadSupplies();
-                loadInventory();
-            } catch (e) { toast('Ошибка: ' + e.message, 'error'); }
-        }
-
-        function supplyStatusLabel(status) {
-            const map = { draft: 'Черновик', ordered: 'Заказано', shipped: 'В пути', partial: 'Частично', received: 'Получено', cancelled: 'Отменено' };
-            return map[status] || status;
-        }
-
-        // AI
-        const aiChat = ref([]);
-        const aiQuestion = ref('');
-        const aiLoading = ref(false);
-
-        async function askAI() {
-            if (!aiQuestion.value.trim() || aiLoading.value) return;
-            const q = aiQuestion.value;
-            aiChat.value.push({ id: Date.now(), role: 'user', text: q });
-            aiQuestion.value = '';
-            aiLoading.value = true;
-
-            try {
-                const result = await api('ai.ask', { question: q });
-                aiChat.value.push({ id: Date.now(), role: 'assistant', text: result.answer || 'Нет ответа' });
-            } catch (e) {
-                aiChat.value.push({ id: Date.now(), role: 'assistant', text: '❌ Ошибка: ' + e.message });
-            } finally {
-                aiLoading.value = false;
-                await nextTick();
-                // Scroll to bottom
-            }
-        }
-
-        // Settings
-        const systemInfo = ref(null);
-        const aiProviders = ref([]);
-
-        async function runMigrations() {
-            try {
-                const result = await api('system.migrate');
-                systemInfo.value = result;
-                toast('Миграции выполнены', 'success');
-            } catch (e) { toast('Ошибка: ' + e.message, 'error'); }
-        }
-
-        async function checkStatus() {
-            try {
-                const result = await api('system.status');
-                systemInfo.value = result;
-            } catch (e) { toast('Ошибка: ' + e.message, 'error'); }
-        }
-
-        async function loadSettings() {
-            try {
-                const data = await api('ai.providers');
-                aiProviders.value = data.providers || [];
-            } catch (e) { console.warn(e); }
-        }
-
-        // Route data loader
-        function loadRouteData(route) {
-            switch (route) {
-                case 'dashboard': loadDashboard(); break;
-                case 'journal':   loadJournal(); break;
-                case 'products':  loadProducts(); break;
-                case 'finance':   loadFinance(); break;
-                case 'reports':   loadFinance(); break;
-                case 'inventory': loadCatalog(); loadCategories(); loadCatalogMeta(); loadInventory(); loadProducts(); break;
-                case 'supplies':  loadSupplies(); loadProducts(); break;
-                case 'sales':     loadSales(); break;
-                case 'tasks':     taskFilter.assignee = ''; taskFilter.creator = ''; loadTasks(); break;
-                case 'tasks_my':  taskFilter.assignee = 'me'; taskFilter.creator = ''; loadTasks(); break;
-                case 'tasks_from': taskFilter.assignee = ''; taskFilter.creator = 'me'; loadTasks(); break;
-                case 'crm':       loadCrm(); break;
-                case 'deals':     loadDeals(); loadCrm(); break;
-                case 'settings':  loadSettings(); break;
-            }
-        }
-
-        // ══ Universal Delete ═══════════════════════════
-        function confirmDelete(type, item) {
-            const labels = {
-                product: `товар "${item.name}"`,
-                finance: `транзакцию #${item.id} (${formatMoney(item.amount)})`,
-                deal: `сделку "${item.title}"`,
-                supply: `поставку #${item.number || item.id}`,
-                contact: `контакт "${[item.first_name, item.last_name].filter(Boolean).join(' ') || item.company}"`,
-            };
-            Object.assign(deleteTarget, { type, id: item.id, label: labels[type] || `#${item.id}` });
-            showModal.value = 'confirmDelete';
-        }
-
-        async function executeDelete() {
-            const { type, id } = deleteTarget;
-            try {
-                const endpointMap = {
-                    product: 'products.delete',
-                    finance: 'finance.delete',
-                    deal: 'deals.delete',
-                    supply: 'supplies.delete',
-                    contact: 'crm.contact_delete',
-                };
-                await api(endpointMap[type], { id });
-                toast('Удалено', 'success');
-                showModal.value = null;
-                // Reload data
-                const reloadMap = { product: loadProducts, finance: loadFinance, deal: loadDeals, supply: loadSupplies, contact: loadCrm };
-                if (reloadMap[type]) reloadMap[type]();
-            } catch (e) { toast('Ошибка удаления: ' + e.message, 'error'); }
-        }
-
-        // Formatting helpers
-        function formatMoney(val) {
-            const n = parseFloat(val) || 0;
-            return n.toLocaleString('ru-RU', { minimumFractionDigits: 0, maximumFractionDigits: 0 }) + ' ₽';
-        }
-        function formatDate(dt) {
-            if (!dt) return '—';
-            return new Date(dt).toLocaleDateString('ru-RU');
-        }
-        function formatDateTime(dt) {
-            if (!dt) return '—';
-            return new Date(dt).toLocaleString('ru-RU', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' });
-        }
-
-        // Init
-        onMounted(() => {
-            loadRouteData(currentRoute.value);
-        });
-
-        return {
-            // Navigation
-            currentRoute, expandedGroups, toggleGroup, navigate,
-            // Toasts
-            toasts, toast,
-            // Shared state
-            detailData, editData, deleteTarget, summaryData,
-            // Dashboard
-            dash, recentJournal, loadDashboard,
-            // Quick entry
-            quickEntry, submitting, submitQuickEntry,
-            // Journal
-            journal, journalFilter, loadJournal, loadMoreJournal, debounceSearchJournal, showJournalEntry,
-            // Products
-            products, allProducts, productFilter, loadProducts, debounceSearchProducts,
-            createProduct, newProduct, editProduct, saveProduct,
-            // Finance
-            finance, financeAccounts, financeFilter, loadFinance, debounceSearchFinance, loadFinanceSummary,
-            createFinance, newFinance, editFinance, saveFinance,
-            // Finance Accounts
-            newAccount, createAccount,
-            // Sales
-            sales, salesStats, salesFilter, loadSales, debounceSearchSales,
-            // Reports
-            reportData,
-            // Inventory
-            inventoryList, movements, newMovement, loadInventory, submitMovement,
-            adjustData, submitAdjust, transferData, submitTransfer,
-            inventoryTab, switchInventoryTab, stockFilter, movementFilter, filteredInventory,
-            debounceStockSearch, loadMovements, movementTypeLabel,
-            // Catalog
-            catalogProducts, catalogTotal, catalogCategories, catalogBrands, catalogSources,
-            catalogFilter, catalogView, catalogLoading, loadCatalog, loadMoreCatalog,
-            debounceCatalogSearch, selectCategory, sourceLabel,
-            sidebarAccordion, expandedCats, toggleCatExpand, onFilterImageToggle, onFilterStockToggle,
-            catalogSidebarWidth, startSidebarResize,
-            bulkMode, bulkSelected, bulkMoveTarget, bulkMoveSearch,
-            toggleBulkSelect, selectAllVisible, filteredMoveCategories, executeBulkMove,
-            // Product detail
-            productDetail, productDetailImgIdx, productDetailMainImg, showProductDetail,
-            // Supplies
-            supplies, supplyStats, supplyFilter, newSupply,
-            loadSupplies, debounceSearchSupplies, createSupply, showSupplyDetail, supplyStatusLabel,
-            editSupplyFromDetail, saveSupply, receiveSupply,
-            // Tasks
-            tasks, taskStats, taskFilter, loadTasks, createTask, newTask, toggleTask, isOverdue,
-            editTask, saveTask,
-            // CRM
-            crmContacts, crmInteractions, crmUpcoming, crmStats, crmFilter,
-            newContact, newInteraction,
-            loadCrm, debounceSearchCrm, createContact, createInteraction, showContactDetail, interactionTypeLabel,
-            editContactFromDetail, saveContact,
-            // Deals
-            deals, dealStats, dealFilter, newDeal,
-            loadDeals, debounceSearchDeals, createDeal, dealStageLabel,
-            editDeal, saveDeal,
-            // Delete
-            confirmDelete, executeDelete,
-            // AI
-            aiChat, aiQuestion, aiLoading, askAI,
-            // Settings
-            systemInfo, aiProviders, runMigrations, checkStatus,
-            // Modals
-            showModal,
-            // Formatting
-            formatMoney, formatDate, formatDateTime,
-        };
-    }
-});
-app.mount('#app');
-</script>
+<script src="js/erp.bundle.js"></script>
 </body>
 </html>
-<!-- v8 -->
+<!-- v9 -->

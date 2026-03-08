@@ -44,6 +44,14 @@ class ERP_Products {
             $like = "%{$q}%";
             $params = array_merge($params, [$like, $like, $like]);
         }
+        if ($fsku = param('filter_sku')) {
+            $where[] = 'p.sku LIKE ?';
+            $params[] = "%{$fsku}%";
+        }
+        if ($fname = param('filter_name')) {
+            $where[] = 'p.name LIKE ?';
+            $params[] = "%{$fname}%";
+        }
         if (param('has_image')) {
             $where[] = "p.image_url IS NOT NULL AND p.image_url != ''";
         }
@@ -68,6 +76,12 @@ class ERP_Products {
             $where[] = "p.marketplace_source IN ({$placeholders})";
             $params = array_merge($params, $sources);
         }
+        if ($supplier = param('supplier')) {
+            $suppliers = explode(',', $supplier);
+            $placeholders = implode(',', array_fill(0, count($suppliers), '?'));
+            $where[] = "p.supplier IN ({$placeholders})";
+            $params = array_merge($params, $suppliers);
+        }
 
         $whereSQL = implode(' AND ', $where);
         $limit  = min((int)(param('limit', 100)), 1000);
@@ -80,6 +94,10 @@ class ERP_Products {
             'price_asc' => 'COALESCE(p.sell_price, 999999999) ASC',
             'price_desc' => 'p.sell_price DESC',
             'newest' => 'p.id DESC',
+            'stock_desc' => 'COALESCE(i.quantity, 0) DESC',
+            'stock_asc' => 'COALESCE(i.quantity, 0) ASC',
+            'brand' => 'COALESCE(p.brand, "яяя") ASC, p.name ASC',
+            'supplier' => 'COALESCE(p.supplier, "яяя") ASC, p.name ASC',
         ];
         $sort = $sortMap[param('sort', 'name')] ?? 'p.name ASC';
 
@@ -94,10 +112,12 @@ class ERP_Products {
             SELECT p.*, 
                    pc.name as category_name,
                    COALESCE(i.quantity, 0) as stock,
-                   COALESCE(i.reserved, 0) as reserved
+                   COALESCE(i.reserved, 0) as reserved,
+                   sup.alias as supplier_alias
             FROM erp_products p
             LEFT JOIN erp_product_categories pc ON pc.id = p.category_id
             LEFT JOIN erp_inventory i ON i.product_id = p.id AND i.warehouse_id = 1
+            LEFT JOIN erp_suppliers sup ON sup.id = p.supplier_id
             WHERE {$whereSQL}
             ORDER BY {$sort}
             LIMIT {$limit} OFFSET {$offset}
@@ -192,7 +212,7 @@ class ERP_Products {
         $id = (int)($input['id'] ?? param('id'));
         if (!$id) errorResponse('id required');
 
-        $allowed = ['name', 'sku', 'barcode', 'category_id', 'unit', 'purchase_price', 'sell_price', 'min_stock', 'ozon_product_id', 'ozon_sku', 'image_url', 'is_active'];
+        $allowed = ['name', 'sku', 'barcode', 'category_id', 'unit', 'purchase_price', 'sell_price', 'min_stock', 'ozon_product_id', 'ozon_sku', 'image_url', 'is_active', 'supplier', 'supplier_id'];
         $sets = [];
         $params = [];
         foreach ($allowed as $field) {
@@ -277,7 +297,7 @@ class ERP_Products {
             unset($c['direct_count']);
             $result[] = $c;
         }
-        usort($result, fn($a, $b) => strcmp($a['name'], $b['name']));
+        usort($result, fn($a, $b) => $a['id'] <=> $b['id']);
         return ['items' => $result];
     }
 
@@ -319,6 +339,20 @@ class ERP_Products {
             ->execute([$name, $slug, $parentId]);
 
         return ['ok' => true, 'id' => (int) $pdo->lastInsertId()];
+    }
+
+    /**
+     * Переименовать категорию
+     */
+    public function category_update(): array {
+        $input = jsonInput();
+        $id = (int) ($input['id'] ?? 0);
+        $name = trim($input['name'] ?? '');
+        if (!$id || !$name) errorResponse('id and name required');
+
+        $pdo = DB::get();
+        $pdo->prepare("UPDATE erp_product_categories SET name = ? WHERE id = ?")->execute([$name, $id]);
+        return ['ok' => true, 'id' => $id];
     }
 
     /**
@@ -434,7 +468,9 @@ class ERP_Products {
         $pdo = DB::get();
         $brands = $pdo->query("SELECT DISTINCT brand FROM erp_products WHERE is_active=1 AND brand IS NOT NULL AND brand != '' ORDER BY brand")->fetchAll(PDO::FETCH_COLUMN);
         $sources = $pdo->query("SELECT DISTINCT marketplace_source FROM erp_products WHERE is_active=1 AND marketplace_source IS NOT NULL AND marketplace_source != '' ORDER BY marketplace_source")->fetchAll(PDO::FETCH_COLUMN);
-        return ['brands' => $brands, 'sources' => $sources];
+        $suppliers = $pdo->query("SELECT DISTINCT supplier FROM erp_products WHERE is_active=1 AND supplier IS NOT NULL AND supplier != '' ORDER BY supplier")->fetchAll(PDO::FETCH_COLUMN);
+        $suppliersList = $pdo->query("SELECT id, name, alias FROM erp_suppliers WHERE is_active=1 ORDER BY name")->fetchAll();
+        return ['brands' => $brands, 'sources' => $sources, 'suppliers' => $suppliers, 'suppliers_list' => $suppliersList];
     }
 
     /**
@@ -457,6 +493,47 @@ class ERP_Products {
     }
 
     /**
+     * Синхронизация остатков из МойСклад
+     * POST: { "items": [{ "sku": "2304", "quantity": 310, "reserve": 0 }, ...] }
+     */
+    public function stock_sync(): array {
+        $input = jsonInput();
+        $items = $input['items'] ?? [];
+        if (empty($items)) errorResponse('items array required');
+
+        $pdo = DB::get();
+        $whId = (int)($input['warehouse_id'] ?? 1);
+        $updated = 0;
+        $not_found = [];
+
+        $stmtFind = $pdo->prepare("SELECT id FROM erp_products WHERE sku = ? AND is_active = 1");
+        $stmtUpsert = $pdo->prepare("
+            INSERT INTO erp_inventory (product_id, warehouse_id, quantity, reserved)
+            VALUES (?, ?, ?, ?)
+            ON DUPLICATE KEY UPDATE quantity = VALUES(quantity), reserved = VALUES(reserved)
+        ");
+
+        foreach ($items as $item) {
+            $sku = trim($item['sku'] ?? '');
+            if (!$sku) continue;
+
+            $stmtFind->execute([$sku]);
+            $productId = $stmtFind->fetchColumn();
+            if (!$productId) {
+                $not_found[] = $sku;
+                continue;
+            }
+
+            $qty = (float)($item['quantity'] ?? 0);
+            $res = (float)($item['reserve'] ?? 0);
+            $stmtUpsert->execute([$productId, $whId, $qty, $res]);
+            $updated++;
+        }
+
+        return ['ok' => true, 'updated' => $updated, 'not_found' => $not_found];
+    }
+
+    /**
      * Массовый импорт товаров (с полной поддержкой marketplace полей)
      * POST: { "products": [{ "sku": "...", "name": "...", ... }, ...] }
      */
@@ -472,7 +549,7 @@ class ERP_Products {
 
         $fields = ['name','barcode','category_id','unit','purchase_price','sell_price',
                    'min_stock','ozon_product_id','ozon_sku','ya_market_sku','ya_offer_id',
-                   'marketplace_source','description','brand','weight','image_url','images'];
+                   'marketplace_source','description','brand','supplier','weight','image_url','images'];
 
         foreach ($items as $i => $item) {
             $sku = trim($item['sku'] ?? '');
