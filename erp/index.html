@@ -49,8 +49,8 @@
                     <div :class="['nav-item', { active: currentRoute === 'receiving' }]" @click="navigate('receiving')">
                         <span class="icon"><i class="ph ph-package"></i></span><span class="nav-label">Приёмки</span>
                     </div>
-                    <div :class="['nav-item', { active: currentRoute === 'suppliers' }]" @click="navigate('suppliers')">
-                        <span class="icon"><i class="ph ph-address-book"></i></span><span class="nav-label">Поставщики</span>
+                    <div :class="['nav-item', { active: currentRoute === 'counterparties' }]" @click="navigate('counterparties')">
+                        <span class="icon"><i class="ph ph-address-book"></i></span><span class="nav-label">Контрагенты</span>
                     </div>
                 </div>
             </div>
@@ -570,6 +570,7 @@
                             <div class="col-toggle-popup" v-if="colVisibleOpen" @click.stop>
                                 <label><input type="checkbox" :checked="colVisible.image" @change="toggleColVisible('image')" style="accent-color:var(--accent)"> Фото</label>
                                 <label><input type="checkbox" :checked="colVisible.sku" @change="toggleColVisible('sku')" style="accent-color:var(--accent)"> SKU</label>
+                                <label><input type="checkbox" :checked="colVisible.alias" @change="toggleColVisible('alias')" style="accent-color:var(--accent)"> Псевдоним</label>
                                 <label><input type="checkbox" :checked="colVisible.name" @change="toggleColVisible('name')" style="accent-color:var(--accent)"> Наименование</label>
                                 <label><input type="checkbox" :checked="colVisible.brand" @change="toggleColVisible('brand')" style="accent-color:var(--accent)"> Бренд</label>
                                 <label><input type="checkbox" :checked="colVisible.supplier" @change="toggleColVisible('supplier')" style="accent-color:var(--accent)"> Поставщик</label>
@@ -634,6 +635,11 @@
                                             <span class="col-sort" @click="setCatalogSort('sku')">SKU <i :class="['ph sort-icon', catalogFilter.sort==='sku' ? 'ph-sort-ascending active' : 'ph-arrows-down-up']"></i></span>
                                         </div>
                                         <input class="col-search-input" type="text" v-model="catalogFilter.filter_sku" @input="debounceCatalogSearch" placeholder="🔍">
+                                    </th>
+                                    <th v-if="colVisible.alias" style="width:120px">
+                                        <div class="col-header">
+                                            <span class="col-sort" @click="setCatalogSort('alias')">Псевдоним <i :class="['ph sort-icon', catalogFilter.sort==='alias' ? 'ph-sort-ascending active' : 'ph-arrows-down-up']"></i></span>
+                                        </div>
                                     </th>
                                     <th v-if="colVisible.name">
                                         <div class="col-header">
@@ -727,6 +733,7 @@
                                         <i v-else class="ph ph-image" style="font-size:20px;color:var(--border)"></i>
                                     </td>
                                     <td v-if="colVisible.sku" style="font-family:monospace;font-size:12px">{{ p.sku }}</td>
+                                    <td v-if="colVisible.alias" style="font-size:12px;font-weight:600;color:var(--accent2)">{{ p.alias || '—' }}</td>
                                     <td v-if="colVisible.name" style="font-weight:500;white-space:normal;min-width:200px">{{ p.name }}</td>
                                     <td v-if="colVisible.brand" style="font-size:12px;color:var(--accent2)">{{ p.brand || '—' }}</td>
                                     <td v-if="colVisible.supplier" style="font-size:12px;color:var(--text2)">{{ p.supplier_alias || p.supplier || '—' }}</td>
@@ -1317,25 +1324,33 @@
                 </div>
             </template>
 
-            <!-- Suppliers (Поставщики) -->
-            <template v-if="currentRoute === 'suppliers'">
+            <!-- Counterparties (Контрагенты) -->
+            <template v-if="currentRoute === 'counterparties'">
                 <div class="page-header">
                     <div>
-                        <h1>🚚 Поставщики</h1>
-                        <div class="subtitle">Справочник поставщиков · {{ suppliersData.total || 0 }}</div>
+                        <h1>📋 Контрагенты</h1>
+                        <div class="subtitle">Справочник контрагентов · {{ suppliersData.total || 0 }}</div>
                     </div>
-                    <button class="btn btn-primary" @click="newSupplierData = { name:'', alias:'', synonyms:'', inn:'', phone:'', email:'', website:'', country:'', address:'', notes:'' }; showModal='supplierCreate'">+ Поставщик</button>
+                    <button class="btn btn-primary" @click="newSupplierData = { name:'', type:'supplier', alias:'', synonyms:'', inn:'', phone:'', email:'', website:'', country:'', address:'', notes:'', currency:'RUB' }; showModal='supplierCreate'">+ Контрагент</button>
                 </div>
 
                 <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;flex-wrap:wrap">
                     <input class="form-input" v-model="supplierFilter.q" placeholder="Поиск..." @input="debounceSearchSuppliers2" style="width:220px;flex:none">
+                    <select class="form-select" v-model="supplierFilter.type" @change="loadSuppliers2()" style="width:150px;flex:none">
+                        <option value="">Все типы</option>
+                        <option value="supplier">Поставщики</option>
+                        <option value="customer">Покупатели</option>
+                        <option value="both">Оба</option>
+                    </select>
                     <div class="col-toggle-wrap" style="margin-left:auto">
                         <div class="col-toggle-btn" @click.stop="supplierColVisOpen = !supplierColVisOpen"><i class="ph ph-columns"></i> Столбцы</div>
                         <div class="col-toggle-popup" v-if="supplierColVisOpen" @click.stop>
                             <label><input type="checkbox" :checked="supplierColVis.name" @change="toggleSupplierCol('name')" style="accent-color:var(--accent)"> Название</label>
                             <label><input type="checkbox" :checked="supplierColVis.alias" @change="toggleSupplierCol('alias')" style="accent-color:var(--accent)"> Краткое</label>
+                            <label><input type="checkbox" :checked="supplierColVis.type" @change="toggleSupplierCol('type')" style="accent-color:var(--accent)"> Тип</label>
                             <label><input type="checkbox" :checked="supplierColVis.synonyms" @change="toggleSupplierCol('synonyms')" style="accent-color:var(--accent)"> Синонимы</label>
                             <label><input type="checkbox" :checked="supplierColVis.country" @change="toggleSupplierCol('country')" style="accent-color:var(--accent)"> Страна</label>
+                            <label><input type="checkbox" :checked="supplierColVis.balance" @change="toggleSupplierCol('balance')" style="accent-color:var(--accent)"> Баланс</label>
                             <label><input type="checkbox" :checked="supplierColVis.phone" @change="toggleSupplierCol('phone')" style="accent-color:var(--accent)"> Телефон</label>
                             <label><input type="checkbox" :checked="supplierColVis.email" @change="toggleSupplierCol('email')" style="accent-color:var(--accent)"> Email</label>
                             <label><input type="checkbox" :checked="supplierColVis.products" @change="toggleSupplierCol('products')" style="accent-color:var(--accent)"> Товаров</label>
@@ -1355,8 +1370,10 @@
                         <thead><tr>
                             <th v-if="supplierColVis.name">Название</th>
                             <th v-if="supplierColVis.alias">Краткое</th>
+                            <th v-if="supplierColVis.type">Тип</th>
                             <th v-if="supplierColVis.synonyms">Синонимы</th>
                             <th v-if="supplierColVis.country">Страна</th>
+                            <th v-if="supplierColVis.balance">Баланс</th>
                             <th v-if="supplierColVis.phone">Телефон</th>
                             <th v-if="supplierColVis.email">Email</th>
                             <th v-if="supplierColVis.products">Товаров</th>
@@ -1366,8 +1383,10 @@
                             <tr v-for="s in filteredSuppliers" :key="s.id" style="cursor:pointer" @click="showSupplierDetail2(s.id)">
                                 <td v-if="supplierColVis.name"><strong>{{ s.name }}</strong></td>
                                 <td v-if="supplierColVis.alias">{{ s.alias || '—' }}</td>
+                                <td v-if="supplierColVis.type"><span class="badge" :class="{'badge-done': s.type==='supplier', 'badge-expense': s.type==='customer', 'badge-transfer': s.type==='both'}">{{ {supplier:'Поставщик', customer:'Покупатель', both:'Оба'}[s.type] || s.type }}</span></td>
                                 <td v-if="supplierColVis.synonyms" style="font-size:12px;color:var(--text2);max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" :title="s.synonyms">{{ s.synonyms || '—' }}</td>
                                 <td v-if="supplierColVis.country">{{ s.country || '—' }}</td>
+                                <td v-if="supplierColVis.balance" :style="{ color: s.balance > 0 ? 'var(--red)' : s.balance < 0 ? 'var(--green)' : 'var(--text2)', fontWeight: s.balance != 0 ? 600 : 400 }">{{ s.balance != 0 ? formatMoney(Math.abs(s.balance)) + (s.balance > 0 ? ' долг' : ' переплата') : '—' }}</td>
                                 <td v-if="supplierColVis.phone">{{ s.phone || '—' }}</td>
                                 <td v-if="supplierColVis.email">{{ s.email || '—' }}</td>
                                 <td v-if="supplierColVis.products">{{ s.product_count || 0 }}</td>
@@ -1379,7 +1398,7 @@
                             </tr>
                         </tbody>
                     </table>
-                    <div v-else style="color:var(--text2);padding:20px;text-align:center">Нет поставщиков</div>
+                    <div v-else style="color:var(--text2);padding:20px;text-align:center">Нет контрагентов</div>
                 </div>
             </template>
 
@@ -1645,6 +1664,7 @@
                     <div class="brand" v-if="productDetail.brand">{{ productDetail.brand }}</div>
                     <div class="detail-grid">
                         <div class="label">SKU</div><div class="value" style="font-family:monospace">{{ productDetail.sku }}</div>
+                        <div class="label">Псевдоним</div><div class="value" style="font-weight:600;color:var(--accent2)">{{ productDetail.alias || '—' }}</div>
                         <div class="label">Штрихкод</div><div class="value">{{ productDetail.barcode || '—' }}</div>
                         <div class="label">Категория</div><div class="value">{{ productDetail.category_name || '—' }}</div>
                         <div class="label">Вес</div><div class="value">{{ productDetail.weight ? productDetail.weight + ' кг' : '—' }}</div>
@@ -1942,6 +1962,7 @@
         <div class="modal">
             <h2>✏️ Редактировать товар</h2>
             <div class="form-group"><label>SKU (артикул)</label><input class="form-input" v-model="editData.sku"></div>
+            <div class="form-group"><label>Псевдоним (короткое имя для склада)</label><input class="form-input" v-model="editData.alias" placeholder="CND 501 pool"></div>
             <div class="form-group"><label>Название</label><input class="form-input" v-model="editData.name"></div>
             <div class="form-group"><label>Штрихкод</label><input class="form-input" v-model="editData.barcode"></div>
             <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
@@ -2407,9 +2428,19 @@
 
     <div class="modal-overlay" v-if="showModal==='supplierCreate'" @click.self="showModal=null">
         <div class="modal">
-            <h2>🚚 Новый поставщик</h2>
+            <h2>� Новый контрагент</h2>
             <div class="form-group"><label>Название *</label><input class="form-input" v-model="newSupplierData.name" placeholder="Полное наименование"></div>
-            <div class="form-group"><label>Краткое название</label><input class="form-input" v-model="newSupplierData.alias" placeholder="Для документов и таблиц"></div>
+            <div class="input-row">
+                <div class="form-group" style="flex:1"><label>Краткое название</label><input class="form-input" v-model="newSupplierData.alias" placeholder="Для документов и таблиц"></div>
+                <div class="form-group" style="flex:1">
+                    <label>Тип</label>
+                    <select class="form-select" v-model="newSupplierData.type">
+                        <option value="supplier">Поставщик</option>
+                        <option value="customer">Покупатель</option>
+                        <option value="both">Оба</option>
+                    </select>
+                </div>
+            </div>
             <div class="form-group"><label>Синонимы</label><input class="form-input" v-model="newSupplierData.synonyms" placeholder="Варианты названий через запятую"></div>
             <div class="input-row">
                 <div class="form-group" style="flex:1"><label>Страна</label><input class="form-input" v-model="newSupplierData.country"></div>
@@ -2419,7 +2450,18 @@
                 <div class="form-group" style="flex:1"><label>Телефон</label><input class="form-input" v-model="newSupplierData.phone"></div>
                 <div class="form-group" style="flex:1"><label>Email</label><input class="form-input" v-model="newSupplierData.email"></div>
             </div>
-            <div class="form-group"><label>Сайт</label><input class="form-input" v-model="newSupplierData.website"></div>
+            <div class="input-row">
+                <div class="form-group" style="flex:1"><label>Сайт</label><input class="form-input" v-model="newSupplierData.website"></div>
+                <div class="form-group" style="flex:1">
+                    <label>Валюта</label>
+                    <select class="form-select" v-model="newSupplierData.currency">
+                        <option value="RUB">RUB</option>
+                        <option value="USD">USD</option>
+                        <option value="CNY">CNY</option>
+                        <option value="EUR">EUR</option>
+                    </select>
+                </div>
+            </div>
             <div class="form-group"><label>Адрес</label><input class="form-input" v-model="newSupplierData.address"></div>
             <div class="form-group"><label>Примечания</label><textarea class="form-input" v-model="newSupplierData.notes" rows="2"></textarea></div>
             <div class="modal-buttons">
@@ -2429,12 +2471,22 @@
         </div>
     </div>
 
-    <!-- Supplier Detail -->
+    <!-- Counterparty Detail -->
     <div class="modal-overlay" v-if="showModal==='supplierDetail'" @click.self="showModal=null">
         <div class="modal" style="max-width:700px">
             <h2>{{ detailData.name }}</h2>
-            <div v-if="detailData.alias" style="color:var(--text2);margin-bottom:4px">Краткое: {{ detailData.alias }}</div>
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">
+                <span v-if="detailData.alias" style="color:var(--text2)">{{ detailData.alias }}</span>
+                <span class="badge" :class="{'badge-done': detailData.type==='supplier', 'badge-expense': detailData.type==='customer', 'badge-transfer': detailData.type==='both'}">{{ {supplier:'Поставщик', customer:'Покупатель', both:'Оба'}[detailData.type] || detailData.type }}</span>
+            </div>
             <div v-if="detailData.synonyms" style="color:var(--text2);margin-bottom:12px;font-size:13px">Синонимы: {{ detailData.synonyms }}</div>
+            <div v-if="detailData.balance != null && detailData.balance != 0" style="margin-bottom:12px;padding:10px;border-radius:8px;background:var(--card-bg,var(--bg))">
+                <div style="font-size:13px;color:var(--text2)">Баланс</div>
+                <div :style="{ fontSize:'20px', fontWeight:700, color: detailData.balance > 0 ? 'var(--red)' : 'var(--green)' }">
+                    {{ formatMoney(Math.abs(detailData.balance)) }} {{ detailData.currency || 'RUB' }}
+                    <span style="font-size:13px;font-weight:400">{{ detailData.balance > 0 ? '(мы должны)' : '(переплата)' }}</span>
+                </div>
+            </div>
             <div class="info-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:8px 20px;margin-bottom:16px">
                 <div v-if="detailData.country"><strong>Страна:</strong> {{ detailData.country }}</div>
                 <div v-if="detailData.inn"><strong>ИНН:</strong> {{ detailData.inn }}</div>
@@ -2447,15 +2499,31 @@
             <div v-if="detailData.products?.length">
                 <h3 style="margin-bottom:8px">Товары ({{ detailData.products.length }})</h3>
                 <table class="table">
-                    <thead><tr><th>SKU</th><th>Название</th><th>Бренд</th><th>Закупка</th><th>Продажа</th><th>Остаток</th></tr></thead>
+                    <thead><tr><th>SKU</th><th>Псевдоним</th><th>Название</th><th>Бренд</th><th>Закупка</th><th>Продажа</th><th>Остаток</th></tr></thead>
                     <tbody>
                         <tr v-for="p in detailData.products" :key="p.id">
                             <td>{{ p.sku }}</td>
+                            <td style="font-weight:600;color:var(--accent2)">{{ p.alias || '—' }}</td>
                             <td>{{ p.name }}</td>
                             <td>{{ p.brand || '—' }}</td>
                             <td>{{ p.purchase_price ? formatMoney(p.purchase_price) : '—' }}</td>
                             <td>{{ p.sell_price ? formatMoney(p.sell_price) : '—' }}</td>
                             <td>{{ p.stock }}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div v-if="detailData.transactions?.length" style="margin-top:16px">
+                <h3 style="margin-bottom:8px">Финансовые операции ({{ detailData.transactions.length }})</h3>
+                <table class="table">
+                    <thead><tr><th>Дата</th><th>Тип</th><th>Сумма</th><th>Счёт</th><th>Описание</th></tr></thead>
+                    <tbody>
+                        <tr v-for="t in detailData.transactions" :key="t.id">
+                            <td>{{ t.date }}</td>
+                            <td><span class="badge" :class="{'badge-income': t.type==='income', 'badge-expense': t.type==='expense', 'badge-transfer': t.type==='transfer'}">{{ {income:'Доход',expense:'Расход',transfer:'Перевод'}[t.type] }}</span></td>
+                            <td style="font-weight:600">{{ formatMoney(t.amount) }} {{ t.currency }}</td>
+                            <td>{{ t.account_name || '—' }}</td>
+                            <td style="font-size:12px;color:var(--text2)">{{ t.description || '—' }}</td>
                         </tr>
                     </tbody>
                 </table>
@@ -2467,12 +2535,22 @@
         </div>
     </div>
 
-    <!-- Supplier Edit -->
+    <!-- Counterparty Edit -->
     <div class="modal-overlay" v-if="showModal==='supplierEdit'" @click.self="showModal=null">
         <div class="modal">
-            <h2>✏️ Редактирование поставщика</h2>
+            <h2>✏️ Редактирование контрагента</h2>
             <div class="form-group"><label>Название</label><input class="form-input" v-model="editData.name"></div>
-            <div class="form-group"><label>Краткое название</label><input class="form-input" v-model="editData.alias" placeholder="Для документов и таблиц"></div>
+            <div class="input-row">
+                <div class="form-group" style="flex:1"><label>Краткое название</label><input class="form-input" v-model="editData.alias" placeholder="Для документов и таблиц"></div>
+                <div class="form-group" style="flex:1">
+                    <label>Тип</label>
+                    <select class="form-select" v-model="editData.type">
+                        <option value="supplier">Поставщик</option>
+                        <option value="customer">Покупатель</option>
+                        <option value="both">Оба</option>
+                    </select>
+                </div>
+            </div>
             <div class="form-group"><label>Синонимы</label><input class="form-input" v-model="editData.synonyms" placeholder="Варианты названий через запятую"></div>
             <div class="input-row">
                 <div class="form-group" style="flex:1"><label>Страна</label><input class="form-input" v-model="editData.country"></div>
@@ -2482,7 +2560,18 @@
                 <div class="form-group" style="flex:1"><label>Телефон</label><input class="form-input" v-model="editData.phone"></div>
                 <div class="form-group" style="flex:1"><label>Email</label><input class="form-input" v-model="editData.email"></div>
             </div>
-            <div class="form-group"><label>Сайт</label><input class="form-input" v-model="editData.website"></div>
+            <div class="input-row">
+                <div class="form-group" style="flex:1"><label>Сайт</label><input class="form-input" v-model="editData.website"></div>
+                <div class="form-group" style="flex:1">
+                    <label>Валюта</label>
+                    <select class="form-select" v-model="editData.currency">
+                        <option value="RUB">RUB</option>
+                        <option value="USD">USD</option>
+                        <option value="CNY">CNY</option>
+                        <option value="EUR">EUR</option>
+                    </select>
+                </div>
+            </div>
             <div class="form-group"><label>Адрес</label><input class="form-input" v-model="editData.address"></div>
             <div class="form-group"><label>Примечания</label><textarea class="form-input" v-model="editData.notes" rows="2"></textarea></div>
             <div class="modal-buttons">

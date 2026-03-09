@@ -56,10 +56,13 @@ class ERP_Finance {
         $stmt = $pdo->prepare("
             SELECT ft.*, 
                    fa.name as account_name,
-                   fa2.name as to_account_name
+                   fa2.name as to_account_name,
+                   cp.name as counterparty_name,
+                   cp.alias as counterparty_alias
             FROM erp_finance_transactions ft
             LEFT JOIN erp_finance_accounts fa ON fa.id = ft.account_id
             LEFT JOIN erp_finance_accounts fa2 ON fa2.id = ft.to_account_id
+            LEFT JOIN erp_counterparties cp ON cp.id = ft.counterparty_id
             WHERE {$whereSQL}
             ORDER BY ft.date DESC, ft.id DESC
             LIMIT {$limit} OFFSET {$offset}
@@ -109,8 +112,8 @@ class ERP_Finance {
         try {
             $stmt = $pdo->prepare("
                 INSERT INTO erp_finance_transactions 
-                    (journal_id, date, type, amount, currency, account_id, to_account_id, category, subcategory, counterparty, description)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                    (journal_id, date, type, amount, currency, account_id, to_account_id, category, subcategory, counterparty, counterparty_id, description)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             ");
             $stmt->execute([
                 $input['journal_id'] ?? null,
@@ -123,6 +126,7 @@ class ERP_Finance {
                 $input['category'] ?? null,
                 $input['subcategory'] ?? null,
                 $input['counterparty'] ?? null,
+                $input['counterparty_id'] ?? null,
                 $input['description'] ?? null,
             ]);
             $id = (int) $pdo->lastInsertId();
@@ -143,7 +147,7 @@ class ERP_Finance {
         $id = (int)($input['id'] ?? param('id'));
         if (!$id) errorResponse('id required');
 
-        $allowed = ['date', 'type', 'amount', 'currency', 'account_id', 'to_account_id', 'category', 'subcategory', 'counterparty', 'description'];
+        $allowed = ['date', 'type', 'amount', 'currency', 'account_id', 'to_account_id', 'category', 'subcategory', 'counterparty', 'counterparty_id', 'description'];
         $sets = [];
         $params = [];
         foreach ($allowed as $field) {

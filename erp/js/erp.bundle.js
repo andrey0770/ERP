@@ -210,7 +210,7 @@ function initCatalog(ctx) {
 
     async function saveProduct() {
         try {
-            await api('products.update', { id: editData.id, sku: editData.sku, name: editData.name, barcode: editData.barcode, purchase_price: editData.purchase_price, sell_price: editData.sell_price, min_stock: editData.min_stock, ozon_product_id: editData.ozon_product_id, ozon_sku: editData.ozon_sku, supplier: editData.supplier, cue_type: editData.cue_type, cue_parts: editData.cue_parts, cue_material: editData.cue_material });
+            await api('products.update', { id: editData.id, sku: editData.sku, name: editData.name, barcode: editData.barcode, alias: editData.alias, purchase_price: editData.purchase_price, sell_price: editData.sell_price, min_stock: editData.min_stock, ozon_product_id: editData.ozon_product_id, ozon_sku: editData.ozon_sku, supplier: editData.supplier, cue_type: editData.cue_type, cue_parts: editData.cue_parts, cue_material: editData.cue_material });
             toast('Товар обновлён', 'success');
             showModal.value = null;
             loadProducts();
@@ -230,7 +230,7 @@ function initCatalog(ctx) {
     const catalogLoading = ref(false);
     const colFilterOpen = ref(null);
     const colVisibleOpen = ref(false);
-    const defaultCols = { image: true, sku: true, name: true, brand: true, supplier: true, purchase_price: true, sell_price: true, stock: true, source: true, cue_type: true, cue_parts: true, cue_material: true };
+    const defaultCols = { image: true, sku: true, alias: false, name: true, brand: true, supplier: true, purchase_price: true, sell_price: true, stock: true, source: true, cue_type: true, cue_parts: true, cue_material: true };
     const colVisible = reactive(JSON.parse(localStorage.getItem('catalogColVisible') || 'null') || { ...defaultCols });
 
     function toggleColVisible(col) {
@@ -731,19 +731,19 @@ function initInventory(ctx) {
 
 
 // ── purchasing.js ──
-// ── purchasing.js — Suppliers reference + Supply orders ──
+// ── purchasing.js — Counterparties + Supply orders ──
 function initPurchasing(ctx) {
     const { api, toast, showModal, detailData, editData, ref, reactive, computed } = ctx;
 
-    // ── Suppliers (Поставщики — справочник) ──────
+    // ── Counterparties (Контрагенты) ──────
     const suppliersData = reactive({ items: [], total: 0 });
-    const supplierFilter = reactive({ q: '', countries: [] });
+    const supplierFilter = reactive({ q: '', type: '', countries: [] });
     let supplierSearchTimer2 = null;
-    const newSupplierData = reactive({ name: '', alias: '', synonyms: '', inn: '', phone: '', email: '', website: '', country: '', address: '', notes: '' });
+    const newSupplierData = reactive({ name: '', type: 'supplier', alias: '', synonyms: '', inn: '', phone: '', email: '', website: '', country: '', address: '', notes: '', currency: 'RUB' });
 
     // Column visibility
     const supplierColVisOpen = ref(false);
-    const defaultSupplierCols = { name: true, alias: true, synonyms: false, country: true, phone: true, email: true, products: true };
+    const defaultSupplierCols = { name: true, alias: true, type: true, synonyms: false, country: true, balance: true, phone: true, email: true, products: true };
     const supplierColVis = reactive(JSON.parse(localStorage.getItem('supplierColVisible') || 'null') || { ...defaultSupplierCols });
     function toggleSupplierCol(col) {
         supplierColVis[col] = !supplierColVis[col];
@@ -767,12 +767,12 @@ function initPurchasing(ctx) {
 
     async function loadSuppliers2() {
         try {
-            const [data] = await Promise.all([
-                api('suppliers.list', { q: supplierFilter.q, limit: 200 }),
-            ]);
+            const params = { q: supplierFilter.q, limit: 200 };
+            if (supplierFilter.type) params.type = supplierFilter.type;
+            const data = await api('counterparties.list', params);
             suppliersData.items = data.items || [];
             suppliersData.total = data.total || 0;
-        } catch (e) { toast('Ошибка загрузки поставщиков: ' + e.message, 'error'); }
+        } catch (e) { toast('Ошибка загрузки контрагентов: ' + e.message, 'error'); }
     }
 
     function debounceSearchSuppliers2() {
@@ -783,29 +783,29 @@ function initPurchasing(ctx) {
     async function createSupplier2() {
         if (!newSupplierData.name.trim()) return toast('Укажи название', 'error');
         try {
-            await api('suppliers.create', { ...newSupplierData });
-            toast('Поставщик создан', 'success');
+            await api('counterparties.create', { ...newSupplierData });
+            toast('Контрагент создан', 'success');
             showModal.value = null;
             loadSuppliers2();
         } catch (e) { toast('Ошибка: ' + e.message, 'error'); }
     }
 
     function showSupplierDetail2(id) {
-        api('suppliers.get', { id }).then(data => {
+        api('counterparties.get', { id }).then(data => {
             Object.assign(detailData, data);
             showModal.value = 'supplierDetail';
         }).catch(e => toast(e.message, 'error'));
     }
 
     function editSupplier2(s) {
-        Object.assign(editData, { ...s, _type: 'supplier' });
+        Object.assign(editData, { ...s, _type: 'counterparty' });
         showModal.value = 'supplierEdit';
     }
 
     async function saveSupplier2() {
         try {
-            await api('suppliers.update', { id: editData.id, name: editData.name, alias: editData.alias, synonyms: editData.synonyms, inn: editData.inn, phone: editData.phone, email: editData.email, website: editData.website, country: editData.country, address: editData.address, notes: editData.notes });
-            toast('Поставщик обновлён', 'success');
+            await api('counterparties.update', { id: editData.id, name: editData.name, type: editData.type, alias: editData.alias, synonyms: editData.synonyms, inn: editData.inn, phone: editData.phone, email: editData.email, website: editData.website, country: editData.country, address: editData.address, notes: editData.notes, currency: editData.currency });
+            toast('Контрагент обновлён', 'success');
             showModal.value = null;
             loadSuppliers2();
         } catch (e) { toast('Ошибка: ' + e.message, 'error'); }
@@ -1436,7 +1436,7 @@ const app = createApp({
             document.addEventListener('mouseup', onUp);
         }
 
-        const routeGroups = { supplies: 'purchasing', receiving: 'purchasing', suppliers: 'purchasing', sales: 'sales', shipments: 'sales', returns: 'sales', profitability: 'sales', crm: 'sales', deals: 'sales', inventory: 'goods', warehouses: 'goods', finance: 'finance', reports: 'finance', tasks: 'tasks', tasks_my: 'tasks', tasks_from: 'tasks' };
+        const routeGroups = { supplies: 'purchasing', receiving: 'purchasing', counterparties: 'purchasing', sales: 'sales', shipments: 'sales', returns: 'sales', profitability: 'sales', crm: 'sales', deals: 'sales', inventory: 'goods', warehouses: 'goods', finance: 'finance', reports: 'finance', tasks: 'tasks', tasks_my: 'tasks', tasks_from: 'tasks' };
 
         function navigate(route) {
             currentRoute.value = route;
@@ -1491,7 +1491,7 @@ const app = createApp({
                 case 'tasks_from': tasks.taskFilter.assignee = ''; tasks.taskFilter.creator = 'me'; tasks.loadTasks(); break;
                 case 'crm':       crm.loadCrm(); break;
                 case 'deals':     crm.loadDeals(); crm.loadCrm(); break;
-                case 'suppliers': purchasing.loadSuppliers2(); break;
+                case 'counterparties': purchasing.loadSuppliers2(); break;
                 case 'warehouses': inventory.loadWarehouses(); break;
                 case 'settings':  settings.loadSettings(); break;
             }

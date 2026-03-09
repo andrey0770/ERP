@@ -40,9 +40,9 @@ class ERP_Products {
             $params = array_merge($params, $ids);
         }
         if ($q = param('q')) {
-            $where[] = '(p.name LIKE ? OR p.sku LIKE ? OR p.barcode LIKE ?)';
+            $where[] = '(p.name LIKE ? OR p.sku LIKE ? OR p.barcode LIKE ? OR p.alias LIKE ?)';
             $like = "%{$q}%";
-            $params = array_merge($params, [$like, $like, $like]);
+            $params = array_merge($params, [$like, $like, $like, $like]);
         }
         if ($fsku = param('filter_sku')) {
             $where[] = 'p.sku LIKE ?';
@@ -116,6 +116,7 @@ class ERP_Products {
             'stock_asc' => 'COALESCE(i.quantity, 0) ASC',
             'brand' => 'COALESCE(p.brand, "яяя") ASC, p.name ASC',
             'supplier' => 'COALESCE(p.supplier, "яяя") ASC, p.name ASC',
+            'alias' => 'COALESCE(p.alias, "яяя") ASC, p.name ASC',
         ];
         $sort = $sortMap[param('sort', 'name')] ?? 'p.name ASC';
 
@@ -131,11 +132,14 @@ class ERP_Products {
                    pc.name as category_name,
                    COALESCE(i.quantity, 0) as stock,
                    COALESCE(i.reserved, 0) as reserved,
-                   sup.alias as supplier_alias
+                   sup.alias as supplier_alias,
+                   cp.alias as counterparty_alias,
+                   cp.name as counterparty_name
             FROM erp_products p
             LEFT JOIN erp_product_categories pc ON pc.id = p.category_id
             LEFT JOIN erp_inventory i ON i.product_id = p.id AND i.warehouse_id = 1
             LEFT JOIN erp_suppliers sup ON sup.id = p.supplier_id
+            LEFT JOIN erp_counterparties cp ON cp.id = p.counterparty_id
             WHERE {$whereSQL}
             ORDER BY {$sort}
             LIMIT {$limit} OFFSET {$offset}
@@ -197,12 +201,13 @@ class ERP_Products {
 
         $pdo = DB::get();
         $stmt = $pdo->prepare("
-            INSERT INTO erp_products (sku, name, barcode, category_id, unit, purchase_price, sell_price, min_stock, ozon_product_id, ozon_sku, image_url)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            INSERT INTO erp_products (sku, name, alias, barcode, category_id, unit, purchase_price, sell_price, min_stock, ozon_product_id, ozon_sku, image_url)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         ");
         $stmt->execute([
             $sku,
             $name,
+            trim($input['alias'] ?? '') ?: null,
             $input['barcode'] ?? null,
             $input['category_id'] ?? null,
             $input['unit'] ?? 'шт',
@@ -230,7 +235,7 @@ class ERP_Products {
         $id = (int)($input['id'] ?? param('id'));
         if (!$id) errorResponse('id required');
 
-        $allowed = ['name', 'sku', 'barcode', 'brand', 'category_id', 'unit', 'purchase_price', 'sell_price', 'min_stock', 'ozon_product_id', 'ozon_sku', 'image_url', 'is_active', 'supplier', 'supplier_id', 'cue_type', 'cue_parts', 'cue_material'];
+        $allowed = ['name', 'sku', 'alias', 'barcode', 'brand', 'category_id', 'unit', 'purchase_price', 'sell_price', 'min_stock', 'ozon_product_id', 'ozon_sku', 'image_url', 'is_active', 'supplier', 'supplier_id', 'counterparty_id', 'cue_type', 'cue_parts', 'cue_material'];
         $sets = [];
         $params = [];
         foreach ($allowed as $field) {

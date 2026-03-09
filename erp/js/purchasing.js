@@ -1,16 +1,16 @@
-// ── purchasing.js — Suppliers reference + Supply orders ──
+// ── purchasing.js — Counterparties + Supply orders ──
 export function initPurchasing(ctx) {
     const { api, toast, showModal, detailData, editData, ref, reactive, computed } = ctx;
 
-    // ── Suppliers (Поставщики — справочник) ──────
+    // ── Counterparties (Контрагенты) ──────
     const suppliersData = reactive({ items: [], total: 0 });
-    const supplierFilter = reactive({ q: '', countries: [] });
+    const supplierFilter = reactive({ q: '', type: '', countries: [] });
     let supplierSearchTimer2 = null;
-    const newSupplierData = reactive({ name: '', alias: '', synonyms: '', inn: '', phone: '', email: '', website: '', country: '', address: '', notes: '' });
+    const newSupplierData = reactive({ name: '', type: 'supplier', alias: '', synonyms: '', inn: '', phone: '', email: '', website: '', country: '', address: '', notes: '', currency: 'RUB' });
 
     // Column visibility
     const supplierColVisOpen = ref(false);
-    const defaultSupplierCols = { name: true, alias: true, synonyms: false, country: true, phone: true, email: true, products: true };
+    const defaultSupplierCols = { name: true, alias: true, type: true, synonyms: false, country: true, balance: true, phone: true, email: true, products: true };
     const supplierColVis = reactive(JSON.parse(localStorage.getItem('supplierColVisible') || 'null') || { ...defaultSupplierCols });
     function toggleSupplierCol(col) {
         supplierColVis[col] = !supplierColVis[col];
@@ -34,12 +34,12 @@ export function initPurchasing(ctx) {
 
     async function loadSuppliers2() {
         try {
-            const [data] = await Promise.all([
-                api('suppliers.list', { q: supplierFilter.q, limit: 200 }),
-            ]);
+            const params = { q: supplierFilter.q, limit: 200 };
+            if (supplierFilter.type) params.type = supplierFilter.type;
+            const data = await api('counterparties.list', params);
             suppliersData.items = data.items || [];
             suppliersData.total = data.total || 0;
-        } catch (e) { toast('Ошибка загрузки поставщиков: ' + e.message, 'error'); }
+        } catch (e) { toast('Ошибка загрузки контрагентов: ' + e.message, 'error'); }
     }
 
     function debounceSearchSuppliers2() {
@@ -50,29 +50,29 @@ export function initPurchasing(ctx) {
     async function createSupplier2() {
         if (!newSupplierData.name.trim()) return toast('Укажи название', 'error');
         try {
-            await api('suppliers.create', { ...newSupplierData });
-            toast('Поставщик создан', 'success');
+            await api('counterparties.create', { ...newSupplierData });
+            toast('Контрагент создан', 'success');
             showModal.value = null;
             loadSuppliers2();
         } catch (e) { toast('Ошибка: ' + e.message, 'error'); }
     }
 
     function showSupplierDetail2(id) {
-        api('suppliers.get', { id }).then(data => {
+        api('counterparties.get', { id }).then(data => {
             Object.assign(detailData, data);
             showModal.value = 'supplierDetail';
         }).catch(e => toast(e.message, 'error'));
     }
 
     function editSupplier2(s) {
-        Object.assign(editData, { ...s, _type: 'supplier' });
+        Object.assign(editData, { ...s, _type: 'counterparty' });
         showModal.value = 'supplierEdit';
     }
 
     async function saveSupplier2() {
         try {
-            await api('suppliers.update', { id: editData.id, name: editData.name, alias: editData.alias, synonyms: editData.synonyms, inn: editData.inn, phone: editData.phone, email: editData.email, website: editData.website, country: editData.country, address: editData.address, notes: editData.notes });
-            toast('Поставщик обновлён', 'success');
+            await api('counterparties.update', { id: editData.id, name: editData.name, type: editData.type, alias: editData.alias, synonyms: editData.synonyms, inn: editData.inn, phone: editData.phone, email: editData.email, website: editData.website, country: editData.country, address: editData.address, notes: editData.notes, currency: editData.currency });
+            toast('Контрагент обновлён', 'success');
             showModal.value = null;
             loadSuppliers2();
         } catch (e) { toast('Ошибка: ' + e.message, 'error'); }

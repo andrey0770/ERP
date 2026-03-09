@@ -42,7 +42,11 @@ class DB {
         foreach (self::getMigrations() as $version => $sql) {
             if (in_array($version, $applied)) continue;
             try {
-                $pdo->exec($sql);
+                if (is_callable($sql)) {
+                    $sql($pdo);
+                } else {
+                    $pdo->exec($sql);
+                }
                 $pdo->prepare("INSERT INTO erp_migrations (version) VALUES (?)")->execute([$version]);
                 $results[] = "✓ {$version}";
             } catch (PDOException $e) {
@@ -428,6 +432,58 @@ class DB {
                     ADD COLUMN IF NOT EXISTS sort_order INT NOT NULL DEFAULT 0,
                     ADD COLUMN IF NOT EXISTS notes VARCHAR(500) DEFAULT NULL
             ",
+            // ── v024: Краткое название товара ───────────────
+            'v024_product_alias' => "
+                ALTER TABLE erp_products
+                    ADD COLUMN IF NOT EXISTS alias VARCHAR(50) DEFAULT NULL COMMENT 'Краткое название для сборки/поиска',
+                    ADD INDEX idx_alias (alias)
+            ",
+            // ── v025: Объединение поставщиков в контрагенты ──
+            'v025_counterparties_merge' => function($pdo) {
+                // 1. Расширяем таблицу контрагентов полями из поставщиков
+                $pdo->exec("ALTER TABLE erp_counterparties
+                    ADD COLUMN IF NOT EXISTS alias VARCHAR(100) DEFAULT NULL,
+                    ADD COLUMN IF NOT EXISTS website VARCHAR(200) DEFAULT NULL,
+                    ADD COLUMN IF NOT EXISTS country VARCHAR(100) DEFAULT NULL,
+                    ADD COLUMN IF NOT EXISTS synonyms TEXT DEFAULT NULL,
+                    ADD COLUMN IF NOT EXISTS currency CHAR(3) DEFAULT 'RUB'");
+
+                // 2. Переносим поставщиков в контрагенты
+                $pdo->exec("INSERT INTO erp_counterparties (name, type, alias, inn, phone, email, website, country, address, notes, synonyms)
+                    SELECT name, 'supplier', alias, inn, phone, email, website, country, address, notes, synonyms
+                    FROM erp_suppliers WHERE is_active = 1
+                    ON DUPLICATE KEY UPDATE
+                        type = IF(type = 'customer', 'both', type),
+                        alias = VALUES(alias), website = VALUES(website),
+                        country = VALUES(country), synonyms = VALUES(synonyms)");
+
+                // 3. Добавляем counterparty_id в товары
+                $pdo->exec("ALTER TABLE erp_products
+                    ADD COLUMN IF NOT EXISTS counterparty_id INT DEFAULT NULL");
+
+                // 4. Маппим supplier_id → counterparty_id по имени
+                $pdo->exec("UPDATE erp_products p
+                    JOIN erp_suppliers s ON p.supplier_id = s.id
+                    JOIN erp_counterparties c ON c.name = s.name
+                    SET p.counterparty_id = c.id
+                    WHERE p.supplier_id IS NOT NULL");
+
+                // 5. Добавляем counterparty_id в финансовые транзакции
+                $pdo->exec("ALTER TABLE erp_finance_transactions
+                    ADD COLUMN IF NOT EXISTS counterparty_id INT DEFAULT NULL");
+
+                // 6. Маппим текстовое поле counterparty → counterparty_id
+                $pdo->exec("UPDATE erp_finance_transactions ft
+                    JOIN erp_counterparties c ON ft.counterparty = c.name OR ft.counterparty = c.alias
+                    SET ft.counterparty_id = c.id
+                    WHERE ft.counterparty IS NOT NULL AND ft.counterparty_id IS NULL");
+
+                // 7. Обновляем counterparty_id в поставках
+                $pdo->exec("UPDATE erp_supplies s
+                    JOIN erp_counterparties c ON s.supplier_name = c.name OR s.supplier_name = c.alias
+                    SET s.counterparty_id = c.id
+                    WHERE s.counterparty_id IS NULL");
+            },
         ];
     }
 }
