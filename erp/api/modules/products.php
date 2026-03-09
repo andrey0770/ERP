@@ -82,6 +82,24 @@ class ERP_Products {
             $where[] = "p.supplier IN ({$placeholders})";
             $params = array_merge($params, $suppliers);
         }
+        if ($cueType = param('cue_type')) {
+            $types = explode(',', $cueType);
+            $placeholders = implode(',', array_fill(0, count($types), '?'));
+            $where[] = "p.cue_type IN ({$placeholders})";
+            $params = array_merge($params, $types);
+        }
+        if ($cueParts = param('cue_parts')) {
+            $parts = explode(',', $cueParts);
+            $placeholders = implode(',', array_fill(0, count($parts), '?'));
+            $where[] = "p.cue_parts IN ({$placeholders})";
+            $params = array_merge($params, array_map('intval', $parts));
+        }
+        if ($cueMat = param('cue_material')) {
+            $mats = explode(',', $cueMat);
+            $placeholders = implode(',', array_fill(0, count($mats), '?'));
+            $where[] = "p.cue_material IN ({$placeholders})";
+            $params = array_merge($params, $mats);
+        }
 
         $whereSQL = implode(' AND ', $where);
         $limit  = min((int)(param('limit', 100)), 1000);
@@ -212,7 +230,7 @@ class ERP_Products {
         $id = (int)($input['id'] ?? param('id'));
         if (!$id) errorResponse('id required');
 
-        $allowed = ['name', 'sku', 'barcode', 'category_id', 'unit', 'purchase_price', 'sell_price', 'min_stock', 'ozon_product_id', 'ozon_sku', 'image_url', 'is_active', 'supplier', 'supplier_id'];
+        $allowed = ['name', 'sku', 'barcode', 'category_id', 'unit', 'purchase_price', 'sell_price', 'min_stock', 'ozon_product_id', 'ozon_sku', 'image_url', 'is_active', 'supplier', 'supplier_id', 'cue_type', 'cue_parts', 'cue_material'];
         $sets = [];
         $params = [];
         foreach ($allowed as $field) {
@@ -606,5 +624,165 @@ class ERP_Products {
         }
 
         return ['ok' => true, 'created' => $created, 'updated' => $updated, 'errors' => $errors];
+    }
+
+    /**
+     * Автозаполнение атрибутов киев по названиям
+     * Анализирует названия, заполняет cue_type, cue_parts, cue_material
+     * POST: { "category_id": 1, "dry_run": false }
+     */
+    public function auto_fill_cue(): array {
+        $input = jsonInput();
+        $catId = (int)($input['category_id'] ?? param('category_id', 0));
+        if (!$catId) errorResponse('category_id required');
+        $dryRun = (bool)($input['dry_run'] ?? false);
+
+        $pdo = DB::get();
+
+        // Collect category + descendants
+        $allCats = $pdo->query("SELECT id, parent_id FROM erp_product_categories")->fetchAll();
+        $catMap = [];
+        foreach ($allCats as $c) $catMap[$c['id']] = $c['parent_id'];
+        $ids = [$catId];
+        $queue = [$catId];
+        while ($queue) {
+            $pid = array_shift($queue);
+            foreach ($catMap as $cid => $par) {
+                if ($par == $pid && !in_array($cid, $ids)) { $ids[] = $cid; $queue[] = $cid; }
+            }
+        }
+        $placeholders = implode(',', array_fill(0, count($ids), '?'));
+        $products = $pdo->prepare("SELECT id, name, cue_type, cue_parts, cue_material FROM erp_products WHERE is_active=1 AND category_id IN ({$placeholders})");
+        $products->execute($ids);
+        $products = $products->fetchAll();
+
+        // Rules for type detection
+        $typeRules = [
+            'снукер'      => ['снукер', 'snooker'],
+            'пул'         => ['для пула', 'пул '],
+            'пирамида'    => ['русского', 'русский бильярд'],
+            'укороченный' => ['укороченн'],
+            'древко'      => ['древко'],
+        ];
+        // Rules for parts
+        $parts2Rules = ['2-составн', 'разборн', '3/4'];
+        $parts1Rules = ['цельн', '1-составн'];
+        // Rules for material
+        $materialRules = [
+            'рамин'    => ['ramin', 'рамин'],
+            'клён'     => ['maple', 'crown', 'клён', 'клен'],
+            'композит' => ['compositor', 'композит', 'карбонов'],
+        ];
+
+        $updated = 0;
+        $skipped = 0;
+        $unidentified = [];
+        $results = [];
+
+        $stmt = $pdo->prepare("UPDATE erp_products SET cue_type=?, cue_parts=?, cue_material=? WHERE id=?");
+
+        foreach ($products as $p) {
+            $name = mb_strtolower($p['name']);
+            $type = null; $parts = null; $material = null;
+
+            // Detect type
+            foreach ($typeRules as $val => $keywords) {
+                foreach ($keywords as $kw) {
+                    if (mb_strpos($name, $kw) !== false) { $type = $val; break 2; }
+                }
+            }
+
+            // Detect parts
+            foreach ($parts2Rules as $kw) {
+                if (mb_strpos($name, $kw) !== false) { $parts = 2; break; }
+            }
+            if (!$parts) {
+                foreach ($parts1Rules as $kw) {
+                    if (mb_strpos($name, $kw) !== false) { $parts = 1; break; }
+                }
+            }
+
+            // Detect material
+            foreach ($materialRules as $val => $keywords) {
+                foreach ($keywords as $kw) {
+                    if (mb_strpos($name, $kw) !== false) { $material = $val; break 2; }
+                }
+            }
+
+            // Astro = клён (maple wood cues)
+            if (!$material && mb_strpos($name, 'astro') !== false) $material = 'клён';
+            // Player without Compositor = рамин (default affordable wood)
+            if (!$material && mb_strpos($name, 'player') !== false) $material = 'рамин';
+            // Тафгай карбоновый already matched by 'карбонов' → композит
+
+            $hasChanges = ($type !== null || $parts !== null || $material !== null);
+            $noTypeInfo = ($type === null && $parts === null && $material === null);
+
+            if ($noTypeInfo) {
+                $unidentified[] = ['id' => $p['id'], 'name' => $p['name']];
+                $skipped++;
+                continue;
+            }
+
+            $results[] = [
+                'id' => $p['id'],
+                'name' => $p['name'],
+                'cue_type' => $type,
+                'cue_parts' => $parts,
+                'cue_material' => $material,
+            ];
+
+            if (!$dryRun) {
+                // Only update fields that were detected (keep existing values for nulls)
+                $sets = [];
+                $params = [];
+                if ($type !== null) { $sets[] = 'cue_type=?'; $params[] = $type; }
+                if ($parts !== null) { $sets[] = 'cue_parts=?'; $params[] = $parts; }
+                if ($material !== null) { $sets[] = 'cue_material=?'; $params[] = $material; }
+                $params[] = $p['id'];
+                $pdo->prepare("UPDATE erp_products SET " . implode(', ', $sets) . " WHERE id=?")->execute($params);
+                $updated++;
+            }
+        }
+
+        return [
+            'ok' => true,
+            'total' => count($products),
+            'updated' => $updated,
+            'skipped' => $skipped,
+            'unidentified' => $unidentified,
+            'results' => $results,
+            'dry_run' => $dryRun,
+        ];
+    }
+
+    /**
+     * Массовое обновление атрибутов товаров
+     * POST: { "ids": [1,2,3], "fields": { "cue_type": "пул", "cue_parts": 2 } }
+     */
+    public function bulk_update_attr(): array {
+        $input = jsonInput();
+        $ids = $input['ids'] ?? [];
+        $fields = $input['fields'] ?? [];
+        if (empty($ids)) errorResponse('ids required');
+        if (empty($fields)) errorResponse('fields required');
+
+        $allowed = ['cue_type', 'cue_parts', 'cue_material'];
+        $sets = [];
+        $params = [];
+        foreach ($fields as $k => $v) {
+            if (!in_array($k, $allowed)) continue;
+            $sets[] = "`{$k}` = ?";
+            $params[] = $v;
+        }
+        if (empty($sets)) errorResponse('No valid fields');
+
+        $pdo = DB::get();
+        $placeholders = implode(',', array_fill(0, count($ids), '?'));
+        $params = array_merge($params, array_map('intval', $ids));
+        $sql = "UPDATE erp_products SET " . implode(', ', $sets) . " WHERE id IN ({$placeholders})";
+        $pdo->prepare($sql)->execute($params);
+
+        return ['ok' => true, 'updated' => count($ids)];
     }
 }

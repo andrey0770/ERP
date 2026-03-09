@@ -405,6 +405,14 @@ class DB {
                     ADD COLUMN IF NOT EXISTS supplier_id INT DEFAULT NULL AFTER supplier,
                     ADD CONSTRAINT fk_product_supplier FOREIGN KEY (supplier_id) REFERENCES erp_suppliers(id) ON DELETE SET NULL
             ",
+
+            // ── v021: Атрибуты киев ─────────────────────────
+            'v021_cue_attributes' => "
+                ALTER TABLE erp_products
+                    ADD COLUMN IF NOT EXISTS cue_type VARCHAR(30) DEFAULT NULL COMMENT 'Тип кия: пирамида/пул/снукер/укороченный/удлинённый/древко',
+                    ADD COLUMN IF NOT EXISTS cue_parts TINYINT DEFAULT NULL COMMENT 'Количество частей: 1, 2+',
+                    ADD COLUMN IF NOT EXISTS cue_material VARCHAR(30) DEFAULT NULL COMMENT 'Материал: клён/рамин/композит'
+            ",
         ];
     }
 }

@@ -40,7 +40,7 @@ export function initCatalog(ctx) {
 
     async function saveProduct() {
         try {
-            await api('products.update', { id: editData.id, sku: editData.sku, name: editData.name, barcode: editData.barcode, purchase_price: editData.purchase_price, sell_price: editData.sell_price, min_stock: editData.min_stock, ozon_product_id: editData.ozon_product_id, ozon_sku: editData.ozon_sku, supplier: editData.supplier });
+            await api('products.update', { id: editData.id, sku: editData.sku, name: editData.name, barcode: editData.barcode, purchase_price: editData.purchase_price, sell_price: editData.sell_price, min_stock: editData.min_stock, ozon_product_id: editData.ozon_product_id, ozon_sku: editData.ozon_sku, supplier: editData.supplier, cue_type: editData.cue_type, cue_parts: editData.cue_parts, cue_material: editData.cue_material });
             toast('Товар обновлён', 'success');
             showModal.value = null;
             loadProducts();
@@ -54,13 +54,13 @@ export function initCatalog(ctx) {
     const catalogBrands = ref([]);
     const catalogSources = ref([]);
     const catalogSuppliers = ref([]);
-    const catalogFilter = reactive({ q: '', filter_sku: '', filter_name: '', category_id: null, has_image: false, no_image: false, in_stock: false, zero_stock: false, brands: [], sources: [], suppliers: [], sort: 'name' });
-    const catalogView = ref('grid');
+    const catalogFilter = reactive({ q: '', filter_sku: '', filter_name: '', category_id: null, has_image: false, no_image: false, in_stock: false, zero_stock: false, brands: [], sources: [], suppliers: [], cue_types: [], cue_parts: [], cue_materials: [], sort: 'name' });
+    const catalogView = ref('list');
     const catalogSidebarMode = ref('tree');
     const catalogLoading = ref(false);
     const colFilterOpen = ref(null);
     const colVisibleOpen = ref(false);
-    const defaultCols = { image: true, sku: true, name: true, brand: true, supplier: true, purchase_price: true, sell_price: true, stock: true, source: true };
+    const defaultCols = { image: true, sku: true, name: true, brand: true, supplier: true, purchase_price: true, sell_price: true, stock: true, source: true, cue_type: true, cue_parts: true, cue_material: true };
     const colVisible = reactive(JSON.parse(localStorage.getItem('catalogColVisible') || 'null') || { ...defaultCols });
 
     function toggleColVisible(col) {
@@ -70,7 +70,7 @@ export function initCatalog(ctx) {
 
     let catalogSearchTimer = null;
     const catalogPageSize = 60;
-    const sidebarAccordion = reactive({ categories: true, filters: true, brands: false, sources: false, suppliers: false });
+    const sidebarAccordion = reactive({ categories: true, filters: true, brands: false, sources: false, suppliers: false, cueAttrs: true });
     const expandedCats = reactive({});
     const catalogSidebarWidth = ref(parseInt(localStorage.getItem('catalogSidebarWidth')) || 300);
 
@@ -123,6 +123,9 @@ export function initCatalog(ctx) {
             if (catalogFilter.brands.length) params.brand = catalogFilter.brands.join(',');
             if (catalogFilter.sources.length) params.marketplace_source = catalogFilter.sources.join(',');
             if (catalogFilter.suppliers.length) params.supplier = catalogFilter.suppliers.join(',');
+            if (catalogFilter.cue_types.length) params.cue_type = catalogFilter.cue_types.join(',');
+            if (catalogFilter.cue_parts.length) params.cue_parts = catalogFilter.cue_parts.join(',');
+            if (catalogFilter.cue_materials.length) params.cue_material = catalogFilter.cue_materials.join(',');
             if (catalogFilter.filter_sku) params.filter_sku = catalogFilter.filter_sku;
             if (catalogFilter.filter_name) params.filter_name = catalogFilter.filter_name;
 
@@ -144,8 +147,47 @@ export function initCatalog(ctx) {
         catalogSearchTimer = setTimeout(() => loadCatalog(true), 400);
     }
 
+    // Detect if current category is inside "Кии" subtree
+    const CUE_CATEGORY_NAME = 'Кии';
+    const isCueCategory = computed(() => {
+        const catId = catalogFilter.category_id;
+        if (!catId) return false;
+        const cats = catalogCategories.value;
+        // Find "Кии" node and check if catId is it or a descendant
+        function findNode(nodes, id) {
+            for (const n of nodes) {
+                if (n.id === id) return n;
+                if (n.children) { const f = findNode(n.children, id); if (f) return f; }
+            }
+            return null;
+        }
+        function findByName(nodes, name) {
+            for (const n of nodes) {
+                if (n.name === name) return n;
+                if (n.children) { const f = findByName(n.children, name); if (f) return f; }
+            }
+            return null;
+        }
+        function isDescendant(node, targetId) {
+            if (node.id === targetId) return true;
+            if (node.children) { for (const c of node.children) { if (isDescendant(c, targetId)) return true; } }
+            return false;
+        }
+        const cueNode = findByName(cats, CUE_CATEGORY_NAME);
+        if (!cueNode) return false;
+        return isDescendant(cueNode, catId);
+    });
+
+    const cueTypeOptions = ['пирамида', 'пул', 'снукер', 'укороченный', 'удлинённый', 'древко'];
+    const cuePartsOptions = [1, 2];
+    const cueMaterialOptions = ['клён', 'рамин', 'композит'];
+
     function selectCategory(catId) {
         catalogFilter.category_id = catId;
+        // Reset cue filters when leaving cue category
+        catalogFilter.cue_types.length = 0;
+        catalogFilter.cue_parts.length = 0;
+        catalogFilter.cue_materials.length = 0;
         loadCatalog(true);
     }
 
@@ -265,6 +307,37 @@ export function initCatalog(ctx) {
         } catch (e) { toast('Ошибка: ' + e.message, 'error'); }
     }
 
+    // Bulk assign attributes
+    const bulkAttrFields = reactive({ cue_type: '', cue_parts: '', cue_material: '' });
+
+    async function executeBulkAttr() {
+        const fields = {};
+        if (bulkAttrFields.cue_type) fields.cue_type = bulkAttrFields.cue_type;
+        if (bulkAttrFields.cue_parts) fields.cue_parts = bulkAttrFields.cue_parts;
+        if (bulkAttrFields.cue_material) fields.cue_material = bulkAttrFields.cue_material;
+        if (!Object.keys(fields).length) { toast('Выберите хотя бы одно значение', 'error'); return; }
+        try {
+            await api('products.bulk_update_attr', { ids: [...bulkSelected], fields });
+            toast(`Атрибуты обновлены для ${bulkSelected.length} товаров`, 'success');
+            bulkSelected.length = 0;
+            bulkMode.value = false;
+            Object.assign(bulkAttrFields, { cue_type: '', cue_parts: '', cue_material: '' });
+            showModal.value = null;
+            loadCatalog();
+        } catch (e) { toast('Ошибка: ' + e.message, 'error'); }
+    }
+
+    // Auto-fill cue attributes from names
+    async function autoFillCueAttrs() {
+        const catId = catalogFilter.category_id;
+        if (!catId) { toast('Сначала выберите категорию Кии', 'error'); return; }
+        try {
+            const data = await api('products.auto_fill_cue', { category_id: catId });
+            toast(`Автозаполнение: ${data.updated} обновлено, ${data.skipped} не определено`, 'success');
+            loadCatalog();
+        } catch (e) { toast('Ошибка: ' + e.message, 'error'); }
+    }
+
     async function loadCategories() {
         try {
             const data = await api('products.categories');
@@ -319,8 +392,10 @@ export function initCatalog(ctx) {
         catalogSidebarMode, leafCategoriesByLetter,
         sidebarAccordion, expandedCats, toggleCatExpand, onFilterImageToggle, onFilterStockToggle,
         catalogSidebarWidth, startSidebarResize,
+        isCueCategory, cueTypeOptions, cuePartsOptions, cueMaterialOptions,
         bulkMode, bulkSelected, bulkMoveTarget, bulkMoveSearch,
         toggleBulkSelect, selectAllVisible, filteredMoveCategories, executeBulkMove,
+        bulkAttrFields, executeBulkAttr, autoFillCueAttrs,
         // Product detail
         productDetail, productDetailImgIdx, productDetailMainImg, showProductDetail,
         // Column visibility
@@ -329,3 +404,5 @@ export function initCatalog(ctx) {
         loadCategories, loadCatalogMeta,
     };
 }
+
+// v0.3.1

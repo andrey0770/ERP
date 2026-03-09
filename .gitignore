@@ -1,7 +1,24 @@
 # IDE
-.vscode/
+.vscode/*
+!.vscode/settings.json
 .idea/
 *.code-workspace
+
+# History
+.history/
+
+# Temp scripts/debug files
+_*.js
+_*.py
+check_*.py
+check_*.txt
+compile_result.txt
+find_lt.py
+make_labels.py
+make_treeline*.py
+temp_*.js
+test_*.js
+*.pdf
 
 # Python
 __pycache__/
@@ -12,6 +29,7 @@ venv/
 # Secrets (never commit)
 erp/api/config.php
 .env
+deploy/.env
 import/.env
 
 # OS

@@ -1,0 +1,5662 @@
+{
+  "formats": {
+    "CATEGORY": {
+      "childtype": "",
+      "fields": {
+        "Name": {
+          "fieldtype": "Text",
+          "format": ""
+        },
+        "Count": {
+          "fieldtype": "Number",
+          "format": ""
+        },
+        "Path": {
+          "fieldtype": "Text",
+          "format": ""
+        }
+      },
+      "icon": "folder-3",
+      "outputlines": [
+        "{*Name*} ({*Count*})"
+      ],
+      "titleline": "{*Name*} ({*Count*})"
+    },
+    "PRODUCT": {
+      "childtype": "",
+      "fields": {
+        "Name": {
+          "fieldtype": "Text",
+          "format": ""
+        },
+        "SKU": {
+          "fieldtype": "Text",
+          "format": ""
+        },
+        "Price": {
+          "fieldtype": "Number",
+          "format": ""
+        },
+        "Stock": {
+          "fieldtype": "Number",
+          "format": ""
+        },
+        "Brand": {
+          "fieldtype": "Text",
+          "format": ""
+        }
+      },
+      "icon": "box-1",
+      "outputlines": [
+        "{*Name*} | {*SKU*} | {*Price*}₽ | {*Stock*} шт"
+      ],
+      "titleline": "{*Name*}"
+    }
+  },
+  "nodes": {
+    "a357fd7b-da8a-4d2c-b6ee-979ce48bac39": {
+      "children": [],
+      "data": {
+        "Name": "Перчатка для бильярда Partner Billiards левая безразмерная черная",
+        "SKU": "9181",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Porter Billiards"
+      },
+      "format": "PRODUCT"
+    },
+    "02633924-7163-47f7-baae-9d98dd11eac8": {
+      "children": [],
+      "data": {
+        "Name": "Перчатка для бильярда Standard левая/правая безразмерная темно-синяя",
+        "SKU": "9554",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Porter Billiards"
+      },
+      "format": "PRODUCT"
+    },
+    "7ea53825-4eec-403e-8f91-32ae35eaea8c": {
+      "children": [],
+      "data": {
+        "Name": "Перчатка для бильярда Standard левая/правая безразмерная черная",
+        "SKU": "9147",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Porter Billiards"
+      },
+      "format": "PRODUCT"
+    },
+    "23ec6f1c-d4c6-42dc-88d6-9122485f1317": {
+      "children": [],
+      "data": {
+        "Name": "Перчатка для бильярда левая / правая Classic размер M/L темно-синяя на резинке",
+        "SKU": "10896",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Porter Billiards"
+      },
+      "format": "PRODUCT"
+    },
+    "926fa961-24f5-4bce-992e-bd70f67360a8": {
+      "children": [],
+      "data": {
+        "Name": "Перчатка для бильярда левая / правая Classic размер M/L черная на резинке",
+        "SKU": "10899",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Porter Billiards"
+      },
+      "format": "PRODUCT"
+    },
+    "066dd585-b7da-43be-9117-1b075db9390f": {
+      "children": [],
+      "data": {
+        "Name": "Перчатка для бильярда левая / правая Classic размер S темно-синяя на резинке",
+        "SKU": "10897",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Porter Billiards"
+      },
+      "format": "PRODUCT"
+    },
+    "d22971fd-8983-4833-ade2-5f9242d0a0cd": {
+      "children": [],
+      "data": {
+        "Name": "Перчатка для бильярда левая / правая Classic размер S черная на резинке",
+        "SKU": "2427",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Porter Billiards"
+      },
+      "format": "PRODUCT"
+    },
+    "91f443d8-c4c6-4f59-a7f6-df171117e555": {
+      "children": [],
+      "data": {
+        "Name": "Перчатка для бильярда левая / правая Classic размер XL темно-синяя на резинке",
+        "SKU": "10898",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Porter Billiards"
+      },
+      "format": "PRODUCT"
+    },
+    "3823d0e1-f2ad-4ede-b8c6-fd0c3ab11fa5": {
+      "children": [],
+      "data": {
+        "Name": "Перчатка для бильярда левая / правая Classic размер XL черная на резинке",
+        "SKU": "10900",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Porter Billiards"
+      },
+      "format": "PRODUCT"
+    },
+    "19de27ca-03e5-470f-a6c0-f2f617deb52d": {
+      "children": [],
+      "data": {
+        "Name": "Перчатка для бильярда левая / правая Pro Short размер M/L черная",
+        "SKU": "10905",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Porter Billiards"
+      },
+      "format": "PRODUCT"
+    },
+    "bfbaea3e-2886-4179-beec-ba096d43d3bb": {
+      "children": [],
+      "data": {
+        "Name": "Перчатка для бильярда левая / правая Pro Short размер S черная",
+        "SKU": "10906",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Porter Billiards"
+      },
+      "format": "PRODUCT"
+    },
+    "ee124a62-83fa-42bb-aeda-9a4b2e109dad": {
+      "children": [],
+      "data": {
+        "Name": "Перчатка для бильярда левая / правая Pro Short размер XL черная",
+        "SKU": "10699",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Porter Billiards"
+      },
+      "format": "PRODUCT"
+    },
+    "9fbb4bf4-8747-437a-af02-bc77c6e44054": {
+      "children": [],
+      "data": {
+        "Name": "Перчатка для бильярда левая Classic Velcro размер M/L темно-синяя на липучке",
+        "SKU": "10901",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Porter Billiards"
+      },
+      "format": "PRODUCT"
+    },
+    "2f976e69-163d-48f6-ad21-8b6dd1b01da9": {
+      "children": [],
+      "data": {
+        "Name": "Перчатка для бильярда левая Classic Velcro размер M/L черная на липучке",
+        "SKU": "10902",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Porter Billiards"
+      },
+      "format": "PRODUCT"
+    },
+    "28096e08-a671-4b79-ac01-3efa12ed0e75": {
+      "children": [],
+      "data": {
+        "Name": "Перчатка для бильярда левая Classic Velcro размер S темно-синяя на липучке",
+        "SKU": "9542",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Porter Billiards"
+      },
+      "format": "PRODUCT"
+    },
+    "4ab5c49c-d35a-401c-8602-487c68c1d7eb": {
+      "children": [],
+      "data": {
+        "Name": "Перчатка для бильярда левая Classic Velcro размер S черная на липучке",
+        "SKU": "2429",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Porter Billiards"
+      },
+      "format": "PRODUCT"
+    },
+    "3d85a7cc-d189-4c17-86b9-3eb9e7626f00": {
+      "children": [],
+      "data": {
+        "Name": "Перчатка для бильярда левая Classic Velcro размер XL темно-синяя на липучке",
+        "SKU": "10698",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Porter Billiards"
+      },
+      "format": "PRODUCT"
+    },
+    "5e7d98e9-6897-4c07-8f30-6b02a5c29ca4": {
+      "children": [],
+      "data": {
+        "Name": "Перчатка для бильярда левая Classic Velcro размер XL черная на липучке",
+        "SKU": "10903",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Porter Billiards"
+      },
+      "format": "PRODUCT"
+    },
+    "dfeb3b1c-896f-4f4d-a34e-65909ff71cd4": {
+      "children": [
+        "a357fd7b-da8a-4d2c-b6ee-979ce48bac39",
+        "02633924-7163-47f7-baae-9d98dd11eac8",
+        "7ea53825-4eec-403e-8f91-32ae35eaea8c",
+        "23ec6f1c-d4c6-42dc-88d6-9122485f1317",
+        "926fa961-24f5-4bce-992e-bd70f67360a8",
+        "066dd585-b7da-43be-9117-1b075db9390f",
+        "d22971fd-8983-4833-ade2-5f9242d0a0cd",
+        "91f443d8-c4c6-4f59-a7f6-df171117e555",
+        "3823d0e1-f2ad-4ede-b8c6-fd0c3ab11fa5",
+        "19de27ca-03e5-470f-a6c0-f2f617deb52d",
+        "bfbaea3e-2886-4179-beec-ba096d43d3bb",
+        "ee124a62-83fa-42bb-aeda-9a4b2e109dad",
+        "9fbb4bf4-8747-437a-af02-bc77c6e44054",
+        "2f976e69-163d-48f6-ad21-8b6dd1b01da9",
+        "28096e08-a671-4b79-ac01-3efa12ed0e75",
+        "4ab5c49c-d35a-401c-8602-487c68c1d7eb",
+        "3d85a7cc-d189-4c17-86b9-3eb9e7626f00",
+        "5e7d98e9-6897-4c07-8f30-6b02a5c29ca4"
+      ],
+      "data": {
+        "Name": "Перчатки",
+        "Count": "18",
+        "Path": ""
+      },
+      "format": "CATEGORY"
+    },
+    "9589c802-a788-4b50-aae7-d3eff2a7ee7d": {
+      "children": [],
+      "data": {
+        "Name": "Треугольники",
+        "Count": "0",
+        "Path": ""
+      },
+      "format": "CATEGORY"
+    },
+    "e044dbb8-4e5e-4e60-a2bb-ac26df58ac2a": {
+      "children": [
+        "dfeb3b1c-896f-4f4d-a34e-65909ff71cd4",
+        "9589c802-a788-4b50-aae7-d3eff2a7ee7d"
+      ],
+      "data": {
+        "Name": "Аксессуары",
+        "Count": "0",
+        "Path": ""
+      },
+      "format": "CATEGORY"
+    },
+    "457c0e88-9756-44ad-84cc-8b68636aac8e": {
+      "children": [],
+      "data": {
+        "Name": "Мел для бильярда 15шт Tweeten Triangle синий",
+        "SKU": "9536-15",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Tweeten Fibre Co., Inc."
+      },
+      "format": "PRODUCT"
+    },
+    "89a805da-746e-4130-a7fb-a02f9b54e877": {
+      "children": [],
+      "data": {
+        "Name": "Мел для бильярда 4шт Tweeten Triangle синий",
+        "SKU": "9536-4",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Tweeten Fibre Co., Inc."
+      },
+      "format": "PRODUCT"
+    },
+    "53362615-1145-45d9-906d-3781631a5865": {
+      "children": [],
+      "data": {
+        "Name": "Мел для бильярда Tweeten Triangle 72 штуки синий",
+        "SKU": "4381",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Tweeten Fibre Co., Inc."
+      },
+      "format": "PRODUCT"
+    },
+    "60b1a2f7-72fe-42f1-afa1-7cf40935074c": {
+      "children": [
+        "457c0e88-9756-44ad-84cc-8b68636aac8e",
+        "89a805da-746e-4130-a7fb-a02f9b54e877",
+        "53362615-1145-45d9-906d-3781631a5865"
+      ],
+      "data": {
+        "Name": "Мел",
+        "Count": "3",
+        "Path": ""
+      },
+      "format": "CATEGORY"
+    },
+    "b8515edc-15f4-4e05-8b7f-84156415a12f": {
+      "children": [],
+      "data": {
+        "Name": "Инструмент для обработки бильярдной наклейки / держатель для мела Porter",
+        "SKU": "16370",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Porter Billiards"
+      },
+      "format": "PRODUCT"
+    },
+    "db7de900-6fbf-4e72-9514-e6f69865157d": {
+      "children": [],
+      "data": {
+        "Name": "Инструмент для обработки бильярдной наклейки Porter Tip Sander",
+        "SKU": "16386",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Porter Billiards"
+      },
+      "format": "PRODUCT"
+    },
+    "38bcc60f-a50d-43ce-85c8-d69c78dec8b4": {
+      "children": [],
+      "data": {
+        "Name": "Колпачки с наклейкой для кия Porter Push-On-Tip 12мм 10 шт",
+        "SKU": "13142-10",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Porter Billiards"
+      },
+      "format": "PRODUCT"
+    },
+    "cef35141-1305-4ac1-996d-0f62e459ca89": {
+      "children": [],
+      "data": {
+        "Name": "Колпачки с наклейкой для кия Porter Push-On-Tip 12мм 100 шт",
+        "SKU": "9218",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Porter Billiards"
+      },
+      "format": "PRODUCT"
+    },
+    "26589c2e-6702-4ae8-a0da-a860e0809920": {
+      "children": [],
+      "data": {
+        "Name": "Колпачки с наклейкой для кия Porter Push-On-Tip 13мм 10 шт",
+        "SKU": "13143-10",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Porter Billiards"
+      },
+      "format": "PRODUCT"
+    },
+    "c49e0cf1-e6ca-493b-82c1-2a4a62a23a31": {
+      "children": [],
+      "data": {
+        "Name": "Колпачки с наклейкой для кия Porter Push-On-Tip 13мм 100 шт",
+        "SKU": "9090",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Porter Billiards"
+      },
+      "format": "PRODUCT"
+    },
+    "2f5f4e06-0214-4481-96de-0ca21d5ee28c": {
+      "children": [],
+      "data": {
+        "Name": "Набор из 4-х мелков для бильярда Tweeten Triangle и держателя мела / инструмента для обработки наклейки Porter",
+        "SKU": "9536-4-16370",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Tweeten Fibre Co., Inc."
+      },
+      "format": "PRODUCT"
+    },
+    "02a88f88-9d66-4f41-ad90-4f8113950060": {
+      "children": [],
+      "data": {
+        "Name": "Набор из 4-х мелков для бильярда Tweeten Triangle и инструмента для обработки наклейки бильярдного кия",
+        "SKU": "9536-4-16386",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Tweeten Fibre Co., Inc."
+      },
+      "format": "PRODUCT"
+    },
+    "3606c28e-82ea-4821-b672-8165f87135d1": {
+      "children": [],
+      "data": {
+        "Name": "Набор из 4-х мелков для бильярда Tweeten Triangle, муфты для чистки кия и инструмента для обработки наклейки / держателя мела",
+        "SKU": "9536-4-2460-16370",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Tweeten Fibre Co., Inc."
+      },
+      "format": "PRODUCT"
+    },
+    "ff71861b-0506-475f-9a6d-2d72f96cddb3": {
+      "children": [],
+      "data": {
+        "Name": "Набор из 4-х мелков для бильярда, муфты для чистки и полировки бильярдного кия, держателя мела и инструмента для обработки наклейки",
+        "SKU": "9536-4-2460-2310-16386",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Tweeten Fibre Co., Inc."
+      },
+      "format": "PRODUCT"
+    },
+    "3d63028a-f85b-49dc-b535-8cd16e6e268c": {
+      "children": [],
+      "data": {
+        "Name": "Набор из аксессуара (муфты) для чистки и полировки бильярдного кия и инструмента для обработки наклейки",
+        "SKU": "2460-16386",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Нет бренда"
+      },
+      "format": "PRODUCT"
+    },
+    "3b14bee9-78e3-4f88-87b4-bb999d7cdd1c": {
+      "children": [],
+      "data": {
+        "Name": "Наклейки для кия 12,5 мм 10 штук Tweeten Triangle Super Hard",
+        "SKU": "3359-10",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Tweeten Fibre Co., Inc."
+      },
+      "format": "PRODUCT"
+    },
+    "17acb7af-6d66-4856-9797-3affd57865a9": {
+      "children": [],
+      "data": {
+        "Name": "Наклейки для кия 12,5 мм 25 штук Tweeten Triangle Super Hard",
+        "SKU": "3359-25",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Tweeten Fibre Co., Inc."
+      },
+      "format": "PRODUCT"
+    },
+    "4472f6e5-02fc-4d29-b20d-4b74771e4939": {
+      "children": [],
+      "data": {
+        "Name": "Наклейки для кия 13 мм 10 штук Tweeten Le Professionel Hard",
+        "SKU": "3361-10",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Tweeten Fibre Co., Inc."
+      },
+      "format": "PRODUCT"
+    },
+    "8d9b8cc3-9239-4a59-a6c3-c9726155f922": {
+      "children": [],
+      "data": {
+        "Name": "Наклейки для кия 13 мм 10 штук Tweeten Triangle Super Hard",
+        "SKU": "3357-10",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Tweeten Fibre Co., Inc."
+      },
+      "format": "PRODUCT"
+    },
+    "56c22005-aee7-480f-bf29-b44f26d51510": {
+      "children": [],
+      "data": {
+        "Name": "Наклейки для кия 13 мм 25 штук Tweeten Le Professionel Hard",
+        "SKU": "3361-25",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Tweeten Fibre Co., Inc."
+      },
+      "format": "PRODUCT"
+    },
+    "674e112a-a406-4b67-a2b2-2b1ce0a2f0d8": {
+      "children": [],
+      "data": {
+        "Name": "Наклейки для кия 13 мм 25 штук Tweeten Triangle Super Hard",
+        "SKU": "3357-25",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Tweeten Fibre Co., Inc."
+      },
+      "format": "PRODUCT"
+    },
+    "63f8e7bb-aa78-43c1-8903-63750787d9e0": {
+      "children": [
+        "b8515edc-15f4-4e05-8b7f-84156415a12f",
+        "db7de900-6fbf-4e72-9514-e6f69865157d",
+        "38bcc60f-a50d-43ce-85c8-d69c78dec8b4",
+        "cef35141-1305-4ac1-996d-0f62e459ca89",
+        "26589c2e-6702-4ae8-a0da-a860e0809920",
+        "c49e0cf1-e6ca-493b-82c1-2a4a62a23a31",
+        "2f5f4e06-0214-4481-96de-0ca21d5ee28c",
+        "02a88f88-9d66-4f41-ad90-4f8113950060",
+        "3606c28e-82ea-4821-b672-8165f87135d1",
+        "ff71861b-0506-475f-9a6d-2d72f96cddb3",
+        "3d63028a-f85b-49dc-b535-8cd16e6e268c",
+        "3b14bee9-78e3-4f88-87b4-bb999d7cdd1c",
+        "17acb7af-6d66-4856-9797-3affd57865a9",
+        "4472f6e5-02fc-4d29-b20d-4b74771e4939",
+        "8d9b8cc3-9239-4a59-a6c3-c9726155f922",
+        "56c22005-aee7-480f-bf29-b44f26d51510",
+        "674e112a-a406-4b67-a2b2-2b1ce0a2f0d8"
+      ],
+      "data": {
+        "Name": "Наклейки",
+        "Count": "17",
+        "Path": ""
+      },
+      "format": "CATEGORY"
+    },
+    "2affd858-097c-4aaa-9cc8-39933a9f3a67": {
+      "children": [
+        "60b1a2f7-72fe-42f1-afa1-7cf40935074c",
+        "63f8e7bb-aa78-43c1-8903-63750787d9e0"
+      ],
+      "data": {
+        "Name": "Аксессуары для киев",
+        "Count": "0",
+        "Path": ""
+      },
+      "format": "CATEGORY"
+    },
+    "0826f8de-bb91-4a35-b392-55921cb0bcf8": {
+      "children": [],
+      "data": {
+        "Name": "Прочие кии",
+        "Count": "0",
+        "Path": ""
+      },
+      "format": "CATEGORY"
+    },
+    "2776d9c0-d420-45cb-bbd4-d8621cdcd174": {
+      "children": [],
+      "data": {
+        "Name": "Кий для бильярда 146 см / бильярдный кий для пула Porter Ramin / кий разборный",
+        "SKU": "16230",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Porter Billiards"
+      },
+      "format": "PRODUCT"
+    },
+    "bd6e2448-f3dd-4640-a404-35ded815d7eb": {
+      "children": [],
+      "data": {
+        "Name": "Кий для бильярда 147 см / кий для пула Тафгай / кий цельный карбоновый",
+        "SKU": "16506",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Porter Billiards"
+      },
+      "format": "PRODUCT"
+    },
+    "f43dac92-a8f0-46a2-afbe-e56c91df9343": {
+      "children": [],
+      "data": {
+        "Name": "Кий для бильярда 148 см / бильярдный кий для пула Compositor / кий цельный",
+        "SKU": "15152",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Porter Billiards"
+      },
+      "format": "PRODUCT"
+    },
+    "99eae531-b2ef-42e1-bf7b-f4046fbd9182": {
+      "children": [],
+      "data": {
+        "Name": "Кий для бильярда 150 см / бильярдный кий для пула Porter Ramin / кий цельный",
+        "SKU": "5866",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Porter Billiards"
+      },
+      "format": "PRODUCT"
+    },
+    "f8239740-002a-47b2-8a1d-f7709a18de6e": {
+      "children": [],
+      "data": {
+        "Name": "Кий для пула, тубус и мелки в подарочном наборе для игрока Master D-501 Round",
+        "SKU": "9339-9160-9536-4",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Porter Billiards"
+      },
+      "format": "PRODUCT"
+    },
+    "96aec8b8-6d18-40a2-acf1-01136739f8e6": {
+      "children": [],
+      "data": {
+        "Name": "Кий для пула, тубус и мелки в подарочном наборе для игрока Master D-509 Round",
+        "SKU": "16519-9160-9536-4",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Porter Billiards"
+      },
+      "format": "PRODUCT"
+    },
+    "8a1f9182-030e-420b-877e-de89a914ace3": {
+      "children": [],
+      "data": {
+        "Name": "Кий для пула, тубус и мелки в подарочном наборе для игрока Master D-510 Round",
+        "SKU": "9340-9160-9536-4",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Porter Billiards"
+      },
+      "format": "PRODUCT"
+    },
+    "94f48675-7e07-4fc0-9097-1dd77a0bb5ce": {
+      "children": [
+        "2776d9c0-d420-45cb-bbd4-d8621cdcd174",
+        "bd6e2448-f3dd-4640-a404-35ded815d7eb",
+        "f43dac92-a8f0-46a2-afbe-e56c91df9343",
+        "99eae531-b2ef-42e1-bf7b-f4046fbd9182",
+        "f8239740-002a-47b2-8a1d-f7709a18de6e",
+        "96aec8b8-6d18-40a2-acf1-01136739f8e6",
+        "8a1f9182-030e-420b-877e-de89a914ace3"
+      ],
+      "data": {
+        "Name": "Пул",
+        "Count": "7",
+        "Path": ""
+      },
+      "format": "CATEGORY"
+    },
+    "1613362a-2815-4384-8426-c95c204ae6e1": {
+      "children": [],
+      "data": {
+        "Name": "Кий для бильярда 122 см укороченный / бильярдный кий Compositor / кий цельный",
+        "SKU": "15549",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Porter Billiards"
+      },
+      "format": "PRODUCT"
+    },
+    "d4d98988-a1a7-49d5-8e79-ea34f29f66eb": {
+      "children": [],
+      "data": {
+        "Name": "Кий для бильярда 133 см укороченный / бильярдный кий Compositor / кий цельный",
+        "SKU": "15550",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Porter Billiards"
+      },
+      "format": "PRODUCT"
+    },
+    "bd86226f-639a-462c-b03b-2220e315c531": {
+      "children": [],
+      "data": {
+        "Name": "Кий для бильярда русского 158 см / бильярдный кий Porter Ramin / кий цельный",
+        "SKU": "5865",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Porter Billiards"
+      },
+      "format": "PRODUCT"
+    },
+    "b924927e-081f-4b92-85b3-d3614d737d0a": {
+      "children": [],
+      "data": {
+        "Name": "Кий для бильярда русского 158 см / бильярдный кий Тафгай / кий цельный карбоновый",
+        "SKU": "16505",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Porter Billiards"
+      },
+      "format": "PRODUCT"
+    },
+    "9022d427-141c-4b7d-ab51-17ade0f91939": {
+      "children": [],
+      "data": {
+        "Name": "Кий для бильярда русского 161 см / бильярдный кий Compositor / кий цельный",
+        "SKU": "9201",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Porter Billiards"
+      },
+      "format": "PRODUCT"
+    },
+    "fc395e52-1e77-467f-99dd-87f32653d1de": {
+      "children": [],
+      "data": {
+        "Name": "Кий для бильярда русского 163 см / бильярдный кий Maple Crown D-501R / кий разборный",
+        "SKU": "9334",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Porter Billiards"
+      },
+      "format": "PRODUCT"
+    },
+    "f6d232f5-fd21-4b65-9c9e-a1c5eae9255a": {
+      "children": [],
+      "data": {
+        "Name": "Кий для бильярда русского 163 см / бильярдный кий Maple Crown D-502R / кий разборный",
+        "SKU": "9335",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Porter Billiards"
+      },
+      "format": "PRODUCT"
+    },
+    "34d3e97d-adee-4350-95df-de31fb860461": {
+      "children": [],
+      "data": {
+        "Name": "Кий для бильярда русского 163 см / бильярдный кий Maple Crown D-510R / кий разборный",
+        "SKU": "9336",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Porter Billiards"
+      },
+      "format": "PRODUCT"
+    },
+    "ab8a8ef3-b23f-4b43-b310-bd395f344fad": {
+      "children": [],
+      "data": {
+        "Name": "Кий для русского бильярда 161 см Crown 1-составной / цельный",
+        "SKU": "16276",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Нет бренда"
+      },
+      "format": "PRODUCT"
+    },
+    "cb2d72af-eeb1-45a3-b8c3-1b2f82bba019": {
+      "children": [],
+      "data": {
+        "Name": "Кий для русского бильярда 161 см Crown 1-составной / цельный",
+        "SKU": "13203",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Нет бренда"
+      },
+      "format": "PRODUCT"
+    },
+    "0304a924-7a31-47f3-bafe-9e270fb649a6": {
+      "children": [],
+      "data": {
+        "Name": "Кий для русского бильярда, тубус и мелки в подарочном наборе для игрока Master D-501R Round",
+        "SKU": "9334-1164-9536-4",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Porter Billiards"
+      },
+      "format": "PRODUCT"
+    },
+    "c5ca7ad9-9bc1-4eba-86e3-af03b6822d04": {
+      "children": [],
+      "data": {
+        "Name": "Кий для русского бильярда, тубус и мелки в подарочном наборе для игрока Master D-510R Round",
+        "SKU": "9336-1164-9536-4",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Porter Billiards"
+      },
+      "format": "PRODUCT"
+    },
+    "418c2b1b-d367-4f3f-b5b8-761a76415bb4": {
+      "children": [],
+      "data": {
+        "Name": "Кий для русского бильярда, тубус и мелки в подарочном наборе для игрока Master D-510R Round Plus",
+        "SKU": "9336-16373-9536-4",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Porter Billiards"
+      },
+      "format": "PRODUCT"
+    },
+    "3e1ec36a-c6b9-49bc-8d39-ac5c4b15a10c": {
+      "children": [
+        "1613362a-2815-4384-8426-c95c204ae6e1",
+        "d4d98988-a1a7-49d5-8e79-ea34f29f66eb",
+        "bd86226f-639a-462c-b03b-2220e315c531",
+        "b924927e-081f-4b92-85b3-d3614d737d0a",
+        "9022d427-141c-4b7d-ab51-17ade0f91939",
+        "fc395e52-1e77-467f-99dd-87f32653d1de",
+        "f6d232f5-fd21-4b65-9c9e-a1c5eae9255a",
+        "34d3e97d-adee-4350-95df-de31fb860461",
+        "ab8a8ef3-b23f-4b43-b310-bd395f344fad",
+        "cb2d72af-eeb1-45a3-b8c3-1b2f82bba019",
+        "0304a924-7a31-47f3-bafe-9e270fb649a6",
+        "c5ca7ad9-9bc1-4eba-86e3-af03b6822d04",
+        "418c2b1b-d367-4f3f-b5b8-761a76415bb4"
+      ],
+      "data": {
+        "Name": "Русский бильярд",
+        "Count": "13",
+        "Path": ""
+      },
+      "format": "CATEGORY"
+    },
+    "25ccb63e-9492-4b64-9f12-7ceb96d2c318": {
+      "children": [],
+      "data": {
+        "Name": "Кий для снукера бильярдный 143 см 1-составной Bridge JDH",
+        "SKU": "16419",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Porter Billiards"
+      },
+      "format": "PRODUCT"
+    },
+    "f91b6951-1093-40a5-995c-56587cc2fa6e": {
+      "children": [],
+      "data": {
+        "Name": "Кий для снукера бильярдный 143 см 2-составной Bridge 3/4",
+        "SKU": "16418",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Porter Billiards"
+      },
+      "format": "PRODUCT"
+    },
+    "dada6803-6b6d-4651-9c90-9b656ebe827d": {
+      "children": [],
+      "data": {
+        "Name": "Кий для снукера бильярдный 145 см 1-составной Dandy",
+        "SKU": "16518",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Porter Billiards"
+      },
+      "format": "PRODUCT"
+    },
+    "9c2bb66b-6a49-438a-a451-cd2fcffed5b0": {
+      "children": [
+        "25ccb63e-9492-4b64-9f12-7ceb96d2c318",
+        "f91b6951-1093-40a5-995c-56587cc2fa6e",
+        "dada6803-6b6d-4651-9c90-9b656ebe827d"
+      ],
+      "data": {
+        "Name": "Снукер",
+        "Count": "3",
+        "Path": ""
+      },
+      "format": "CATEGORY"
+    },
+    "42be2ef7-f2af-45d4-b0c2-eba19a830e4a": {
+      "children": [],
+      "data": {
+        "Name": "Кий для пула, чехол, перчатка и мелки в подарочном наборе для игрока Pool Partner",
+        "SKU": "16230.К",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Porter Billiards"
+      },
+      "format": "PRODUCT"
+    },
+    "d9cb7c8f-ca03-4059-ac35-5ea277d93bca": {
+      "children": [
+        "0826f8de-bb91-4a35-b392-55921cb0bcf8",
+        "94f48675-7e07-4fc0-9097-1dd77a0bb5ce",
+        "3e1ec36a-c6b9-49bc-8d39-ac5c4b15a10c",
+        "9c2bb66b-6a49-438a-a451-cd2fcffed5b0",
+        "42be2ef7-f2af-45d4-b0c2-eba19a830e4a"
+      ],
+      "data": {
+        "Name": "Кии",
+        "Count": "1",
+        "Path": ""
+      },
+      "format": "CATEGORY"
+    },
+    "dfacb5ea-d10a-4e70-aded-0f7d9d900167": {
+      "children": [],
+      "data": {
+        "Name": "Лузы для бильярда 68 мм Classic Pro B-2 6шт латунные скобы скаты",
+        "SKU": "6761",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Porter Billiards"
+      },
+      "format": "PRODUCT"
+    },
+    "a6fc338d-4450-4c65-b7e1-db6a69b177c4": {
+      "children": [],
+      "data": {
+        "Name": "Лузы для бильярда 68 мм Sport Pro D-1 6шт латунные скобы скаты",
+        "SKU": "11625",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Porter Billiards"
+      },
+      "format": "PRODUCT"
+    },
+    "54b66e0e-f45e-43b6-b968-a9b9d71d99c9": {
+      "children": [],
+      "data": {
+        "Name": "Лузы для бильярда 68 мм Sport Pro D-2 6шт латунные скобы",
+        "SKU": "11626",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Porter Billiards"
+      },
+      "format": "PRODUCT"
+    },
+    "a8b784e9-c857-447e-9b82-8bbb968046f3": {
+      "children": [],
+      "data": {
+        "Name": "Лузы для бильярда 68 мм Sport Pro D-3 6шт латунные скобы",
+        "SKU": "3349",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Porter Billiards"
+      },
+      "format": "PRODUCT"
+    },
+    "42c76cfb-95ba-4999-8921-e6954f02157e": {
+      "children": [],
+      "data": {
+        "Name": "Лузы для бильярдных столов 57,2мм Crown LX-5 6шт резина",
+        "SKU": "2021",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Нет бренда"
+      },
+      "format": "PRODUCT"
+    },
+    "e3538ba7-19a1-4df9-ac18-df7a1e50b607": {
+      "children": [],
+      "data": {
+        "Name": "Лузы для бильярдных столов 68 мм Classic B-3 6шт силуминовые скобы",
+        "SKU": "11624",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Porter Billiards"
+      },
+      "format": "PRODUCT"
+    },
+    "473439d0-466f-43c1-a7ed-bd312ae10c7c": {
+      "children": [],
+      "data": {
+        "Name": "Лузы для бильярдных столов 68 мм Classic B-5 6шт силуминовые скобы скаты",
+        "SKU": "11636",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Porter Billiards"
+      },
+      "format": "PRODUCT"
+    },
+    "62959695-fdb4-49c0-bebd-aeac285a76e0": {
+      "children": [],
+      "data": {
+        "Name": "Лузы для бильярдных столов 68 мм Classic Pro B-4 6шт латунные скобы",
+        "SKU": "9353",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Porter Billiards"
+      },
+      "format": "PRODUCT"
+    },
+    "222e4a06-b92b-468d-adee-a8f75ef4d42f": {
+      "children": [],
+      "data": {
+        "Name": "Лузы для бильярдных столов 68 мм Decor C-2 6шт силуминовые скобы",
+        "SKU": "2006",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Porter Billiards"
+      },
+      "format": "PRODUCT"
+    },
+    "279d4f98-5df9-44e6-b089-8dbb46eda3b4": {
+      "children": [],
+      "data": {
+        "Name": "Лузы для бильярдных столов 68 мм Decor Luxe B-7 6шт латунные скобы скаты",
+        "SKU": "11637",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Porter Billiards"
+      },
+      "format": "PRODUCT"
+    },
+    "d46a8078-0db6-4305-a951-76281ce6afb0": {
+      "children": [],
+      "data": {
+        "Name": "Лузы для бильярдных столов 68 мм Decor С-1 6шт силуминовые скобы скаты",
+        "SKU": "6307",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Porter Billiards"
+      },
+      "format": "PRODUCT"
+    },
+    "9c8e3b66-43de-4d9e-b0dc-128b8c494e5d": {
+      "children": [],
+      "data": {
+        "Name": "Лузы для бильярдных столов 68 мм Sport D-4 6шт силуминовые скобы скаты",
+        "SKU": "9265",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Porter Billiards"
+      },
+      "format": "PRODUCT"
+    },
+    "1b421e90-7c46-4ba2-997c-043288722a29": {
+      "children": [],
+      "data": {
+        "Name": "Лузы для бильярдных столов 68 мм Sport D-5 6шт силуминовые скобы2",
+        "SKU": "2007",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Porter Billiards"
+      },
+      "format": "PRODUCT"
+    },
+    "e14f1fcf-30ce-4211-befb-2dd0d0e6f390": {
+      "children": [],
+      "data": {
+        "Name": "Лузы для бильярдных столов 68 мм Sport D-6 6шт латунные скобы",
+        "SKU": "16529",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Porter Billiards"
+      },
+      "format": "PRODUCT"
+    },
+    "348f1dd2-9ec8-4abf-8a93-8afbd8c8bd3c": {
+      "children": [],
+      "data": {
+        "Name": "Лузы для бильярдных столов 68 мм Sport Pro D-2 6шт латунные скобы",
+        "SKU": "2023",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Porter Billiards"
+      },
+      "format": "PRODUCT"
+    },
+    "fd9d9f4b-18e0-43e1-8ee3-7a0a353912a1": {
+      "children": [],
+      "data": {
+        "Name": "Лузы для бильярдных столов 7-8 футов Brookstone 60,3 мм 6шт латунные скобы",
+        "SKU": "16320",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Porter Billiards"
+      },
+      "format": "PRODUCT"
+    },
+    "8b7a7fbd-18d7-4e31-8969-1d5dc250a43d": {
+      "children": [
+        "dfacb5ea-d10a-4e70-aded-0f7d9d900167",
+        "a6fc338d-4450-4c65-b7e1-db6a69b177c4",
+        "54b66e0e-f45e-43b6-b968-a9b9d71d99c9",
+        "a8b784e9-c857-447e-9b82-8bbb968046f3",
+        "42c76cfb-95ba-4999-8921-e6954f02157e",
+        "e3538ba7-19a1-4df9-ac18-df7a1e50b607",
+        "473439d0-466f-43c1-a7ed-bd312ae10c7c",
+        "62959695-fdb4-49c0-bebd-aeac285a76e0",
+        "222e4a06-b92b-468d-adee-a8f75ef4d42f",
+        "279d4f98-5df9-44e6-b089-8dbb46eda3b4",
+        "d46a8078-0db6-4305-a951-76281ce6afb0",
+        "9c8e3b66-43de-4d9e-b0dc-128b8c494e5d",
+        "1b421e90-7c46-4ba2-997c-043288722a29",
+        "e14f1fcf-30ce-4211-befb-2dd0d0e6f390",
+        "348f1dd2-9ec8-4abf-8a93-8afbd8c8bd3c",
+        "fd9d9f4b-18e0-43e1-8ee3-7a0a353912a1"
+      ],
+      "data": {
+        "Name": "Лузы",
+        "Count": "16",
+        "Path": ""
+      },
+      "format": "CATEGORY"
+    },
+    "1022fbde-76c1-4c1f-97cd-907e03875b5d": {
+      "children": [],
+      "data": {
+        "Name": "Резина для бортов бильярдных столов 10 футов 152см 6шт Eurosprint Rus Pro U-118",
+        "SKU": "6198",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Eurosprint"
+      },
+      "format": "PRODUCT"
+    },
+    "dd9c335a-b555-4d29-9fbe-ab8986bf1382": {
+      "children": [],
+      "data": {
+        "Name": "Резина для бортов бильярдных столов 10 футов 152см 6шт Standard U-118",
+        "SKU": "11634",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Porter Billiards"
+      },
+      "format": "PRODUCT"
+    },
+    "2eaba97c-3b71-46d3-86db-8efc2fd515f2": {
+      "children": [],
+      "data": {
+        "Name": "Резина для бортов бильярдных столов 12 футов 182см 6шт Eurospint Standard Snooker Pro L-77",
+        "SKU": "11628",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Eurosprint"
+      },
+      "format": "PRODUCT"
+    },
+    "29f3bd7c-234a-4a08-8ad1-6f54f752ac8f": {
+      "children": [],
+      "data": {
+        "Name": "Резина для бортов бильярдных столов 12 футов 182см 6шт Eurosprint Rus Pro U-118",
+        "SKU": "11629",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Eurosprint"
+      },
+      "format": "PRODUCT"
+    },
+    "3432a72d-1bfe-4998-8fd9-183bec360569": {
+      "children": [],
+      "data": {
+        "Name": "Резина для бортов бильярдных столов 12 футов 182см 6шт столов Standard U-118",
+        "SKU": "11655",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Porter Billiards"
+      },
+      "format": "PRODUCT"
+    },
+    "37577183-231e-466b-a184-ff243dd19040": {
+      "children": [],
+      "data": {
+        "Name": "Резина для бортов бильярдных столов 7-9 футов 122см 6шт Standard Pool K-66",
+        "SKU": "11654",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Porter Billiards"
+      },
+      "format": "PRODUCT"
+    },
+    "80710d89-7323-47c0-b697-b017b48e1a89": {
+      "children": [],
+      "data": {
+        "Name": "Резина для бортов бильярдных столов 9 футов 122см 6шт Eurosprint Pool Pro K-55",
+        "SKU": "6201",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Eurosprint"
+      },
+      "format": "PRODUCT"
+    },
+    "c341d9ab-d5a4-4eb7-8b3c-50f93d044399": {
+      "children": [],
+      "data": {
+        "Name": "Резина для бортов бильярдных столов 9 футов 122см 6шт Eurosprint Pool Pro K-66",
+        "SKU": "11650",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Eurosprint"
+      },
+      "format": "PRODUCT"
+    },
+    "a8832749-2f7e-4ab8-a527-4a9e2c94464c": {
+      "children": [],
+      "data": {
+        "Name": "Резина для бортов бильярдных столов 9 футов 145см 6шт Eurosprint Pool Pro K-55",
+        "SKU": "11649",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Eurosprint"
+      },
+      "format": "PRODUCT"
+    },
+    "7353e2b8-92fb-4823-a642-7d7f6431111b": {
+      "children": [],
+      "data": {
+        "Name": "Резина для бортов бильярдных столов 9 футов 145см 6шт Eurosprint Pool Pro K-66",
+        "SKU": "6202",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Eurosprint"
+      },
+      "format": "PRODUCT"
+    },
+    "e0f0f53e-7957-4ca9-9901-efd43008cb8f": {
+      "children": [],
+      "data": {
+        "Name": "Резина для бортов бильярдных столов 9 футов 145см 6шт Standard Pool K-55",
+        "SKU": "11653",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Porter Billiards"
+      },
+      "format": "PRODUCT"
+    },
+    "3d4f003c-82fa-4beb-bf72-0b2f02166131": {
+      "children": [
+        "1022fbde-76c1-4c1f-97cd-907e03875b5d",
+        "dd9c335a-b555-4d29-9fbe-ab8986bf1382",
+        "2eaba97c-3b71-46d3-86db-8efc2fd515f2",
+        "29f3bd7c-234a-4a08-8ad1-6f54f752ac8f",
+        "3432a72d-1bfe-4998-8fd9-183bec360569",
+        "37577183-231e-466b-a184-ff243dd19040",
+        "80710d89-7323-47c0-b697-b017b48e1a89",
+        "c341d9ab-d5a4-4eb7-8b3c-50f93d044399",
+        "a8832749-2f7e-4ab8-a527-4a9e2c94464c",
+        "7353e2b8-92fb-4823-a642-7d7f6431111b",
+        "e0f0f53e-7957-4ca9-9901-efd43008cb8f"
+      ],
+      "data": {
+        "Name": "Резина для бортов",
+        "Count": "11",
+        "Path": ""
+      },
+      "format": "CATEGORY"
+    },
+    "cb7e5939-b02b-4bc3-bcc5-a5538d85156b": {
+      "children": [
+        "8b7a7fbd-18d7-4e31-8969-1d5dc250a43d",
+        "3d4f003c-82fa-4beb-bf72-0b2f02166131"
+      ],
+      "data": {
+        "Name": "Комплектующие столов",
+        "Count": "0",
+        "Path": ""
+      },
+      "format": "CATEGORY"
+    },
+    "09ebfdad-6faf-48b7-be43-0ec9682e84c9": {
+      "children": [],
+      "data": {
+        "Name": "Светильники",
+        "Count": "0",
+        "Path": ""
+      },
+      "format": "CATEGORY"
+    },
+    "564d88c3-af4c-4051-9986-3ffbd2e02107": {
+      "children": [
+        "09ebfdad-6faf-48b7-be43-0ec9682e84c9"
+      ],
+      "data": {
+        "Name": "Освещение",
+        "Count": "0",
+        "Path": ""
+      },
+      "format": "CATEGORY"
+    },
+    "67f4711d-7fe5-4627-96ef-111f702de74c": {
+      "children": [],
+      "data": {
+        "Name": "Аксессуар (муфта) для чистки и полировки кия бильярдного Porter Shaft Slicker абразивный",
+        "SKU": "2460",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Porter Billiards"
+      },
+      "format": "PRODUCT"
+    },
+    "dc0cf7c6-a2ad-40b1-8882-265c7d36018c": {
+      "children": [],
+      "data": {
+        "Name": "Древко для моста бильярдного 160 см Junior односоставное / цельное",
+        "SKU": "13240",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Нет бренда"
+      },
+      "format": "PRODUCT"
+    },
+    "f4baec19-bb53-4d03-9c33-111bc704a139": {
+      "children": [],
+      "data": {
+        "Name": "Древко для моста бильярдного 160 см Экстра односоставное / цельное",
+        "SKU": "9302",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Нет бренда"
+      },
+      "format": "PRODUCT"
+    },
+    "e0235711-912a-4667-8692-28313225378b": {
+      "children": [],
+      "data": {
+        "Name": "Древко для моста бильярдного 180 см Оптимум двухсоставное / разборное",
+        "SKU": "13242",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Нет бренда"
+      },
+      "format": "PRODUCT"
+    },
+    "1b44de2c-6f5d-43b4-b0c0-21e9a1b18db4": {
+      "children": [],
+      "data": {
+        "Name": "Древко для моста бильярдного 180 см Экстра двухсоставное / разборное",
+        "SKU": "9367",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Нет бренда"
+      },
+      "format": "PRODUCT"
+    },
+    "0e5d39f9-3d94-4eca-8b0c-d60f682d49ef": {
+      "children": [],
+      "data": {
+        "Name": "Древко для моста бильярдного 200 см Оптимум двухсоставное / разборное",
+        "SKU": "13243",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Нет бренда"
+      },
+      "format": "PRODUCT"
+    },
+    "9a3c77af-5e49-45fc-a29a-24464e3bb168": {
+      "children": [],
+      "data": {
+        "Name": "Древко для моста бильярдного 200 см Экстра двухсоставное / разборное",
+        "SKU": "11283",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Нет бренда"
+      },
+      "format": "PRODUCT"
+    },
+    "1d37233f-d74b-4fa9-b096-95920efd8d2e": {
+      "children": [],
+      "data": {
+        "Name": "Древко для моста бильярдного 216 см Оптимум двухсоставное / разборное",
+        "SKU": "13244",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Нет бренда"
+      },
+      "format": "PRODUCT"
+    },
+    "1adfa3a2-485f-456d-ba98-352fe800e74e": {
+      "children": [],
+      "data": {
+        "Name": "Древко для моста бильярдного 216 см Экстра двухсоставное / разборное",
+        "SKU": "11284",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Нет бренда"
+      },
+      "format": "PRODUCT"
+    },
+    "42379bb6-05ea-426f-b5a0-340d3716daf9": {
+      "children": [],
+      "data": {
+        "Name": "Древко для моста бильярдного 246 см Оптимум двухсоставное / разборное",
+        "SKU": "11286",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Нет бренда"
+      },
+      "format": "PRODUCT"
+    },
+    "48ad93f5-44be-4c04-8d08-e892c0885f61": {
+      "children": [],
+      "data": {
+        "Name": "Киевница Minimalism для 6 киев светло-коричневая 2-составная",
+        "SKU": "16524",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Porter Billiards"
+      },
+      "format": "PRODUCT"
+    },
+    "94020633-5246-4340-9e00-f09151eedd3a": {
+      "children": [],
+      "data": {
+        "Name": "Киевница для бильярда напольная Форпост для 6 киев коричневая",
+        "SKU": "11389",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Нет бренда"
+      },
+      "format": "PRODUCT"
+    },
+    "e1811445-c0a1-49b1-8cdb-d6a58870971d": {
+      "children": [],
+      "data": {
+        "Name": "Киевница для бильярда напольная Форпост для 6 киев махагон",
+        "SKU": "6321",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Нет бренда"
+      },
+      "format": "PRODUCT"
+    },
+    "d5abd517-16fb-4a21-b484-91efd7c4174a": {
+      "children": [],
+      "data": {
+        "Name": "Киевница для бильярда напольная Форпост для 6 киев темно-коричневая",
+        "SKU": "11390",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Нет бренда"
+      },
+      "format": "PRODUCT"
+    },
+    "94ffbb99-7958-470c-bcf1-b5f5738d3a30": {
+      "children": [],
+      "data": {
+        "Name": "Киевница для бильярда настенная Авангард для 4 киев коричневая",
+        "SKU": "11385",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Нет бренда"
+      },
+      "format": "PRODUCT"
+    },
+    "22b450bb-2b05-4629-a0aa-88da8745141f": {
+      "children": [],
+      "data": {
+        "Name": "Киевница для бильярда настенная Авангард для 4 киев махагон",
+        "SKU": "6322",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Нет бренда"
+      },
+      "format": "PRODUCT"
+    },
+    "9ab4e62b-633d-44b9-8d52-ee339a6812c5": {
+      "children": [],
+      "data": {
+        "Name": "Киевница для бильярда настенная Авангард для 4 киев темно-коричневая",
+        "SKU": "11386",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Нет бренда"
+      },
+      "format": "PRODUCT"
+    },
+    "b5f42b90-85e2-47af-9b90-d418c0e084d7": {
+      "children": [],
+      "data": {
+        "Name": "Киевница для бильярда настенная Авангард для 6 киев коричневая",
+        "SKU": "12770",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Нет бренда"
+      },
+      "format": "PRODUCT"
+    },
+    "09dc2a78-76fb-416d-8d58-ba45300fad55": {
+      "children": [],
+      "data": {
+        "Name": "Киевница для бильярда настенная Авангард для 6 киев махагон",
+        "SKU": "12769",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Нет бренда"
+      },
+      "format": "PRODUCT"
+    },
+    "25a2a2f6-6241-4e72-94fa-9a669d337189": {
+      "children": [],
+      "data": {
+        "Name": "Киевница для бильярда настенная Авангард для 6 киев темно-коричневая",
+        "SKU": "12768",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Нет бренда"
+      },
+      "format": "PRODUCT"
+    },
+    "8dbff2d7-ac3b-4693-a02b-b4ed1e984ab9": {
+      "children": [],
+      "data": {
+        "Name": "Киевница для бильярда настенная Арсенал для 4 киев коричневая",
+        "SKU": "11362",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Нет бренда"
+      },
+      "format": "PRODUCT"
+    },
+    "f90f6e96-e8b4-41c0-9417-76a4e3d5b31b": {
+      "children": [],
+      "data": {
+        "Name": "Киевница для бильярда настенная Арсенал для 4 киев махагон",
+        "SKU": "2049",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Нет бренда"
+      },
+      "format": "PRODUCT"
+    },
+    "66173204-758f-4df9-87c6-f13cb9894f4d": {
+      "children": [],
+      "data": {
+        "Name": "Киевница для бильярда настенная Арсенал для 4 киев темно-коричневая",
+        "SKU": "11363",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Нет бренда"
+      },
+      "format": "PRODUCT"
+    },
+    "d4382503-29d2-4647-9dfa-7fdcb9ba3239": {
+      "children": [],
+      "data": {
+        "Name": "Киевница для бильярда настенная Арсенал для 6 киев коричневая",
+        "SKU": "11364",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Нет бренда"
+      },
+      "format": "PRODUCT"
+    },
+    "7b5d0028-baf9-4a75-a496-e2b73e35255f": {
+      "children": [],
+      "data": {
+        "Name": "Киевница для бильярда настенная Арсенал для 6 киев махагон",
+        "SKU": "11365",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Нет бренда"
+      },
+      "format": "PRODUCT"
+    },
+    "a0c827b1-07a1-44a0-8b46-961c4f52433b": {
+      "children": [],
+      "data": {
+        "Name": "Киевница для бильярда настенная Арсенал для 6 киев темно-коричневая",
+        "SKU": "11366",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Нет бренда"
+      },
+      "format": "PRODUCT"
+    },
+    "a3bc137f-1900-4b20-a521-ec925dc85d8e": {
+      "children": [],
+      "data": {
+        "Name": "Киевница для бильярда настенная Бастион для 4 киев коричневая",
+        "SKU": "15474",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Нет бренда"
+      },
+      "format": "PRODUCT"
+    },
+    "31ba288c-8528-4c4a-a395-28596c149389": {
+      "children": [],
+      "data": {
+        "Name": "Киевница для бильярда настенная Бастион для 4 киев махагон",
+        "SKU": "15473",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Нет бренда"
+      },
+      "format": "PRODUCT"
+    },
+    "87301f90-fe87-4721-a3d8-00144bd2ca76": {
+      "children": [],
+      "data": {
+        "Name": "Киевница для бильярда настенная Бастион для 4 киев темно-коричневая",
+        "SKU": "15475",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Нет бренда"
+      },
+      "format": "PRODUCT"
+    },
+    "7984d3ab-878b-4f3e-ae05-a8cf3a0e6ada": {
+      "children": [],
+      "data": {
+        "Name": "Киевница для бильярда настенная Легион для 4 киев коричневая",
+        "SKU": "9409",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Нет бренда"
+      },
+      "format": "PRODUCT"
+    },
+    "e2fc712d-e305-4e42-a85e-65856d114ac4": {
+      "children": [],
+      "data": {
+        "Name": "Киевница для бильярда настенная Легион для 4 киев махагон",
+        "SKU": "4518",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Нет бренда"
+      },
+      "format": "PRODUCT"
+    },
+    "c12cc5c7-8467-4fea-ba59-31987f1e3e1a": {
+      "children": [],
+      "data": {
+        "Name": "Киевница для бильярда настенная Легион для 4 киев темно-коричневая",
+        "SKU": "9078",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Нет бренда"
+      },
+      "format": "PRODUCT"
+    },
+    "8182a020-d4f4-4aef-8c84-32a8390ffda1": {
+      "children": [],
+      "data": {
+        "Name": "Киевница для бильярда настенная Штурм для 4 киев",
+        "SKU": "15876",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Нет бренда"
+      },
+      "format": "PRODUCT"
+    },
+    "8b40f368-b1d9-40ec-8134-b2dacd7a831e": {
+      "children": [],
+      "data": {
+        "Name": "Кии для русского бильярда 158 см Porter Ramin - 4 штуки / цельные",
+        "SKU": "5865-4",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Porter Billiards"
+      },
+      "format": "PRODUCT"
+    },
+    "a9aa1514-4721-44b6-8897-0ddaf7bb7e96": {
+      "children": [],
+      "data": {
+        "Name": "Кий бильярдный для снукера Bradford Black Snooker 3/4 с удлинителем 2-составной",
+        "SKU": "13601",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Нет бренда"
+      },
+      "format": "PRODUCT"
+    },
+    "f2494ef2-0441-4270-a2b0-6e2ccca77f13": {
+      "children": [],
+      "data": {
+        "Name": "Кий бильярдный для снукера Liverpool 3/4 с удлинителем 2-составной",
+        "SKU": "12490",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Нет бренда"
+      },
+      "format": "PRODUCT"
+    },
+    "be650152-e391-4838-9aea-1667f35d59a3": {
+      "children": [],
+      "data": {
+        "Name": "Кий бильярдный для снукера Liverpool 3/4 с удлинителем 2-составной",
+        "SKU": "9405",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Нет бренда"
+      },
+      "format": "PRODUCT"
+    },
+    "cf8bb462-dd7e-4f25-a8b5-66c1e827c889": {
+      "children": [],
+      "data": {
+        "Name": "Кий бильярдный для снукера Manchester 3/4 2-составной",
+        "SKU": "9157",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Нет бренда"
+      },
+      "format": "PRODUCT"
+    },
+    "85d2943c-918d-4569-bb9b-a5de38ae9940": {
+      "children": [],
+      "data": {
+        "Name": "Кий бильярдный для снукера Oxford 1-составной",
+        "SKU": "5398",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Нет бренда"
+      },
+      "format": "PRODUCT"
+    },
+    "8c99370a-9cd6-4fdf-8c9a-67906c3a84cf": {
+      "children": [],
+      "data": {
+        "Name": "Кий для бильярда 101 см Player 1-составной/цельный укороченный",
+        "SKU": "13676",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Нет бренда"
+      },
+      "format": "PRODUCT"
+    },
+    "584f9fb9-9dc9-4edc-a3d8-1ab423f0fb63": {
+      "children": [],
+      "data": {
+        "Name": "Кий для бильярда 122 см укороченный Тафгай / кий цельный карбоновый",
+        "SKU": "16508",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Porter Billiards"
+      },
+      "format": "PRODUCT"
+    },
+    "541c75ad-5aac-4dcb-98ef-5fda3c6bc7d9": {
+      "children": [],
+      "data": {
+        "Name": "Кий для бильярда 123 см Player 1-составной/цельный укороченный",
+        "SKU": "13922",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Нет бренда"
+      },
+      "format": "PRODUCT"
+    },
+    "099d1259-964b-4d56-a1fd-324e4d97de5c": {
+      "children": [],
+      "data": {
+        "Name": "Кий для бильярда 133 см укороченный Тафгай / кий цельный карбоновый",
+        "SKU": "16507",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Porter Billiards"
+      },
+      "format": "PRODUCT"
+    },
+    "021fa52a-4d4e-4ffa-a692-e7ee160d7578": {
+      "children": [],
+      "data": {
+        "Name": "Кий для бильярда 148 см пул Astro Atlas 2-составной / разборный",
+        "SKU": "9139",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Fortuna Billiard Equipment"
+      },
+      "format": "PRODUCT"
+    },
+    "a5ee00b4-98bc-40d0-88ad-f1b801da5363": {
+      "children": [],
+      "data": {
+        "Name": "Кий для бильярда 148 см пул Astro Excalibur 2-составной / разборный",
+        "SKU": "9106",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Fortuna Billiard Equipment"
+      },
+      "format": "PRODUCT"
+    },
+    "4966e5a5-6bd8-4040-ae9c-7d870c0962c1": {
+      "children": [],
+      "data": {
+        "Name": "Кий для бильярда 148 см пул Astro Hercules 2-составной / разборный",
+        "SKU": "9127",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Fortuna Billiard Equipment"
+      },
+      "format": "PRODUCT"
+    },
+    "570d19ea-5b6b-4a2c-b1a8-32afc7a08827": {
+      "children": [],
+      "data": {
+        "Name": "Кий для бильярда 148 см пул Astro Orion 2-составной / разборный",
+        "SKU": "12396",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Fortuna Billiard Equipment"
+      },
+      "format": "PRODUCT"
+    },
+    "2fbaf414-84c0-48c3-832d-f0e44839c84e": {
+      "children": [],
+      "data": {
+        "Name": "Кий для бильярда 148 см пул Astro Saturn 2-составной / разборный",
+        "SKU": "9094",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Fortuna Billiard Equipment"
+      },
+      "format": "PRODUCT"
+    },
+    "5841dec2-6cdb-45d2-b686-d60880a7da9b": {
+      "children": [],
+      "data": {
+        "Name": "Кий для бильярда 148 см пул Astro Scorpion 2-составной / разборный",
+        "SKU": "9122",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Fortuna Billiard Equipment"
+      },
+      "format": "PRODUCT"
+    },
+    "dede6139-bea4-490e-8263-37e55ca9e5a4": {
+      "children": [],
+      "data": {
+        "Name": "Кий для бильярда 148 см пул Astro Sirius 2-составной / разборный",
+        "SKU": "12397",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Fortuna Billiard Equipment"
+      },
+      "format": "PRODUCT"
+    },
+    "7a466eac-b687-4745-b63c-f084be59f6cf": {
+      "children": [],
+      "data": {
+        "Name": "Кий для бильярда 148 см пул Astro Taurus 2-составной / разборный",
+        "SKU": "12398",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Fortuna Billiard Equipment"
+      },
+      "format": "PRODUCT"
+    },
+    "9d1bb0a1-f7e9-48dc-bf41-f2a8fee055bf": {
+      "children": [],
+      "data": {
+        "Name": "Кий для бильярда 148 см пул Astro Titan 2-составной / разборный",
+        "SKU": "12399",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Fortuna Billiard Equipment"
+      },
+      "format": "PRODUCT"
+    },
+    "a5f6f4eb-003d-49ae-9731-59c9b9a270b5": {
+      "children": [],
+      "data": {
+        "Name": "Кий для бильярда 148 см пул Astro Vega 2-составной / разборный",
+        "SKU": "12400",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Fortuna Billiard Equipment"
+      },
+      "format": "PRODUCT"
+    },
+    "38e521e6-9306-4792-bbb9-8f16da3c873d": {
+      "children": [],
+      "data": {
+        "Name": "Кий для бильярда 148 см пул Player 2-составной/разборный 148см",
+        "SKU": "5199",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Нет бренда"
+      },
+      "format": "PRODUCT"
+    },
+    "b9243587-640c-476a-aefa-e96b1164e283": {
+      "children": [],
+      "data": {
+        "Name": "Кий для бильярда 148 см пул Player Black 1-составной/цельный",
+        "SKU": "16179",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Нет бренда"
+      },
+      "format": "PRODUCT"
+    },
+    "e82c8841-5c85-4663-89a7-7e01008883c8": {
+      "children": [],
+      "data": {
+        "Name": "Кий для бильярда 148 см пул Player Brown 1-составной/цельный",
+        "SKU": "13659",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Нет бренда"
+      },
+      "format": "PRODUCT"
+    },
+    "ab7a90ab-b052-4857-b210-2d3b09e9fac0": {
+      "children": [],
+      "data": {
+        "Name": "Кий для бильярда 149 см / для пула 2-составной Maple Crown D-501",
+        "SKU": "9339",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Porter Billiards"
+      },
+      "format": "PRODUCT"
+    },
+    "de2073ae-af02-4d4e-95cd-11ae08bf2dfe": {
+      "children": [],
+      "data": {
+        "Name": "Кий для бильярда 149 см / для пула 2-составной Maple Crown D-509",
+        "SKU": "16519",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Porter Billiards"
+      },
+      "format": "PRODUCT"
+    },
+    "2dff4946-cfc1-42bf-8e15-113e19bf900d": {
+      "children": [],
+      "data": {
+        "Name": "Кий для бильярда 149 см / для пула 2-составной Maple Crown D-510",
+        "SKU": "9340",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Porter Billiards"
+      },
+      "format": "PRODUCT"
+    },
+    "bd76ff4c-14a5-4042-8a9f-0d57a7575103": {
+      "children": [],
+      "data": {
+        "Name": "Кий для бильярда 151 см / для пула 2-составной Maple Crown MA-01",
+        "SKU": "16501",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Porter Billiards"
+      },
+      "format": "PRODUCT"
+    },
+    "36558b5d-a527-41c3-a96f-ebca8defa30a": {
+      "children": [],
+      "data": {
+        "Name": "Кий для бильярда 151 см / для пула 2-составной Maple Crown MA-02",
+        "SKU": "16502",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Porter Billiards"
+      },
+      "format": "PRODUCT"
+    },
+    "6a151eee-4130-4cd4-b5ae-335b880c0999": {
+      "children": [],
+      "data": {
+        "Name": "Кий для бильярда 151 см / для пула 2-составной Maple Crown MA-03",
+        "SKU": "16503",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Porter Billiards"
+      },
+      "format": "PRODUCT"
+    },
+    "2a21bf2d-aa47-4212-bc68-a7b36f16e8d2": {
+      "children": [],
+      "data": {
+        "Name": "Кий для бильярда русского 159 см Player Black 1-составной/цельный",
+        "SKU": "13202",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Нет бренда"
+      },
+      "format": "PRODUCT"
+    },
+    "c43c8b86-b5a3-46ec-9bca-b9c3f22e31c8": {
+      "children": [],
+      "data": {
+        "Name": "Кий для бильярда русского 159 см Player Brown 1-составной/цельный",
+        "SKU": "15874",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Нет бренда"
+      },
+      "format": "PRODUCT"
+    },
+    "484edebe-681e-46ee-a730-5d14c2003865": {
+      "children": [],
+      "data": {
+        "Name": "Кий для бильярда русского 162 см Player 2-составной/разборный",
+        "SKU": "12845",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Нет бренда"
+      },
+      "format": "PRODUCT"
+    },
+    "5633db8f-4673-4b6d-b953-6fcd6a1bd0ac": {
+      "children": [],
+      "data": {
+        "Name": "Кий для бильярдный снукера Bradford 3/4 с удлинителем 2-составной",
+        "SKU": "12487",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Нет бренда"
+      },
+      "format": "PRODUCT"
+    },
+    "2bc4ea7a-bdd8-4a1c-ac97-6c30fe42675b": {
+      "children": [],
+      "data": {
+        "Name": "Кий для бипьярда 161 см русский бильярд Astro Atlas 2-составной / разборный",
+        "SKU": "12466",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Fortuna Billiard Equipment"
+      },
+      "format": "PRODUCT"
+    },
+    "70e44630-b9cf-4f12-be2a-4a45a2be882d": {
+      "children": [],
+      "data": {
+        "Name": "Кий для бипьярда 161 см русский бильярд Astro Excalibur 2-составной / разборный",
+        "SKU": "9270",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Fortuna Billiard Equipment"
+      },
+      "format": "PRODUCT"
+    },
+    "d1add807-d267-497e-9fe6-d960bf22d9a2": {
+      "children": [],
+      "data": {
+        "Name": "Кий для бипьярда 161 см русский бильярд Astro Hercules 2-составной / разборный",
+        "SKU": "9269",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Fortuna Billiard Equipment"
+      },
+      "format": "PRODUCT"
+    },
+    "7e3822e7-25d2-4333-874e-d47fef58de6e": {
+      "children": [],
+      "data": {
+        "Name": "Кий для бипьярда 161 см русский бильярд Astro Mystery 2-составной / разборный",
+        "SKU": "12485",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Fortuna Billiard Equipment"
+      },
+      "format": "PRODUCT"
+    },
+    "51e16777-9a6c-49c3-8adb-4f64e5b35201": {
+      "children": [],
+      "data": {
+        "Name": "Кий для бипьярда 161 см русский бильярд Astro Mystery 2-составной / разборный",
+        "SKU": "12486",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Fortuna Billiard Equipment"
+      },
+      "format": "PRODUCT"
+    },
+    "c30e1498-e9a6-4d2a-9f11-010a9210dc69": {
+      "children": [],
+      "data": {
+        "Name": "Кий для бипьярда 161 см русский бильярд Astro Mystery 2-составной / разборный",
+        "SKU": "9267",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Fortuna Billiard Equipment"
+      },
+      "format": "PRODUCT"
+    },
+    "d10e505e-e055-4587-8efa-b9627da26105": {
+      "children": [],
+      "data": {
+        "Name": "Кий для бипьярда 161 см русский бильярд Astro Orion 2-составной / разборный",
+        "SKU": "9278",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Fortuna Billiard Equipment"
+      },
+      "format": "PRODUCT"
+    },
+    "ada4ec8d-6072-462b-afaa-0080eb422fbb": {
+      "children": [],
+      "data": {
+        "Name": "Кий для бипьярда 161 см русский бильярд Astro Saturn 2-составной / разборный",
+        "SKU": "9268",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Fortuna Billiard Equipment"
+      },
+      "format": "PRODUCT"
+    },
+    "578ede1a-da97-4114-8eea-34c47dad8609": {
+      "children": [],
+      "data": {
+        "Name": "Кий для бипьярда 161 см русский бильярд Astro Scorpion 2-составной / разборный",
+        "SKU": "9414",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Fortuna Billiard Equipment"
+      },
+      "format": "PRODUCT"
+    },
+    "7042afd6-101a-4ab9-a33c-c07a62e3903c": {
+      "children": [],
+      "data": {
+        "Name": "Кий для бипьярда 161 см русский бильярд Astro Sirius 2-составной / разборный",
+        "SKU": "9470",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Fortuna Billiard Equipment"
+      },
+      "format": "PRODUCT"
+    },
+    "11aa7ab5-da14-4703-b515-3f69fccb6a7d": {
+      "children": [],
+      "data": {
+        "Name": "Кий для бипьярда 161 см русский бильярд Astro Taurus 2-составной / разборный",
+        "SKU": "9279",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Fortuna Billiard Equipment"
+      },
+      "format": "PRODUCT"
+    },
+    "f613b44c-4d3f-4fde-94de-1c0dfbf16c07": {
+      "children": [],
+      "data": {
+        "Name": "Кий для бипьярда 161 см русский бильярд Astro Titan 2-составной / разборный",
+        "SKU": "12484",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Fortuna Billiard Equipment"
+      },
+      "format": "PRODUCT"
+    },
+    "d8568339-23cf-46bb-b596-f6c4232874b2": {
+      "children": [],
+      "data": {
+        "Name": "Кий для бипьярда 161 см русский бильярд Astro Vega 2-составной / разборный",
+        "SKU": "9356",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Fortuna Billiard Equipment"
+      },
+      "format": "PRODUCT"
+    },
+    "bb7b9598-7034-42cd-999c-8e1703a10e9f": {
+      "children": [],
+      "data": {
+        "Name": "Комплект 4 киев для пула 148 см Player Black 1-составные /цельные",
+        "SKU": "16179-4",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Нет бренда"
+      },
+      "format": "PRODUCT"
+    },
+    "bcce5527-2ccb-4a8a-9042-31834cc33070": {
+      "children": [],
+      "data": {
+        "Name": "Комплект 4 киев для русского бильярда 159 см Player Black 1-составные /цельные",
+        "SKU": "13202-4",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Нет бренда"
+      },
+      "format": "PRODUCT"
+    },
+    "3c0eb3cf-97e7-4b9a-85e3-910225c1cd73": {
+      "children": [],
+      "data": {
+        "Name": "Крюк для бильярдного стола Premium 20,5 см стальной",
+        "SKU": "15307",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Нет бренда"
+      },
+      "format": "PRODUCT"
+    },
+    "4a0f7c54-e3e3-456a-991d-0af21caffc9f": {
+      "children": [],
+      "data": {
+        "Name": "Мост бильярдный и древко для моста 107 см Longoni Zenith Lux односоставное / цельное",
+        "SKU": "12508",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Нет бренда"
+      },
+      "format": "PRODUCT"
+    },
+    "10ff2c38-6432-4821-b803-a364046d3ab1": {
+      "children": [],
+      "data": {
+        "Name": "Мост бильярдный и древко для моста 180 см Fiberglass двухсоставное / разборное",
+        "SKU": "13033",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Нет бренда"
+      },
+      "format": "PRODUCT"
+    },
+    "a65e721b-75f1-4023-9660-eb5b057a3d48": {
+      "children": [],
+      "data": {
+        "Name": "Мост бильярдный и древко для моста 180 см Fiberglass двухсоставное / разборное. Товар уцененный",
+        "SKU": "13033.У",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Нет бренда"
+      },
+      "format": "PRODUCT"
+    },
+    "a83eb7ec-c793-4366-8ee5-97b829b32919": {
+      "children": [],
+      "data": {
+        "Name": "Мост для кия (\"теща\") / машинка для бильярда Porter Cross латунный",
+        "SKU": "1937",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Porter Billiards"
+      },
+      "format": "PRODUCT"
+    },
+    "744ef661-427e-48b4-a593-164f1ad2c750": {
+      "children": [],
+      "data": {
+        "Name": "Мост для кия (\"теща\") / машинка для бильярда Porter Crown латунная",
+        "SKU": "1938",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Porter Billiards"
+      },
+      "format": "PRODUCT"
+    },
+    "9176abbb-bdd0-4525-b817-9aa943ab70b4": {
+      "children": [],
+      "data": {
+        "Name": "Мост для кия (\"теща\") / машинка для бильярда Porter Spyder латунная",
+        "SKU": "1939",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Porter Billiards"
+      },
+      "format": "PRODUCT"
+    },
+    "9513ef7b-3b5c-4666-a670-10d583088ea2": {
+      "children": [],
+      "data": {
+        "Name": "Набор из 4-х мелков для бильярда Tweeten Triangle и держателя мела O'MinCues",
+        "SKU": "9536-4-2314",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Tweeten Fibre Co., Inc."
+      },
+      "format": "PRODUCT"
+    },
+    "9cce1392-eb03-4382-b377-7dff82d73e13": {
+      "children": [],
+      "data": {
+        "Name": "Набор из 4-х мелков для бильярда Tweeten Triangle и держателя мела Porter Cube",
+        "SKU": "9536-4-2310",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Tweeten Fibre Co., Inc."
+      },
+      "format": "PRODUCT"
+    },
+    "b3468fd4-361f-46eb-9ddb-3c3a60ddd20c": {
+      "children": [],
+      "data": {
+        "Name": "Набор из 4-х мелков для бильярда Tweeten Triangle и муфты для чистки и полировки бильярдного кия",
+        "SKU": "9536-4-2460",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Tweeten Fibre Co., Inc."
+      },
+      "format": "PRODUCT"
+    },
+    "0ae8bf45-f3b2-42fa-b4d7-0ed5b11bc7dd": {
+      "children": [],
+      "data": {
+        "Name": "Набор из 4-х мелков для бильярда Tweeten Triangle, муфты для чистки и полировки бильярдного кия и держателя мела",
+        "SKU": "9536-4-2460-2314",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Tweeten Fibre Co., Inc."
+      },
+      "format": "PRODUCT"
+    },
+    "b6d6b71f-3c36-4830-8c3d-bb6c5c34c9bb": {
+      "children": [],
+      "data": {
+        "Name": "Набор из 4-х мелков для бильярда Tweeten Triangle, муфты для чистки и полировки бильярдного кия и держателя мела",
+        "SKU": "9536-4-2460-2310",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Tweeten Fibre Co., Inc."
+      },
+      "format": "PRODUCT"
+    },
+    "76f854aa-f2ac-4e66-911a-dc9945e82cb9": {
+      "children": [],
+      "data": {
+        "Name": "Пелерины для луз бильярдного стола 6шт светлая кожа",
+        "SKU": "13789",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Нет бренда"
+      },
+      "format": "PRODUCT"
+    },
+    "5755b76b-9702-4625-9ef8-e215164ec08d": {
+      "children": [],
+      "data": {
+        "Name": "Пелерины для луз бильярдного стола 6шт темная кожа",
+        "SKU": "13218",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Нет бренда"
+      },
+      "format": "PRODUCT"
+    },
+    "b0d3247e-db7d-4e96-aeb3-eda8c830df2c": {
+      "children": [],
+      "data": {
+        "Name": "Пенал / магнитный держатель бильярдного мела Porter Cube",
+        "SKU": "2310",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Porter Billiards"
+      },
+      "format": "PRODUCT"
+    },
+    "1c00e22a-bfe9-42bd-b264-e9d2ad678554": {
+      "children": [],
+      "data": {
+        "Name": "Пенал / магнитный держатель бильярдного мела Porter O'MinCues",
+        "SKU": "2314",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Porter Billiards"
+      },
+      "format": "PRODUCT"
+    },
+    "85b9be8d-3e4a-455d-a323-06aa96eadf62": {
+      "children": [],
+      "data": {
+        "Name": "Подвес / держатель бильярдного кия 105 мм 1 штука резиновый черный",
+        "SKU": "13162",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Porter Billiards"
+      },
+      "format": "PRODUCT"
+    },
+    "fe933aba-9e22-4b95-8d7a-3b96b87c4bd5": {
+      "children": [],
+      "data": {
+        "Name": "Подвес / держатель для бильярдных киев 195 мм резиновый черный",
+        "SKU": "9182",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Porter Billiards"
+      },
+      "format": "PRODUCT"
+    },
+    "6541f7a3-3504-4eb5-bb50-87fb822744a2": {
+      "children": [],
+      "data": {
+        "Name": "Подвесы / держатели бильярдного кия 105 мм 4 штуки резиновые черные",
+        "SKU": "13162-4",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Porter Billiards"
+      },
+      "format": "PRODUCT"
+    },
+    "25fc6770-f2db-43fc-a51a-f5ede18c1849": {
+      "children": [],
+      "data": {
+        "Name": "Подвесы / держатели бильярдного кия 105 мм 6 штук резиновые черные",
+        "SKU": "13162-6",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Porter Billiards"
+      },
+      "format": "PRODUCT"
+    },
+    "7a5f5c09-09a3-4de7-ab96-7d72be092dc6": {
+      "children": [],
+      "data": {
+        "Name": "Подвесы / держатели для бильярдных киев 195 мм 4 штуки резиновые черные",
+        "SKU": "9182-4",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Porter Billiards"
+      },
+      "format": "PRODUCT"
+    },
+    "6d235a6a-662e-4eb2-b4c8-1d1e700b4334": {
+      "children": [],
+      "data": {
+        "Name": "Подвесы / держатели для бильярдных киев 195 мм 6 штук резиновые черные",
+        "SKU": "9182-6",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Porter Billiards"
+      },
+      "format": "PRODUCT"
+    },
+    "6cdd2c99-45fe-4c47-a561-a1ff5883f77a": {
+      "children": [],
+      "data": {
+        "Name": "Подпятник / опора для бильярдного стола Premium 14см регулируемый стальной",
+        "SKU": "11639",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Нет бренда"
+      },
+      "format": "PRODUCT"
+    },
+    "aa8cb819-e3c9-4206-a2be-6bec833efd57": {
+      "children": [],
+      "data": {
+        "Name": "Полка для бильярдных шаров Легион коричневая",
+        "SKU": "7141",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Нет бренда"
+      },
+      "format": "PRODUCT"
+    },
+    "10b4c79c-cbca-4864-b078-cbb074860d65": {
+      "children": [],
+      "data": {
+        "Name": "Полка для бильярдных шаров Легион махагон",
+        "SKU": "6323",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Нет бренда"
+      },
+      "format": "PRODUCT"
+    },
+    "9ec2b662-1577-4e0d-b17c-318834c36e8f": {
+      "children": [],
+      "data": {
+        "Name": "Полка для бильярдных шаров Легион темно-коричневая",
+        "SKU": "9077",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Нет бренда"
+      },
+      "format": "PRODUCT"
+    },
+    "b4c9079a-478e-4a22-90f2-cc1eb826aefc": {
+      "children": [],
+      "data": {
+        "Name": "Резина для бильярда 10 футов Porter Premium U-118 152см",
+        "SKU": "1998",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Porter Billiards"
+      },
+      "format": "PRODUCT"
+    },
+    "d4065ccf-d9dc-4916-9af1-7d8ea65a809b": {
+      "children": [],
+      "data": {
+        "Name": "Резина для бильярда 12 футов Porter Premium U-118 182см",
+        "SKU": "1999",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Porter Billiards"
+      },
+      "format": "PRODUCT"
+    },
+    "5da51228-0241-4b18-9ef0-9c5814d5a75b": {
+      "children": [],
+      "data": {
+        "Name": "Резина для бильярда 9 футов Porter Premium U-118 145см",
+        "SKU": "16516",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Porter Billiards"
+      },
+      "format": "PRODUCT"
+    },
+    "68bc5261-e095-4300-9fa2-98edca08a47a": {
+      "children": [],
+      "data": {
+        "Name": "Сетки для бильярдных луз Pro 68 мм нейлон 6шт",
+        "SKU": "16092",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Нет бренда"
+      },
+      "format": "PRODUCT"
+    },
+    "d2dae28c-e61d-42c9-b2c4-5002f525cca5": {
+      "children": [],
+      "data": {
+        "Name": "Сетки для бильярдных луз RU-12 68 мм нейлон 6шт",
+        "SKU": "15657",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Нет бренда"
+      },
+      "format": "PRODUCT"
+    },
+    "85955648-3eeb-4757-9b98-3a49fdc5b8db": {
+      "children": [],
+      "data": {
+        "Name": "Сетки для бильярдных луз под скаты 68 мм нейлон 6шт",
+        "SKU": "15656",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Нет бренда"
+      },
+      "format": "PRODUCT"
+    },
+    "14b96fa6-a4d6-4cb6-9428-815df7be585b": {
+      "children": [],
+      "data": {
+        "Name": "Сетки для бильярдных луз со скатами 68 мм нейлон 6шт",
+        "SKU": "12900",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Нет бренда"
+      },
+      "format": "PRODUCT"
+    },
+    "7f50f8e9-e3fd-458d-88c3-1a0753f43429": {
+      "children": [],
+      "data": {
+        "Name": "Сетки для луз бильярдных столов 6 штук нейлоновые",
+        "SKU": "9183",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Porter Billiards"
+      },
+      "format": "PRODUCT"
+    },
+    "d858d919-60ad-4315-90f1-279b7ea23e1a": {
+      "children": [],
+      "data": {
+        "Name": "Сетки для луз со скатами бильярдных столов 6 штук нейлоновые",
+        "SKU": "6303",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Porter Billiards"
+      },
+      "format": "PRODUCT"
+    },
+    "e40377f5-acad-42a3-859e-88e887e5775f": {
+      "children": [],
+      "data": {
+        "Name": "Скобы для бильярдных луз латунные 6шт",
+        "SKU": "2027",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Нет бренда"
+      },
+      "format": "PRODUCT"
+    },
+    "a405d9b6-c255-4d43-a303-bd9da893eeb2": {
+      "children": [],
+      "data": {
+        "Name": "Средство для чистки бильярдных шаров Aramith Ball Cleaner 250 мл",
+        "SKU": "2605",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Aramith"
+      },
+      "format": "PRODUCT"
+    },
+    "664aebd3-3bc8-4546-bc3b-a96d74d2b61e": {
+      "children": [],
+      "data": {
+        "Name": "Станок / щетка для бильярдного стола Iwan Simonis X1",
+        "SKU": "1932",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Iwan Simonis"
+      },
+      "format": "PRODUCT"
+    },
+    "4f327f92-5c15-4359-a2ca-54e61ce336a0": {
+      "children": [],
+      "data": {
+        "Name": "Станок / щетка для чистки сукна бильярдного стола коричневый",
+        "SKU": "16383",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Нет бренда"
+      },
+      "format": "PRODUCT"
+    },
+    "d83ce898-5792-4854-9bf3-c8581da6ad6b": {
+      "children": [],
+      "data": {
+        "Name": "Станок / щетка для чистки сукна бильярдного стола махагон",
+        "SKU": "16384",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Нет бренда"
+      },
+      "format": "PRODUCT"
+    },
+    "25a3302c-4830-41bd-b750-feb552f805ba": {
+      "children": [],
+      "data": {
+        "Name": "Станок / щетка для чистки сукна бильярдного стола темно-коричневый",
+        "SKU": "16385",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Нет бренда"
+      },
+      "format": "PRODUCT"
+    },
+    "9457226c-1fea-48e4-88dd-a52824e3de33": {
+      "children": [],
+      "data": {
+        "Name": "Тренажер бильярдный Стоп-Шар 2.0 для отработки ударов",
+        "SKU": "9217",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Нет бренда"
+      },
+      "format": "PRODUCT"
+    },
+    "7d641718-0bcb-4c6b-a97e-4126e75c90f6": {
+      "children": [],
+      "data": {
+        "Name": "Фиксатор для приклеивания бильярдных наклеек 10-12,5 мм Porter Queen",
+        "SKU": "2616",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Нет бренда"
+      },
+      "format": "PRODUCT"
+    },
+    "6bfaf23d-9910-44f4-afc1-bedb03d84f0c": {
+      "children": [],
+      "data": {
+        "Name": "Футляр / кейс для кия бильярдного Porter Moscow, 80 см, русский бильярд, 2 отделения",
+        "SKU": "1143",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Нет бренда"
+      },
+      "format": "PRODUCT"
+    },
+    "d81ac2b7-2ce9-4366-b949-cc9b7f68d531": {
+      "children": [],
+      "data": {
+        "Name": "Чехол для 2-х киев бильярдных двухсоставных Standard Duo русский бильярд синий",
+        "SKU": "11179",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Porter Billiards"
+      },
+      "format": "PRODUCT"
+    },
+    "42dd128a-f824-41f7-a4ca-f5019de95b3e": {
+      "children": [],
+      "data": {
+        "Name": "Чехол для 2-х киев бильярдных двухсоставных Standard Duo русский бильярд черный",
+        "SKU": "9108",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Porter Billiards"
+      },
+      "format": "PRODUCT"
+    },
+    "f885ce78-a6b4-4ee1-8465-264a24d8bae2": {
+      "children": [],
+      "data": {
+        "Name": "Чехол для кия бильярдного Porter Afrika, 81 см, пул, 2 отделения",
+        "SKU": "9167",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Porter Billiards"
+      },
+      "format": "PRODUCT"
+    },
+    "c4e92918-1e9f-433e-8d3e-8f18c4f2325d": {
+      "children": [],
+      "data": {
+        "Name": "Чехол для кия бильярдного Porter Afrika, 88 см, русский бильярд, 2 отделения",
+        "SKU": "1055",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Porter Billiards"
+      },
+      "format": "PRODUCT"
+    },
+    "7571bc2d-5229-4630-b24e-a8f788d01e48": {
+      "children": [],
+      "data": {
+        "Name": "Чехол для кия бильярдного двухсоставного Standard русский бильярд синий",
+        "SKU": "11173",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Porter Billiards"
+      },
+      "format": "PRODUCT"
+    },
+    "2f26a05c-5601-4b3c-8e1f-0a9ab34bc55f": {
+      "children": [],
+      "data": {
+        "Name": "Чехол для кия бильярдного двухсоставного Standard русский бильярд черный",
+        "SKU": "9126",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Porter Billiards"
+      },
+      "format": "PRODUCT"
+    },
+    "df89faa9-69f4-4031-b768-60c3525d0034": {
+      "children": [],
+      "data": {
+        "Name": "Шары бильярдные для пула 57,2 мм Standard",
+        "SKU": "1827",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Нет бренда"
+      },
+      "format": "PRODUCT"
+    },
+    "fb88edcc-9546-4f5e-9039-82da0878fb71": {
+      "children": [],
+      "data": {
+        "Name": "Шары для бильярда / пула 57,2 мм Aramith Economic",
+        "SKU": "1821",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Aramith"
+      },
+      "format": "PRODUCT"
+    },
+    "804d3919-37d6-4ee8-a33c-a335318540d3": {
+      "children": [],
+      "data": {
+        "Name": "Шары для бильярда / пула 57,2 мм Aramith Premier",
+        "SKU": "1822",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Aramith"
+      },
+      "format": "PRODUCT"
+    },
+    "0cea0602-42eb-493a-971c-7b75894cf0c2": {
+      "children": [],
+      "data": {
+        "Name": "Шары для бильярда / пула 57,2 мм Aramith Premium и чистящие средства в кейсе",
+        "SKU": "12636",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Aramith"
+      },
+      "format": "PRODUCT"
+    },
+    "e2e5154b-a408-4e31-be2d-45d3ea8342d1": {
+      "children": [],
+      "data": {
+        "Name": "Шары для бильярда / пула 57,2 мм Aramith Super Pro",
+        "SKU": "1824",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Aramith"
+      },
+      "format": "PRODUCT"
+    },
+    "ebaebbc3-6575-46ed-b646-37975e52209d": {
+      "children": [],
+      "data": {
+        "Name": "Шары для бильярда / пула 57,2 мм Aramith Super Pro и чистящие средства в кейсе",
+        "SKU": "12637",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Aramith"
+      },
+      "format": "PRODUCT"
+    },
+    "b4e0340b-b4bf-4470-a1ee-7892614522eb": {
+      "children": [],
+      "data": {
+        "Name": "Шары для бильярда / пула 57,2 мм Aramith Super Pro-Cup TV и чистящие средства в кейсе",
+        "SKU": "12638",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Aramith"
+      },
+      "format": "PRODUCT"
+    },
+    "97b12eb8-5098-49c3-b9cb-6beee519c9c1": {
+      "children": [],
+      "data": {
+        "Name": "Шары для бильярда / пула 57,2 мм Aramith Tournament",
+        "SKU": "6871",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Aramith"
+      },
+      "format": "PRODUCT"
+    },
+    "41a3037d-90e2-46e4-acfd-100ea20db4a0": {
+      "children": [],
+      "data": {
+        "Name": "Шары для бильярда / пула 57,2 мм Aramith Tournament Pro-Cup TV",
+        "SKU": "9054",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Aramith"
+      },
+      "format": "PRODUCT"
+    },
+    "e5724050-b734-4402-a3c9-519ec34cf32b": {
+      "children": [],
+      "data": {
+        "Name": "Шары для бильярда / снукера 52,4 мм Aramith Premier",
+        "SKU": "1835",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Aramith"
+      },
+      "format": "PRODUCT"
+    },
+    "6a4821ae-2bc3-4a91-9153-a910bd626c76": {
+      "children": [],
+      "data": {
+        "Name": "Шары для бильярда 57,2 мм Aramith Continental для американского пула",
+        "SKU": "1820",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Aramith"
+      },
+      "format": "PRODUCT"
+    },
+    "ef58a0f1-62cd-448c-8ef4-0048d79bd817": {
+      "children": [],
+      "data": {
+        "Name": "Шары для бильярда 57,2 мм Aramith Standard для американского пула",
+        "SKU": "3918",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Aramith"
+      },
+      "format": "PRODUCT"
+    },
+    "470a44d9-1df8-49fd-a83a-bcda3e8708a4": {
+      "children": [],
+      "data": {
+        "Name": "Шары для бильярда 57,2 мм пул Champion Pro Pool",
+        "SKU": "15658",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Нет бренда"
+      },
+      "format": "PRODUCT"
+    },
+    "e66e59b8-6e0f-47a2-9186-711a82f653b9": {
+      "children": [],
+      "data": {
+        "Name": "Шары для бильярда 57,2 мм русский бильярд / пирамида Standard биток бордовый",
+        "SKU": "6342",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Нет бренда"
+      },
+      "format": "PRODUCT"
+    },
+    "770b57e8-ba5f-4ad9-b019-0fb0465022c6": {
+      "children": [],
+      "data": {
+        "Name": "Шары для бильярда 60,3 мм Aramith Premier / шары для русского бильярд с бордовым битком",
+        "SKU": "1829",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Aramith"
+      },
+      "format": "PRODUCT"
+    },
+    "8a970c1e-37ad-4667-bc38-b9b2fff9a003": {
+      "children": [],
+      "data": {
+        "Name": "Шары для бильярда 60,3 мм Aramith Standard / шары для русского бильярда с бордовым битком",
+        "SKU": "9351",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Aramith"
+      },
+      "format": "PRODUCT"
+    },
+    "596a0397-ce15-462e-90dc-9d9adf31a032": {
+      "children": [],
+      "data": {
+        "Name": "Шары для бильярда 60,3 мм русский бильярд / пирамида Champion Pro бордовый биток",
+        "SKU": "13938",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Нет бренда"
+      },
+      "format": "PRODUCT"
+    },
+    "b4701cc8-745d-4511-87ae-32c64b99571f": {
+      "children": [],
+      "data": {
+        "Name": "Шары для бильярда 67 мм Aramith Super Pro-Cup Tournament / шары для русского бильярда",
+        "SKU": "6335",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Aramith"
+      },
+      "format": "PRODUCT"
+    },
+    "1ee5e4b6-5abd-465e-a1a6-ce69f80d85a0": {
+      "children": [],
+      "data": {
+        "Name": "Шары для бильярда 67 мм Aramith Super Pro-Cup Tournament Standard Quality / шары для русского бильярда",
+        "SKU": "16152",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Aramith"
+      },
+      "format": "PRODUCT"
+    },
+    "da7b1b7b-781a-4e3a-9a8e-2f6b7db5dc44": {
+      "children": [],
+      "data": {
+        "Name": "Шары для бильярда 68 мм Aramith Premier / шары для русского бильярда с бордовым битком",
+        "SKU": "1828",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Aramith"
+      },
+      "format": "PRODUCT"
+    },
+    "957bf949-a240-46ac-8ff0-3b43b25042ef": {
+      "children": [],
+      "data": {
+        "Name": "Шары для бильярда 68 мм Aramith Premier для русского бильярда, биток желтый",
+        "SKU": "5108",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Aramith"
+      },
+      "format": "PRODUCT"
+    },
+    "c895a320-944e-459e-81a5-3f2c177b74a8": {
+      "children": [],
+      "data": {
+        "Name": "Шары для бильярда 68 мм Aramith Standard 68мм / шары для русского бильярда с бордовым битком",
+        "SKU": "9350",
+        "Price": "",
+        "Stock": "0",
+        "Brand": ""
+      },
+      "format": "PRODUCT"
+    },
+    "3428bac5-6e94-4c8d-8e5c-a917a5317598": {
+      "children": [],
+      "data": {
+        "Name": "Шары для бильярда 68 мм Aramith Standard для русского бильярда, биток желтый",
+        "SKU": "1830",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Aramith"
+      },
+      "format": "PRODUCT"
+    },
+    "c1ad7aec-6231-4a52-a761-49a18a981f97": {
+      "children": [],
+      "data": {
+        "Name": "Шары для бильярда 68 мм русский бильярд / пирамида Champion DeLuxe бордовый биток",
+        "SKU": "13940",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Нет бренда"
+      },
+      "format": "PRODUCT"
+    },
+    "07ebe565-6b23-4da7-b6a5-e7da20746f06": {
+      "children": [],
+      "data": {
+        "Name": "Шары для бильярда 68 мм русский бильярд / пирамида Standard желтый биток",
+        "SKU": "11868",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Нет бренда"
+      },
+      "format": "PRODUCT"
+    },
+    "59d6ba53-c955-4d4b-9801-3de0cfda4805": {
+      "children": [],
+      "data": {
+        "Name": "Шары для русского бильярда 60,3 мм Standard бордовый биток",
+        "SKU": "1833",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Нет бренда"
+      },
+      "format": "PRODUCT"
+    },
+    "9bbdfb89-cefd-4fb9-b0ac-29768704899d": {
+      "children": [],
+      "data": {
+        "Name": "Шары для русского бильярда 68 мм Champion Pro биток бордовый",
+        "SKU": "13939",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Нет бренда"
+      },
+      "format": "PRODUCT"
+    },
+    "7b074ec6-7b87-4174-9949-94e97d2a4887": {
+      "children": [],
+      "data": {
+        "Name": "Шары для русского бильярда 68 мм Standard бордовый биток",
+        "SKU": "1834",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Нет бренда"
+      },
+      "format": "PRODUCT"
+    },
+    "c7866829-76a4-4c06-a38c-98f3e5f4a9f1": {
+      "children": [],
+      "data": {
+        "Name": "Щетка для бильярдного стола 26см конский волос коричневая",
+        "SKU": "11281",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Нет бренда"
+      },
+      "format": "PRODUCT"
+    },
+    "168f3935-e2ac-4d0d-8001-a27803fb480c": {
+      "children": [],
+      "data": {
+        "Name": "Щетка для бильярдного стола Premium 26см конский волос махагон",
+        "SKU": "11282",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Нет бренда"
+      },
+      "format": "PRODUCT"
+    },
+    "0df4ec5e-2c6c-4868-9634-7e35f7a34c72": {
+      "children": [],
+      "data": {
+        "Name": "Щетка для бильярдного стола Premium 30см конский волос коричневая",
+        "SKU": "9559",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Нет бренда"
+      },
+      "format": "PRODUCT"
+    },
+    "ea546462-dec8-4567-872f-37ee50bd70c9": {
+      "children": [],
+      "data": {
+        "Name": "Щетка для бильярдного стола Premium 30см конский волос махагон",
+        "SKU": "11345",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Нет бренда"
+      },
+      "format": "PRODUCT"
+    },
+    "6db09cbe-4c8e-455e-ba6a-6e74d5e65938": {
+      "children": [],
+      "data": {
+        "Name": "Щетка для бильярдного стола Sfera нейлон махагон",
+        "SKU": "11347",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Нет бренда"
+      },
+      "format": "PRODUCT"
+    },
+    "e8079a6e-33bd-46fe-b886-ec4839d88467": {
+      "children": [],
+      "data": {
+        "Name": "Щетка для бильярдного стола Standard 22 см нейлон коричневая",
+        "SKU": "11350",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Нет бренда"
+      },
+      "format": "PRODUCT"
+    },
+    "536e9a69-f4a8-4a6b-8f87-29e55c0c614b": {
+      "children": [],
+      "data": {
+        "Name": "Щетка для бильярдного стола Standard 22 см нейлон махагон",
+        "SKU": "11351",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Нет бренда"
+      },
+      "format": "PRODUCT"
+    },
+    "1fe05b08-99f2-4ecc-ab94-3e7bea353f17": {
+      "children": [],
+      "data": {
+        "Name": "Щетка для бильярдного стола Standard 26 см нейлон махагон",
+        "SKU": "9198",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Нет бренда"
+      },
+      "format": "PRODUCT"
+    },
+    "5bfab07e-6d49-4535-b8d3-fb89787d467e": {
+      "children": [],
+      "data": {
+        "Name": "Щетка для бильярдного стола Standard 30 см нейлон махагон",
+        "SKU": "11348",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Нет бренда"
+      },
+      "format": "PRODUCT"
+    },
+    "7e6b104b-651e-45d0-8781-3cb68c4acd96": {
+      "children": [],
+      "data": {
+        "Name": "Щетка для бильярдного стола Standard 30 см нейлон темно-коричневая",
+        "SKU": "11349",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Нет бренда"
+      },
+      "format": "PRODUCT"
+    },
+    "e4f07e69-f2ad-4383-9f53-2efe229ac616": {
+      "children": [],
+      "data": {
+        "Name": "Щетка для бильярдного стола Universal 21 см конский волос",
+        "SKU": "11352",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Нет бренда"
+      },
+      "format": "PRODUCT"
+    },
+    "5d5a2d05-fc7e-474c-b657-25848ac743bc": {
+      "children": [
+        "67f4711d-7fe5-4627-96ef-111f702de74c",
+        "dc0cf7c6-a2ad-40b1-8882-265c7d36018c",
+        "f4baec19-bb53-4d03-9c33-111bc704a139",
+        "e0235711-912a-4667-8692-28313225378b",
+        "1b44de2c-6f5d-43b4-b0c0-21e9a1b18db4",
+        "0e5d39f9-3d94-4eca-8b0c-d60f682d49ef",
+        "9a3c77af-5e49-45fc-a29a-24464e3bb168",
+        "1d37233f-d74b-4fa9-b096-95920efd8d2e",
+        "1adfa3a2-485f-456d-ba98-352fe800e74e",
+        "42379bb6-05ea-426f-b5a0-340d3716daf9",
+        "48ad93f5-44be-4c04-8d08-e892c0885f61",
+        "94020633-5246-4340-9e00-f09151eedd3a",
+        "e1811445-c0a1-49b1-8cdb-d6a58870971d",
+        "d5abd517-16fb-4a21-b484-91efd7c4174a",
+        "94ffbb99-7958-470c-bcf1-b5f5738d3a30",
+        "22b450bb-2b05-4629-a0aa-88da8745141f",
+        "9ab4e62b-633d-44b9-8d52-ee339a6812c5",
+        "b5f42b90-85e2-47af-9b90-d418c0e084d7",
+        "09dc2a78-76fb-416d-8d58-ba45300fad55",
+        "25a2a2f6-6241-4e72-94fa-9a669d337189",
+        "8dbff2d7-ac3b-4693-a02b-b4ed1e984ab9",
+        "f90f6e96-e8b4-41c0-9417-76a4e3d5b31b",
+        "66173204-758f-4df9-87c6-f13cb9894f4d",
+        "d4382503-29d2-4647-9dfa-7fdcb9ba3239",
+        "7b5d0028-baf9-4a75-a496-e2b73e35255f",
+        "a0c827b1-07a1-44a0-8b46-961c4f52433b",
+        "a3bc137f-1900-4b20-a521-ec925dc85d8e",
+        "31ba288c-8528-4c4a-a395-28596c149389",
+        "87301f90-fe87-4721-a3d8-00144bd2ca76",
+        "7984d3ab-878b-4f3e-ae05-a8cf3a0e6ada",
+        "e2fc712d-e305-4e42-a85e-65856d114ac4",
+        "c12cc5c7-8467-4fea-ba59-31987f1e3e1a",
+        "8182a020-d4f4-4aef-8c84-32a8390ffda1",
+        "8b40f368-b1d9-40ec-8134-b2dacd7a831e",
+        "a9aa1514-4721-44b6-8897-0ddaf7bb7e96",
+        "f2494ef2-0441-4270-a2b0-6e2ccca77f13",
+        "be650152-e391-4838-9aea-1667f35d59a3",
+        "cf8bb462-dd7e-4f25-a8b5-66c1e827c889",
+        "85d2943c-918d-4569-bb9b-a5de38ae9940",
+        "8c99370a-9cd6-4fdf-8c9a-67906c3a84cf",
+        "584f9fb9-9dc9-4edc-a3d8-1ab423f0fb63",
+        "541c75ad-5aac-4dcb-98ef-5fda3c6bc7d9",
+        "099d1259-964b-4d56-a1fd-324e4d97de5c",
+        "021fa52a-4d4e-4ffa-a692-e7ee160d7578",
+        "a5ee00b4-98bc-40d0-88ad-f1b801da5363",
+        "4966e5a5-6bd8-4040-ae9c-7d870c0962c1",
+        "570d19ea-5b6b-4a2c-b1a8-32afc7a08827",
+        "2fbaf414-84c0-48c3-832d-f0e44839c84e",
+        "5841dec2-6cdb-45d2-b686-d60880a7da9b",
+        "dede6139-bea4-490e-8263-37e55ca9e5a4",
+        "7a466eac-b687-4745-b63c-f084be59f6cf",
+        "9d1bb0a1-f7e9-48dc-bf41-f2a8fee055bf",
+        "a5f6f4eb-003d-49ae-9731-59c9b9a270b5",
+        "38e521e6-9306-4792-bbb9-8f16da3c873d",
+        "b9243587-640c-476a-aefa-e96b1164e283",
+        "e82c8841-5c85-4663-89a7-7e01008883c8",
+        "ab7a90ab-b052-4857-b210-2d3b09e9fac0",
+        "de2073ae-af02-4d4e-95cd-11ae08bf2dfe",
+        "2dff4946-cfc1-42bf-8e15-113e19bf900d",
+        "bd76ff4c-14a5-4042-8a9f-0d57a7575103",
+        "36558b5d-a527-41c3-a96f-ebca8defa30a",
+        "6a151eee-4130-4cd4-b5ae-335b880c0999",
+        "2a21bf2d-aa47-4212-bc68-a7b36f16e8d2",
+        "c43c8b86-b5a3-46ec-9bca-b9c3f22e31c8",
+        "484edebe-681e-46ee-a730-5d14c2003865",
+        "5633db8f-4673-4b6d-b953-6fcd6a1bd0ac",
+        "2bc4ea7a-bdd8-4a1c-ac97-6c30fe42675b",
+        "70e44630-b9cf-4f12-be2a-4a45a2be882d",
+        "d1add807-d267-497e-9fe6-d960bf22d9a2",
+        "7e3822e7-25d2-4333-874e-d47fef58de6e",
+        "51e16777-9a6c-49c3-8adb-4f64e5b35201",
+        "c30e1498-e9a6-4d2a-9f11-010a9210dc69",
+        "d10e505e-e055-4587-8efa-b9627da26105",
+        "ada4ec8d-6072-462b-afaa-0080eb422fbb",
+        "578ede1a-da97-4114-8eea-34c47dad8609",
+        "7042afd6-101a-4ab9-a33c-c07a62e3903c",
+        "11aa7ab5-da14-4703-b515-3f69fccb6a7d",
+        "f613b44c-4d3f-4fde-94de-1c0dfbf16c07",
+        "d8568339-23cf-46bb-b596-f6c4232874b2",
+        "bb7b9598-7034-42cd-999c-8e1703a10e9f",
+        "bcce5527-2ccb-4a8a-9042-31834cc33070",
+        "3c0eb3cf-97e7-4b9a-85e3-910225c1cd73",
+        "4a0f7c54-e3e3-456a-991d-0af21caffc9f",
+        "10ff2c38-6432-4821-b803-a364046d3ab1",
+        "a65e721b-75f1-4023-9660-eb5b057a3d48",
+        "a83eb7ec-c793-4366-8ee5-97b829b32919",
+        "744ef661-427e-48b4-a593-164f1ad2c750",
+        "9176abbb-bdd0-4525-b817-9aa943ab70b4",
+        "9513ef7b-3b5c-4666-a670-10d583088ea2",
+        "9cce1392-eb03-4382-b377-7dff82d73e13",
+        "b3468fd4-361f-46eb-9ddb-3c3a60ddd20c",
+        "0ae8bf45-f3b2-42fa-b4d7-0ed5b11bc7dd",
+        "b6d6b71f-3c36-4830-8c3d-bb6c5c34c9bb",
+        "76f854aa-f2ac-4e66-911a-dc9945e82cb9",
+        "5755b76b-9702-4625-9ef8-e215164ec08d",
+        "b0d3247e-db7d-4e96-aeb3-eda8c830df2c",
+        "1c00e22a-bfe9-42bd-b264-e9d2ad678554",
+        "85b9be8d-3e4a-455d-a323-06aa96eadf62",
+        "fe933aba-9e22-4b95-8d7a-3b96b87c4bd5",
+        "6541f7a3-3504-4eb5-bb50-87fb822744a2",
+        "25fc6770-f2db-43fc-a51a-f5ede18c1849",
+        "7a5f5c09-09a3-4de7-ab96-7d72be092dc6",
+        "6d235a6a-662e-4eb2-b4c8-1d1e700b4334",
+        "6cdd2c99-45fe-4c47-a561-a1ff5883f77a",
+        "aa8cb819-e3c9-4206-a2be-6bec833efd57",
+        "10b4c79c-cbca-4864-b078-cbb074860d65",
+        "9ec2b662-1577-4e0d-b17c-318834c36e8f",
+        "b4c9079a-478e-4a22-90f2-cc1eb826aefc",
+        "d4065ccf-d9dc-4916-9af1-7d8ea65a809b",
+        "5da51228-0241-4b18-9ef0-9c5814d5a75b",
+        "68bc5261-e095-4300-9fa2-98edca08a47a",
+        "d2dae28c-e61d-42c9-b2c4-5002f525cca5",
+        "85955648-3eeb-4757-9b98-3a49fdc5b8db",
+        "14b96fa6-a4d6-4cb6-9428-815df7be585b",
+        "7f50f8e9-e3fd-458d-88c3-1a0753f43429",
+        "d858d919-60ad-4315-90f1-279b7ea23e1a",
+        "e40377f5-acad-42a3-859e-88e887e5775f",
+        "a405d9b6-c255-4d43-a303-bd9da893eeb2",
+        "664aebd3-3bc8-4546-bc3b-a96d74d2b61e",
+        "4f327f92-5c15-4359-a2ca-54e61ce336a0",
+        "d83ce898-5792-4854-9bf3-c8581da6ad6b",
+        "25a3302c-4830-41bd-b750-feb552f805ba",
+        "9457226c-1fea-48e4-88dd-a52824e3de33",
+        "7d641718-0bcb-4c6b-a97e-4126e75c90f6",
+        "6bfaf23d-9910-44f4-afc1-bedb03d84f0c",
+        "d81ac2b7-2ce9-4366-b949-cc9b7f68d531",
+        "42dd128a-f824-41f7-a4ca-f5019de95b3e",
+        "f885ce78-a6b4-4ee1-8465-264a24d8bae2",
+        "c4e92918-1e9f-433e-8d3e-8f18c4f2325d",
+        "7571bc2d-5229-4630-b24e-a8f788d01e48",
+        "2f26a05c-5601-4b3c-8e1f-0a9ab34bc55f",
+        "df89faa9-69f4-4031-b768-60c3525d0034",
+        "fb88edcc-9546-4f5e-9039-82da0878fb71",
+        "804d3919-37d6-4ee8-a33c-a335318540d3",
+        "0cea0602-42eb-493a-971c-7b75894cf0c2",
+        "e2e5154b-a408-4e31-be2d-45d3ea8342d1",
+        "ebaebbc3-6575-46ed-b646-37975e52209d",
+        "b4e0340b-b4bf-4470-a1ee-7892614522eb",
+        "97b12eb8-5098-49c3-b9cb-6beee519c9c1",
+        "41a3037d-90e2-46e4-acfd-100ea20db4a0",
+        "e5724050-b734-4402-a3c9-519ec34cf32b",
+        "6a4821ae-2bc3-4a91-9153-a910bd626c76",
+        "ef58a0f1-62cd-448c-8ef4-0048d79bd817",
+        "470a44d9-1df8-49fd-a83a-bcda3e8708a4",
+        "e66e59b8-6e0f-47a2-9186-711a82f653b9",
+        "770b57e8-ba5f-4ad9-b019-0fb0465022c6",
+        "8a970c1e-37ad-4667-bc38-b9b2fff9a003",
+        "596a0397-ce15-462e-90dc-9d9adf31a032",
+        "b4701cc8-745d-4511-87ae-32c64b99571f",
+        "1ee5e4b6-5abd-465e-a1a6-ce69f80d85a0",
+        "da7b1b7b-781a-4e3a-9a8e-2f6b7db5dc44",
+        "957bf949-a240-46ac-8ff0-3b43b25042ef",
+        "c895a320-944e-459e-81a5-3f2c177b74a8",
+        "3428bac5-6e94-4c8d-8e5c-a917a5317598",
+        "c1ad7aec-6231-4a52-a761-49a18a981f97",
+        "07ebe565-6b23-4da7-b6a5-e7da20746f06",
+        "59d6ba53-c955-4d4b-9801-3de0cfda4805",
+        "9bbdfb89-cefd-4fb9-b0ac-29768704899d",
+        "7b074ec6-7b87-4174-9949-94e97d2a4887",
+        "c7866829-76a4-4c06-a38c-98f3e5f4a9f1",
+        "168f3935-e2ac-4d0d-8001-a27803fb480c",
+        "0df4ec5e-2c6c-4868-9634-7e35f7a34c72",
+        "ea546462-dec8-4567-872f-37ee50bd70c9",
+        "6db09cbe-4c8e-455e-ba6a-6e74d5e65938",
+        "e8079a6e-33bd-46fe-b886-ec4839d88467",
+        "536e9a69-f4a8-4a6b-8f87-29e55c0c614b",
+        "1fe05b08-99f2-4ecc-ab94-3e7bea353f17",
+        "5bfab07e-6d49-4535-b8d3-fb89787d467e",
+        "7e6b104b-651e-45d0-8781-3cb68c4acd96",
+        "e4f07e69-f2ad-4383-9f53-2efe229ac616"
+      ],
+      "data": {
+        "Name": "Аксессуары",
+        "Count": "170",
+        "Path": ""
+      },
+      "format": "CATEGORY"
+    },
+    "b6a4684a-e198-4319-9543-d2f31ab4efca": {
+      "children": [
+        "5d5a2d05-fc7e-474c-b657-25848ac743bc"
+      ],
+      "data": {
+        "Name": "Прочее",
+        "Count": "0",
+        "Path": ""
+      },
+      "format": "CATEGORY"
+    },
+    "7799e6c7-115b-446e-af98-e2eb4d1b4c5b": {
+      "children": [],
+      "data": {
+        "Name": "Бильярдные столы",
+        "Count": "0",
+        "Path": ""
+      },
+      "format": "CATEGORY"
+    },
+    "360b9b9d-16c1-418f-8418-c0b49b6b7677": {
+      "children": [
+        "7799e6c7-115b-446e-af98-e2eb4d1b4c5b"
+      ],
+      "data": {
+        "Name": "Столы",
+        "Count": "0",
+        "Path": ""
+      },
+      "format": "CATEGORY"
+    },
+    "a225c45f-3722-4531-a68d-68df4c75c526": {
+      "children": [],
+      "data": {
+        "Name": "Сукно для бильярдного стола 10 футов Champion Gold 70% шерсть 30% нейлон 400x195 см",
+        "SKU": "16406-10",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Нет бренда"
+      },
+      "format": "PRODUCT"
+    },
+    "f04db512-af53-429c-b803-7544d2284be9": {
+      "children": [],
+      "data": {
+        "Name": "Сукно для бильярдного стола 10 футов Eurospint Rus Pro 45% шерсть 55% нейлон 400x198 см",
+        "SKU": "9060-10",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Eurosprint"
+      },
+      "format": "PRODUCT"
+    },
+    "4ac8a269-2ed1-495c-9c40-4ef0eecb6384": {
+      "children": [],
+      "data": {
+        "Name": "Сукно для бильярдного стола 10 футов Grand 50% шерсть 50% полиэстер 400x200 см",
+        "SKU": "16528-10",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Нет бренда"
+      },
+      "format": "PRODUCT"
+    },
+    "8549e3f3-ebe8-43b4-92ba-57fe1dc36429": {
+      "children": [],
+      "data": {
+        "Name": "Сукно для бильярдного стола 10 футов Grand 70% шерсть 30% полиэстер 400x200 см",
+        "SKU": "16422-10",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Нет бренда"
+      },
+      "format": "PRODUCT"
+    },
+    "a481ad9c-c0ff-4c54-b9f2-59f92de11f8d": {
+      "children": [],
+      "data": {
+        "Name": "Сукно для бильярдного стола 10 футов Iwan Simonis 760 Yellow Green 4,0 х 1,95 м 70% шерсть 30% нейлон",
+        "SKU": "1875-10",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Iwan Simonis"
+      },
+      "format": "PRODUCT"
+    },
+    "344afe2b-0237-4069-acc0-7cb9e931aed9": {
+      "children": [],
+      "data": {
+        "Name": "Сукно для бильярдного стола 10 футов Iwan Simonis 860 Yellow Green 4,0 х 1,98 м 90% шерсть 10% нейлон",
+        "SKU": "1882-10",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Iwan Simonis"
+      },
+      "format": "PRODUCT"
+    },
+    "c0edc899-bd66-4f4c-bd5e-88707c858e50": {
+      "children": [],
+      "data": {
+        "Name": "Сукно для бильярдного стола 10 футов ManCity Prime 60% шерсть 40% нейлон 370 г/м2 4,00 х 1,95 м",
+        "SKU": "16530.10",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Porter Billiards"
+      },
+      "format": "PRODUCT"
+    },
+    "87b0f699-4856-4469-bd1c-682d5b948e84": {
+      "children": [],
+      "data": {
+        "Name": "Сукно для бильярдного стола 10 футов Manhattan 100% полиэстер 400x195 см",
+        "SKU": "15282-10",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Manhattan"
+      },
+      "format": "PRODUCT"
+    },
+    "1dccd347-0c72-42b4-a6e4-eaff1e2a9306": {
+      "children": [],
+      "data": {
+        "Name": "Сукно для бильярдного стола 10 футов Manhattan 70% шерсть 30% нейлон 400x195 см",
+        "SKU": "15328-10",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Manhattan"
+      },
+      "format": "PRODUCT"
+    },
+    "492bde45-238b-46a8-9511-037a5f4a1725": {
+      "children": [],
+      "data": {
+        "Name": "Сукно для бильярдного стола 10 футов Mirtex Kingston 100% акрил 400x200 см",
+        "SKU": "12960-10",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Нет бренда"
+      },
+      "format": "PRODUCT"
+    },
+    "a36784c9-1a73-4a70-8a26-8c9226a70127": {
+      "children": [],
+      "data": {
+        "Name": "Сукно для бильярдного стола 10 футов Mirtex Spirit 100% акрил 400x200 см",
+        "SKU": "6870-10",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Mirtex"
+      },
+      "format": "PRODUCT"
+    },
+    "ea915f87-9c36-4f8d-9654-a3da3c531be3": {
+      "children": [],
+      "data": {
+        "Name": "Сукно для бильярдного стола 10 футов Porter 370 Pro 4х1,95 м 60% шерсть 40% нейлон",
+        "SKU": "9221-10",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Porter Billiards"
+      },
+      "format": "PRODUCT"
+    },
+    "996db16a-b1c8-4795-a9de-eb71a9f621c0": {
+      "children": [],
+      "data": {
+        "Name": "Сукно для бильярдного стола 12 футов Champion Gold 70% шерсть 30% нейлон 500x195 см",
+        "SKU": "16406-12",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Нет бренда"
+      },
+      "format": "PRODUCT"
+    },
+    "f335e512-0a61-4122-8df9-dc7611c9c36b": {
+      "children": [],
+      "data": {
+        "Name": "Сукно для бильярдного стола 12 футов Eurospint Rus Pro 45% шерсть 55% нейлон 500x198 см",
+        "SKU": "9060-12",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Eurosprint"
+      },
+      "format": "PRODUCT"
+    },
+    "2903ea62-407a-41c0-bb1e-f6ed99b6b197": {
+      "children": [],
+      "data": {
+        "Name": "Сукно для бильярдного стола 12 футов Grand 50% шерсть 50% полиэстер 500x200 см",
+        "SKU": "16528-12",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Нет бренда"
+      },
+      "format": "PRODUCT"
+    },
+    "f957f083-e3aa-4542-9f35-2e09ca0b8436": {
+      "children": [],
+      "data": {
+        "Name": "Сукно для бильярдного стола 12 футов Grand 70% шерсть 30% полиэстер 500x200 см",
+        "SKU": "16422-12",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Нет бренда"
+      },
+      "format": "PRODUCT"
+    },
+    "145d3da8-0542-4ca7-93de-d2f87f24d2c5": {
+      "children": [],
+      "data": {
+        "Name": "Сукно для бильярдного стола 12 футов Iwan Simonis 760 Yellow Green 5,0 х 1,95 м 70% шерсть 30% нейлон",
+        "SKU": "1875-12",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Iwan Simonis"
+      },
+      "format": "PRODUCT"
+    },
+    "6f14aeee-e885-4247-8ddf-b899a399563b": {
+      "children": [],
+      "data": {
+        "Name": "Сукно для бильярдного стола 12 футов Iwan Simonis 860 Yellow Green 5,0 х 1,98 м 90% шерсть 10% нейлон",
+        "SKU": "1882-12",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Iwan Simonis"
+      },
+      "format": "PRODUCT"
+    },
+    "ebf4596f-53db-400b-a1c9-ae6db5b992b7": {
+      "children": [],
+      "data": {
+        "Name": "Сукно для бильярдного стола 12 футов ManCity Prime 60% шерсть 40% нейлон 370 г/м2 5,00 х 1,95 м",
+        "SKU": "16530.12",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Porter Billiards"
+      },
+      "format": "PRODUCT"
+    },
+    "35b20230-1886-43bf-b5a8-d977dd0ecbbd": {
+      "children": [],
+      "data": {
+        "Name": "Сукно для бильярдного стола 12 футов Manhattan 100% полиэстер 500x195 см",
+        "SKU": "15282-12",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Manhattan"
+      },
+      "format": "PRODUCT"
+    },
+    "90f4cb70-2d2c-4a38-919f-82d6a0fdde71": {
+      "children": [],
+      "data": {
+        "Name": "Сукно для бильярдного стола 12 футов Manhattan 70% шерсть 30% нейлон 500x195 см",
+        "SKU": "15328-12",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Manhattan"
+      },
+      "format": "PRODUCT"
+    },
+    "b85033ed-0aa7-4455-b016-6a728d222eae": {
+      "children": [],
+      "data": {
+        "Name": "Сукно для бильярдного стола 12 футов Mirtex Kingston 100% акрил 500x200 см",
+        "SKU": "12960-12",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Нет бренда"
+      },
+      "format": "PRODUCT"
+    },
+    "bb34c1aa-9e3d-4581-8690-50e82f095fba": {
+      "children": [],
+      "data": {
+        "Name": "Сукно для бильярдного стола 12 футов Mirtex Spirit 100% акрил 500x200 см",
+        "SKU": "6870-12",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Mirtex"
+      },
+      "format": "PRODUCT"
+    },
+    "55ffe137-d661-4666-99e3-f847d75cb13f": {
+      "children": [],
+      "data": {
+        "Name": "Сукно для бильярдного стола 12 футов Porter 370 Pro 5,0х1,95 м 60% шерсть 40% нейлон",
+        "SKU": "9221-12",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Porter Billiards"
+      },
+      "format": "PRODUCT"
+    },
+    "da4b4f7c-d963-43d1-ba80-27e56be0c193": {
+      "children": [],
+      "data": {
+        "Name": "Сукно для бильярдного стола 7 футов Champion Gold 70% шерсть 30% нейлон 230x195 см",
+        "SKU": "16406-7",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Нет бренда"
+      },
+      "format": "PRODUCT"
+    },
+    "3e64d78e-fec3-434e-9183-05907b5088d8": {
+      "children": [],
+      "data": {
+        "Name": "Сукно для бильярдного стола 7 футов Eurospint Rus Pro 45% шерсть 55% нейлон 230x198 см",
+        "SKU": "9060-7",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Eurosprint"
+      },
+      "format": "PRODUCT"
+    },
+    "bdd0e500-0eba-48f5-a25e-a86db3d9ee02": {
+      "children": [],
+      "data": {
+        "Name": "Сукно для бильярдного стола 7 футов Grand 50% шерсть 50% полиэстер 230x200 см",
+        "SKU": "16528-7",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Нет бренда"
+      },
+      "format": "PRODUCT"
+    },
+    "e31c4ff8-e3c9-49bf-9708-54daaa7eb6d8": {
+      "children": [],
+      "data": {
+        "Name": "Сукно для бильярдного стола 7 футов Grand 70% шерсть 30% полиэстер 230x200 см",
+        "SKU": "16422-7",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Нет бренда"
+      },
+      "format": "PRODUCT"
+    },
+    "70b5a130-d92a-4b3d-9439-0c6ea2ab59d8": {
+      "children": [],
+      "data": {
+        "Name": "Сукно для бильярдного стола 7 футов Iwan Simonis 760 Yellow Green 2,3 х 1,95 м 70% шерсть 30% нейлон",
+        "SKU": "1875-7",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Iwan Simonis"
+      },
+      "format": "PRODUCT"
+    },
+    "9f32ed33-ddda-4783-88dd-aef933ca2d9b": {
+      "children": [],
+      "data": {
+        "Name": "Сукно для бильярдного стола 7 футов Iwan Simonis 860 Yellow Green 2,3 х 1,98 м 90% шерсть 10% нейлон",
+        "SKU": "1882-7",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Iwan Simonis"
+      },
+      "format": "PRODUCT"
+    },
+    "0ddc7970-d5bb-4d53-91f4-9a92566d5b15": {
+      "children": [],
+      "data": {
+        "Name": "Сукно для бильярдного стола 7 футов ManCity Prime 60% шерсть 40% нейлон 370 г/м2 2,30 х 1,95 м",
+        "SKU": "16530.7",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Porter Billiards"
+      },
+      "format": "PRODUCT"
+    },
+    "85985e07-2bae-4ed0-a3ca-95285bdd07cf": {
+      "children": [],
+      "data": {
+        "Name": "Сукно для бильярдного стола 7 футов Manhattan 100% полиэстер 230x195 см",
+        "SKU": "15282-7",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Manhattan"
+      },
+      "format": "PRODUCT"
+    },
+    "7ca61cea-1e07-4e0f-9947-8058bac24e6a": {
+      "children": [],
+      "data": {
+        "Name": "Сукно для бильярдного стола 7 футов Manhattan 70% шерсть 30% нейлон 230x195 см",
+        "SKU": "15328-7",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Manhattan"
+      },
+      "format": "PRODUCT"
+    },
+    "198e160a-438a-4eaf-8e2b-f8acfdd656df": {
+      "children": [],
+      "data": {
+        "Name": "Сукно для бильярдного стола 7 футов Mirtex Kingston 100% акрил 230x200 см",
+        "SKU": "12960-7",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Нет бренда"
+      },
+      "format": "PRODUCT"
+    },
+    "849991ec-7af4-4340-8a7b-4e9a7fa0090b": {
+      "children": [],
+      "data": {
+        "Name": "Сукно для бильярдного стола 7 футов Mirtex Spirit 100% акрил 230x200 см",
+        "SKU": "6870-7",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Mirtex"
+      },
+      "format": "PRODUCT"
+    },
+    "3efccab9-f0c9-43c7-be3d-94745daf8b98": {
+      "children": [],
+      "data": {
+        "Name": "Сукно для бильярдного стола 7 футов Porter 370 Pro 2,3х1,95 м 60% шерсть 40% нейлон",
+        "SKU": "9221-7",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Porter Billiards"
+      },
+      "format": "PRODUCT"
+    },
+    "f02e3882-7ab4-4e7f-86d4-e14d8fc57b6a": {
+      "children": [],
+      "data": {
+        "Name": "Сукно для бильярдного стола 8 футов Champion Gold 70% шерсть 30% нейлон 260x195 см",
+        "SKU": "16406-8",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Нет бренда"
+      },
+      "format": "PRODUCT"
+    },
+    "4f539a65-9741-4537-adcd-7226c3e2673c": {
+      "children": [],
+      "data": {
+        "Name": "Сукно для бильярдного стола 8 футов Eurospint Rus Pro 45% шерсть 55% нейлон 260x198 см",
+        "SKU": "9060-8",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Eurosprint"
+      },
+      "format": "PRODUCT"
+    },
+    "53a40c8c-8c4f-478e-a20b-59e2ff916ccd": {
+      "children": [],
+      "data": {
+        "Name": "Сукно для бильярдного стола 8 футов Grand 50% шерсть 50% полиэстер 260x200 см",
+        "SKU": "16528-8",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Нет бренда"
+      },
+      "format": "PRODUCT"
+    },
+    "52e7c6fa-1600-49fa-8968-594aa6274968": {
+      "children": [],
+      "data": {
+        "Name": "Сукно для бильярдного стола 8 футов Grand 70% шерсть 30% полиэстер 260x200 см",
+        "SKU": "16422-8",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Нет бренда"
+      },
+      "format": "PRODUCT"
+    },
+    "4638db68-1090-495c-931b-a63dee854380": {
+      "children": [],
+      "data": {
+        "Name": "Сукно для бильярдного стола 8 футов Iwan Simonis 760 Yellow Green 2,6 х 1,95 м 70% шерсть 30% нейлон",
+        "SKU": "1875-8",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Iwan Simonis"
+      },
+      "format": "PRODUCT"
+    },
+    "20c2b767-4f2d-46d5-a2a6-8f6dc6f5f5bb": {
+      "children": [],
+      "data": {
+        "Name": "Сукно для бильярдного стола 8 футов Iwan Simonis 860 Yellow Green 2,6 х 1,98 м 90% шерсть 10% нейлон",
+        "SKU": "1882-8",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Iwan Simonis"
+      },
+      "format": "PRODUCT"
+    },
+    "bf92b8ab-1e4a-41e0-a46b-a8ee3a838223": {
+      "children": [],
+      "data": {
+        "Name": "Сукно для бильярдного стола 8 футов ManCity Prime 60% шерсть 40% нейлон 370 г/м2 2,60 х 1,95 м",
+        "SKU": "16530.8",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Porter Billiards"
+      },
+      "format": "PRODUCT"
+    },
+    "903079e6-10f3-49d0-a9ec-e06d61bce2ce": {
+      "children": [],
+      "data": {
+        "Name": "Сукно для бильярдного стола 8 футов Manhattan 100% полиэстер 260x195 см",
+        "SKU": "15282-8",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Manhattan"
+      },
+      "format": "PRODUCT"
+    },
+    "0b2d08e9-2dde-4a37-aa75-7a672b35c02f": {
+      "children": [],
+      "data": {
+        "Name": "Сукно для бильярдного стола 8 футов Manhattan 70% шерсть 30% нейлон 260x195 см",
+        "SKU": "15328-8",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Manhattan"
+      },
+      "format": "PRODUCT"
+    },
+    "f2560201-ac90-44d7-b9f1-b93c42f8cb1a": {
+      "children": [],
+      "data": {
+        "Name": "Сукно для бильярдного стола 8 футов Mirtex Kingston 100% акрил 260x200 см",
+        "SKU": "12960-8",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Нет бренда"
+      },
+      "format": "PRODUCT"
+    },
+    "3756b6e5-3409-4a08-b64d-364ed6a8225e": {
+      "children": [],
+      "data": {
+        "Name": "Сукно для бильярдного стола 8 футов Mirtex Spirit 100% акрил 260x200 см",
+        "SKU": "6870-8",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Mirtex"
+      },
+      "format": "PRODUCT"
+    },
+    "3bdedf33-5742-40af-84b9-c3af9d72948d": {
+      "children": [],
+      "data": {
+        "Name": "Сукно для бильярдного стола 8 футов Porter 370 Pro 2,6х1,95 м 60% шерсть 40% нейлон",
+        "SKU": "9221-8",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Porter Billiards"
+      },
+      "format": "PRODUCT"
+    },
+    "1ee829f5-3c11-4389-9cc1-553d13b65829": {
+      "children": [],
+      "data": {
+        "Name": "Сукно для бильярдного стола 9 футов Champion Gold 70% шерсть 30% нейлон 330x195 см",
+        "SKU": "16406-9",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Нет бренда"
+      },
+      "format": "PRODUCT"
+    },
+    "72f61c22-b7d4-4af1-82ac-36c47e2dd75c": {
+      "children": [],
+      "data": {
+        "Name": "Сукно для бильярдного стола 9 футов Eurospint Rus Pro 45% шерсть 55% нейлон 330x198 см",
+        "SKU": "9060-9",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Eurosprint"
+      },
+      "format": "PRODUCT"
+    },
+    "472bbf9c-3bdb-4a40-9751-e4df71c6949a": {
+      "children": [],
+      "data": {
+        "Name": "Сукно для бильярдного стола 9 футов Grand 50% шерсть 50% полиэстер 330x200 см",
+        "SKU": "16528-9",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Нет бренда"
+      },
+      "format": "PRODUCT"
+    },
+    "9f4a7e47-4429-4e39-addd-16b985eba73b": {
+      "children": [],
+      "data": {
+        "Name": "Сукно для бильярдного стола 9 футов Grand 70% шерсть 30% полиэстер 330x200 см",
+        "SKU": "16422-9",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Нет бренда"
+      },
+      "format": "PRODUCT"
+    },
+    "d0ceebd3-9b9a-4d18-ab09-e1259812e916": {
+      "children": [],
+      "data": {
+        "Name": "Сукно для бильярдного стола 9 футов Iwan Simonis 760 Yellow Green 3,3 х 1,95 м 70% шерсть 30% нейлон",
+        "SKU": "1875-9",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Iwan Simonis"
+      },
+      "format": "PRODUCT"
+    },
+    "a4ef8a35-883c-4f38-bcc6-6c55b8e8a54d": {
+      "children": [],
+      "data": {
+        "Name": "Сукно для бильярдного стола 9 футов Iwan Simonis 860 Yellow Green 3,3 х 1,98 м 90% шерсть 10% нейлон",
+        "SKU": "1882-9",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Iwan Simonis"
+      },
+      "format": "PRODUCT"
+    },
+    "2490fd29-4dd0-4a3c-83ef-7515b3e6b1d1": {
+      "children": [],
+      "data": {
+        "Name": "Сукно для бильярдного стола 9 футов ManCity Prime 60% шерсть 40% нейлон 370 г/м2 3,30 х 1,95 м",
+        "SKU": "16530.9",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Porter Billiards"
+      },
+      "format": "PRODUCT"
+    },
+    "5726f8a0-fe1a-4a97-8c46-3b900ac5f4ea": {
+      "children": [],
+      "data": {
+        "Name": "Сукно для бильярдного стола 9 футов Manhattan 100% полиэстер 330x195 см",
+        "SKU": "15282-9",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Manhattan"
+      },
+      "format": "PRODUCT"
+    },
+    "ce0bfdcb-f4a4-4d1f-a0b4-83a690793491": {
+      "children": [],
+      "data": {
+        "Name": "Сукно для бильярдного стола 9 футов Manhattan 70% шерсть 30% нейлон 330x195 см",
+        "SKU": "15328-9",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Manhattan"
+      },
+      "format": "PRODUCT"
+    },
+    "e83dddf2-a333-4689-8ee7-94cb6a0d1150": {
+      "children": [],
+      "data": {
+        "Name": "Сукно для бильярдного стола 9 футов Mirtex Kingston 100% акрил 330x200 см",
+        "SKU": "12960-9",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Нет бренда"
+      },
+      "format": "PRODUCT"
+    },
+    "7c1671d0-bd72-42a2-a264-464f585252d1": {
+      "children": [],
+      "data": {
+        "Name": "Сукно для бильярдного стола 9 футов Mirtex Spirit 100% акрил 330x200 см",
+        "SKU": "6870-9",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Mirtex"
+      },
+      "format": "PRODUCT"
+    },
+    "64c83ba7-06e6-4cb4-b04d-d615746150c0": {
+      "children": [],
+      "data": {
+        "Name": "Сукно для бильярдного стола 9 футов Porter 370 Pro 3,3х1,95 м",
+        "SKU": "9221-9",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Porter Billiards"
+      },
+      "format": "PRODUCT"
+    },
+    "9011ac03-0b33-4a14-877b-125a7c57f6fd": {
+      "children": [
+        "a225c45f-3722-4531-a68d-68df4c75c526",
+        "f04db512-af53-429c-b803-7544d2284be9",
+        "4ac8a269-2ed1-495c-9c40-4ef0eecb6384",
+        "8549e3f3-ebe8-43b4-92ba-57fe1dc36429",
+        "a481ad9c-c0ff-4c54-b9f2-59f92de11f8d",
+        "344afe2b-0237-4069-acc0-7cb9e931aed9",
+        "c0edc899-bd66-4f4c-bd5e-88707c858e50",
+        "87b0f699-4856-4469-bd1c-682d5b948e84",
+        "1dccd347-0c72-42b4-a6e4-eaff1e2a9306",
+        "492bde45-238b-46a8-9511-037a5f4a1725",
+        "a36784c9-1a73-4a70-8a26-8c9226a70127",
+        "ea915f87-9c36-4f8d-9654-a3da3c531be3",
+        "996db16a-b1c8-4795-a9de-eb71a9f621c0",
+        "f335e512-0a61-4122-8df9-dc7611c9c36b",
+        "2903ea62-407a-41c0-bb1e-f6ed99b6b197",
+        "f957f083-e3aa-4542-9f35-2e09ca0b8436",
+        "145d3da8-0542-4ca7-93de-d2f87f24d2c5",
+        "6f14aeee-e885-4247-8ddf-b899a399563b",
+        "ebf4596f-53db-400b-a1c9-ae6db5b992b7",
+        "35b20230-1886-43bf-b5a8-d977dd0ecbbd",
+        "90f4cb70-2d2c-4a38-919f-82d6a0fdde71",
+        "b85033ed-0aa7-4455-b016-6a728d222eae",
+        "bb34c1aa-9e3d-4581-8690-50e82f095fba",
+        "55ffe137-d661-4666-99e3-f847d75cb13f",
+        "da4b4f7c-d963-43d1-ba80-27e56be0c193",
+        "3e64d78e-fec3-434e-9183-05907b5088d8",
+        "bdd0e500-0eba-48f5-a25e-a86db3d9ee02",
+        "e31c4ff8-e3c9-49bf-9708-54daaa7eb6d8",
+        "70b5a130-d92a-4b3d-9439-0c6ea2ab59d8",
+        "9f32ed33-ddda-4783-88dd-aef933ca2d9b",
+        "0ddc7970-d5bb-4d53-91f4-9a92566d5b15",
+        "85985e07-2bae-4ed0-a3ca-95285bdd07cf",
+        "7ca61cea-1e07-4e0f-9947-8058bac24e6a",
+        "198e160a-438a-4eaf-8e2b-f8acfdd656df",
+        "849991ec-7af4-4340-8a7b-4e9a7fa0090b",
+        "3efccab9-f0c9-43c7-be3d-94745daf8b98",
+        "f02e3882-7ab4-4e7f-86d4-e14d8fc57b6a",
+        "4f539a65-9741-4537-adcd-7226c3e2673c",
+        "53a40c8c-8c4f-478e-a20b-59e2ff916ccd",
+        "52e7c6fa-1600-49fa-8968-594aa6274968",
+        "4638db68-1090-495c-931b-a63dee854380",
+        "20c2b767-4f2d-46d5-a2a6-8f6dc6f5f5bb",
+        "bf92b8ab-1e4a-41e0-a46b-a8ee3a838223",
+        "903079e6-10f3-49d0-a9ec-e06d61bce2ce",
+        "0b2d08e9-2dde-4a37-aa75-7a672b35c02f",
+        "f2560201-ac90-44d7-b9f1-b93c42f8cb1a",
+        "3756b6e5-3409-4a08-b64d-364ed6a8225e",
+        "3bdedf33-5742-40af-84b9-c3af9d72948d",
+        "1ee829f5-3c11-4389-9cc1-553d13b65829",
+        "72f61c22-b7d4-4af1-82ac-36c47e2dd75c",
+        "472bbf9c-3bdb-4a40-9751-e4df71c6949a",
+        "9f4a7e47-4429-4e39-addd-16b985eba73b",
+        "d0ceebd3-9b9a-4d18-ab09-e1259812e916",
+        "a4ef8a35-883c-4f38-bcc6-6c55b8e8a54d",
+        "2490fd29-4dd0-4a3c-83ef-7515b3e6b1d1",
+        "5726f8a0-fe1a-4a97-8c46-3b900ac5f4ea",
+        "ce0bfdcb-f4a4-4d1f-a0b4-83a690793491",
+        "e83dddf2-a333-4689-8ee7-94cb6a0d1150",
+        "7c1671d0-bd72-42a2-a264-464f585252d1",
+        "64c83ba7-06e6-4cb4-b04d-d615746150c0"
+      ],
+      "data": {
+        "Name": "Сукно",
+        "Count": "60",
+        "Path": ""
+      },
+      "format": "CATEGORY"
+    },
+    "a6daccd5-4890-4dc8-bdad-c1c268493e58": {
+      "children": [
+        "9011ac03-0b33-4a14-877b-125a7c57f6fd"
+      ],
+      "data": {
+        "Name": "Сукно и покрытия",
+        "Count": "0",
+        "Path": ""
+      },
+      "format": "CATEGORY"
+    },
+    "d484cebf-c242-4c6f-9dea-4794237dd7cd": {
+      "children": [],
+      "data": {
+        "Name": "Тубус для бильярдного кия Porter Sprint, 84 см, русский бильярд, 2 отделения",
+        "SKU": "1168",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Porter Billiards"
+      },
+      "format": "PRODUCT"
+    },
+    "b6a02df6-97e6-4272-ac5e-28ec7f4708ca": {
+      "children": [],
+      "data": {
+        "Name": "Тубус для двух киев бильярдных Porter Battle, 81 см, пул, 4 отделения, коричневый",
+        "SKU": "9169",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Porter Billiards"
+      },
+      "format": "PRODUCT"
+    },
+    "43ab5b8e-8e70-44e2-ad70-1fd7fd36c0c0": {
+      "children": [],
+      "data": {
+        "Name": "Тубус для двух киев бильярдных Porter Battle, 81 см, пул, 4 отделения, черный",
+        "SKU": "16025",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Porter Billiards"
+      },
+      "format": "PRODUCT"
+    },
+    "c240260f-c954-4db7-ac14-9d12e91b9cdc": {
+      "children": [],
+      "data": {
+        "Name": "Тубус для двух киев бильярдных Porter Expert, 81 см, пул, 4 отделения, коричневый",
+        "SKU": "9168",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Porter Billiards"
+      },
+      "format": "PRODUCT"
+    },
+    "ae7c767e-d573-493e-b8c6-399ffefb9937": {
+      "children": [],
+      "data": {
+        "Name": "Тубус для двух киев бильярдных Porter Expert, 81 см, пул, 4 отделения, черный",
+        "SKU": "13357",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Porter Billiards"
+      },
+      "format": "PRODUCT"
+    },
+    "7efd9b2e-2400-4076-b43b-1a12a2fb4909": {
+      "children": [],
+      "data": {
+        "Name": "Тубус для двух киев бильярдных Porter Expert, 85 см, русский бильярд, 4 отделения, коричневый",
+        "SKU": "9162",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Porter Billiards"
+      },
+      "format": "PRODUCT"
+    },
+    "318f02a8-0b9c-4971-9ecd-744e9802e47d": {
+      "children": [],
+      "data": {
+        "Name": "Тубус для двух киев бильярдных Porter Expert, 85 см, русский бильярд, 4 отделения, черный",
+        "SKU": "9163",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Porter Billiards"
+      },
+      "format": "PRODUCT"
+    },
+    "0ac04227-76a4-4474-941f-edbd6979485a": {
+      "children": [],
+      "data": {
+        "Name": "Тубус для двух киев бильярдных и удлинителя Porter Hunter, 92 см, русский бильярд, 5 отделений",
+        "SKU": "16414",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Porter Billiards"
+      },
+      "format": "PRODUCT"
+    },
+    "bc512bbf-9eca-4b20-baae-f0d98f90abca": {
+      "children": [],
+      "data": {
+        "Name": "Тубус для двух киев для пула Porter Marshall 4 отделения черный / светло-коричневый",
+        "SKU": "16376",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Porter Billiards"
+      },
+      "format": "PRODUCT"
+    },
+    "9ab8933a-d9ba-4a86-9413-cca0bf236a71": {
+      "children": [],
+      "data": {
+        "Name": "Тубус для кия бильярдного Porter Round 81 см пул 3 отделения черный",
+        "SKU": "9160",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Porter Billiards"
+      },
+      "format": "PRODUCT"
+    },
+    "35bd984a-1319-43fb-931f-20a5f96819be": {
+      "children": [],
+      "data": {
+        "Name": "Тубус для кия бильярдного Porter Round 86 см русский бильярд 3 отделения коричневый",
+        "SKU": "16347",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Porter Billiards"
+      },
+      "format": "PRODUCT"
+    },
+    "530e2241-490b-4b37-8740-2dbc6bfa0bdb": {
+      "children": [],
+      "data": {
+        "Name": "Тубус для кия бильярдного Porter Round 86 см русский бильярд 3 отделения серый",
+        "SKU": "16349",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Porter Billiards"
+      },
+      "format": "PRODUCT"
+    },
+    "cadf02c1-0c36-4245-803e-233cb2f780c5": {
+      "children": [],
+      "data": {
+        "Name": "Тубус для кия бильярдного Porter Round 86 см русский бильярд 3 отделения синий",
+        "SKU": "16348",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Porter Billiards"
+      },
+      "format": "PRODUCT"
+    },
+    "220ae1b5-79ab-4da9-ab66-3bdac0c50953": {
+      "children": [],
+      "data": {
+        "Name": "Тубус для кия бильярдного Porter Round 86 см русский бильярд 3 отделения черный",
+        "SKU": "1164",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Porter Billiards"
+      },
+      "format": "PRODUCT"
+    },
+    "15d5e4ff-ae16-4b44-95ca-e2a9de9194c9": {
+      "children": [],
+      "data": {
+        "Name": "Тубус для кия бильярдного Porter Round Plus 86 см русский бильярд 2 отделения голубой",
+        "SKU": "16374",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Porter Billiards"
+      },
+      "format": "PRODUCT"
+    },
+    "859c1ace-5243-4d9d-a630-c6920d96512b": {
+      "children": [],
+      "data": {
+        "Name": "Тубус для кия бильярдного Porter Round Plus 86 см русский бильярд 2 отделения черный",
+        "SKU": "16373",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Porter Billiards"
+      },
+      "format": "PRODUCT"
+    },
+    "4319beee-0558-4f31-b609-9132a3750869": {
+      "children": [],
+      "data": {
+        "Name": "Тубус для кия бильярдного Porter Round Plus 86 см русский бильярд 3 отделения розовый",
+        "SKU": "16375",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Porter Billiards"
+      },
+      "format": "PRODUCT"
+    },
+    "01d56398-a9d5-43f0-b33d-00ce75c4527c": {
+      "children": [],
+      "data": {
+        "Name": "Тубус для кия бильярдного и удлинителя Porter Trio 86 см русский бильярд 3 отделения",
+        "SKU": "9161",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Porter Billiards"
+      },
+      "format": "PRODUCT"
+    },
+    "94e34560-06d7-40a4-a502-3c2b1caa7a65": {
+      "children": [],
+      "data": {
+        "Name": "Тубусы для бильярдных киев Porter Round Plus 2 штуки 86 см русский бильярд голубой/розовый",
+        "SKU": "16374-16375",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Porter Billiards"
+      },
+      "format": "PRODUCT"
+    },
+    "18dcfc3e-f29e-4654-b17c-cbf1b2e7bcf8": {
+      "children": [
+        "d484cebf-c242-4c6f-9dea-4794237dd7cd",
+        "b6a02df6-97e6-4272-ac5e-28ec7f4708ca",
+        "43ab5b8e-8e70-44e2-ad70-1fd7fd36c0c0",
+        "c240260f-c954-4db7-ac14-9d12e91b9cdc",
+        "ae7c767e-d573-493e-b8c6-399ffefb9937",
+        "7efd9b2e-2400-4076-b43b-1a12a2fb4909",
+        "318f02a8-0b9c-4971-9ecd-744e9802e47d",
+        "0ac04227-76a4-4474-941f-edbd6979485a",
+        "bc512bbf-9eca-4b20-baae-f0d98f90abca",
+        "9ab8933a-d9ba-4a86-9413-cca0bf236a71",
+        "35bd984a-1319-43fb-931f-20a5f96819be",
+        "530e2241-490b-4b37-8740-2dbc6bfa0bdb",
+        "cadf02c1-0c36-4245-803e-233cb2f780c5",
+        "220ae1b5-79ab-4da9-ab66-3bdac0c50953",
+        "15d5e4ff-ae16-4b44-95ca-e2a9de9194c9",
+        "859c1ace-5243-4d9d-a630-c6920d96512b",
+        "4319beee-0558-4f31-b609-9132a3750869",
+        "01d56398-a9d5-43f0-b33d-00ce75c4527c",
+        "94e34560-06d7-40a4-a502-3c2b1caa7a65"
+      ],
+      "data": {
+        "Name": "Тубусы и футляры",
+        "Count": "19",
+        "Path": ""
+      },
+      "format": "CATEGORY"
+    },
+    "f426fe75-8ec1-4d4d-98fe-d8f474e6bfa4": {
+      "children": [],
+      "data": {
+        "Name": "Покрывало для бильярдного стола 10 футов Аллегро желтая бахрома",
+        "SKU": "11300",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Porter Billiards"
+      },
+      "format": "PRODUCT"
+    },
+    "d7707125-4a2a-49d6-bea5-8b0aa93c078f": {
+      "children": [],
+      "data": {
+        "Name": "Покрывало для бильярдного стола 10 футов Аллегро зеленая бахрома",
+        "SKU": "11301",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Porter Billiards"
+      },
+      "format": "PRODUCT"
+    },
+    "4c58afed-00c5-423a-a216-72e9b4ddfb60": {
+      "children": [],
+      "data": {
+        "Name": "Покрывало для бильярдного стола 10 футов Браво бордовое",
+        "SKU": "13039",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Porter Billiards"
+      },
+      "format": "PRODUCT"
+    },
+    "7e49a15d-c348-4e46-b353-50448019dfa7": {
+      "children": [],
+      "data": {
+        "Name": "Покрывало для бильярдного стола 10 футов Браво зеленое",
+        "SKU": "9276",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Porter Billiards"
+      },
+      "format": "PRODUCT"
+    },
+    "a5adf5dc-52f7-4659-94b3-f9d448308b16": {
+      "children": [],
+      "data": {
+        "Name": "Покрывало для бильярдного стола 10 футов Браво синее",
+        "SKU": "13038",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Porter Billiards"
+      },
+      "format": "PRODUCT"
+    },
+    "9f5463d5-84fb-4c35-b8ad-699966afab74": {
+      "children": [],
+      "data": {
+        "Name": "Покрывало для бильярдного стола 10 футов Карнавал бирюзовое",
+        "SKU": "11335",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Porter Billiards"
+      },
+      "format": "PRODUCT"
+    },
+    "d009ca62-783f-4fa4-886e-85e9d2930459": {
+      "children": [],
+      "data": {
+        "Name": "Покрывало для бильярдного стола 10 футов Карнавал бордовое",
+        "SKU": "11313",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Porter Billiards"
+      },
+      "format": "PRODUCT"
+    },
+    "cc670b38-4bef-40ab-8346-1ae519c9e523": {
+      "children": [],
+      "data": {
+        "Name": "Покрывало для бильярдного стола 10 футов Карнавал золотое",
+        "SKU": "11314",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Porter Billiards"
+      },
+      "format": "PRODUCT"
+    },
+    "5842d794-cf51-4f54-91ec-2b008bba4cbf": {
+      "children": [],
+      "data": {
+        "Name": "Покрывало для бильярдного стола 10 футов Карнавал коричневое",
+        "SKU": "11315",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Porter Billiards"
+      },
+      "format": "PRODUCT"
+    },
+    "52fbceb8-ef2f-4a4c-95ca-ec8f495bcd7f": {
+      "children": [],
+      "data": {
+        "Name": "Покрывало для бильярдного стола 10 футов Карнавал оливковое",
+        "SKU": "11316",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Porter Billiards"
+      },
+      "format": "PRODUCT"
+    },
+    "10dd7635-77ff-4317-b6df-1453115b925e": {
+      "children": [],
+      "data": {
+        "Name": "Покрывало для бильярдного стола 10 футов Карнавал серебристое",
+        "SKU": "12747",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Porter Billiards"
+      },
+      "format": "PRODUCT"
+    },
+    "37c32f97-479b-473c-a10b-9bd3b435f267": {
+      "children": [],
+      "data": {
+        "Name": "Покрывало для бильярдного стола 10 футов Карнавал темно-зеленое",
+        "SKU": "11317",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Porter Billiards"
+      },
+      "format": "PRODUCT"
+    },
+    "a74c1143-5007-405f-b51d-cbf1823decae": {
+      "children": [],
+      "data": {
+        "Name": "Покрывало для бильярдного стола 10 футов Комильфо желтая бахрома",
+        "SKU": "9259",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Porter Billiards"
+      },
+      "format": "PRODUCT"
+    },
+    "36a97a23-aac2-454d-9fdf-769282a1e0c9": {
+      "children": [],
+      "data": {
+        "Name": "Покрывало для бильярдного стола 10 футов Комильфо зеленая бахрома",
+        "SKU": "11293",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Porter Billiards"
+      },
+      "format": "PRODUCT"
+    },
+    "1c9f9cd4-ea65-4c0b-99be-46a4a4bc6636": {
+      "children": [],
+      "data": {
+        "Name": "Покрывало для бильярдного стола 12 футов Аллегро желтая бахрома",
+        "SKU": "11302",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Porter Billiards"
+      },
+      "format": "PRODUCT"
+    },
+    "47643730-b001-406e-9d50-3bb2aa2b2fa9": {
+      "children": [],
+      "data": {
+        "Name": "Покрывало для бильярдного стола 12 футов Аллегро зеленая бахрома",
+        "SKU": "11303",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Porter Billiards"
+      },
+      "format": "PRODUCT"
+    },
+    "d55645b2-d8de-40b4-877f-a8b3664a067e": {
+      "children": [],
+      "data": {
+        "Name": "Покрывало для бильярдного стола 12 футов Браво бордовое",
+        "SKU": "13041",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Porter Billiards"
+      },
+      "format": "PRODUCT"
+    },
+    "595136a6-04ec-4ba0-953a-6e89f6adf219": {
+      "children": [],
+      "data": {
+        "Name": "Покрывало для бильярдного стола 12 футов Браво зеленое",
+        "SKU": "11298",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Porter Billiards"
+      },
+      "format": "PRODUCT"
+    },
+    "03a39d15-732c-4f12-b53a-7b74f1a65813": {
+      "children": [],
+      "data": {
+        "Name": "Покрывало для бильярдного стола 12 футов Браво синее",
+        "SKU": "13040",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Porter Billiards"
+      },
+      "format": "PRODUCT"
+    },
+    "940a91a7-08bb-42ae-9cb1-feafeba5d7f6": {
+      "children": [],
+      "data": {
+        "Name": "Покрывало для бильярдного стола 12 футов Карнавал бирюзовое",
+        "SKU": "11336",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Porter Billiards"
+      },
+      "format": "PRODUCT"
+    },
+    "228389b8-494a-46c8-be0f-576142ab662b": {
+      "children": [],
+      "data": {
+        "Name": "Покрывало для бильярдного стола 12 футов Карнавал бордовое",
+        "SKU": "9560",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Porter Billiards"
+      },
+      "format": "PRODUCT"
+    },
+    "be8514af-3353-4dc7-ae6f-4c6310c8e326": {
+      "children": [],
+      "data": {
+        "Name": "Покрывало для бильярдного стола 12 футов Карнавал золотое",
+        "SKU": "11318",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Porter Billiards"
+      },
+      "format": "PRODUCT"
+    },
+    "d2e9ee74-0597-49db-ba34-12953839f5db": {
+      "children": [],
+      "data": {
+        "Name": "Покрывало для бильярдного стола 12 футов Карнавал коричневое",
+        "SKU": "11319",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Porter Billiards"
+      },
+      "format": "PRODUCT"
+    },
+    "efbff832-3ac6-419b-a144-f8b907dc8e10": {
+      "children": [],
+      "data": {
+        "Name": "Покрывало для бильярдного стола 12 футов Карнавал оливковое",
+        "SKU": "9505",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Porter Billiards"
+      },
+      "format": "PRODUCT"
+    },
+    "c1555774-0c68-4ada-bf03-30319ae968c3": {
+      "children": [],
+      "data": {
+        "Name": "Покрывало для бильярдного стола 12 футов Карнавал серебристое",
+        "SKU": "12748",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Porter Billiards"
+      },
+      "format": "PRODUCT"
+    },
+    "b37a9fc6-8020-4895-8483-053f3c548a9a": {
+      "children": [],
+      "data": {
+        "Name": "Покрывало для бильярдного стола 12 футов Карнавал темно-зеленое",
+        "SKU": "11320",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Porter Billiards"
+      },
+      "format": "PRODUCT"
+    },
+    "1b9ea198-a4b4-48f6-bfa7-83f181a70680": {
+      "children": [],
+      "data": {
+        "Name": "Покрывало для бильярдного стола 12 футов Комильфо желтая бахрома",
+        "SKU": "9235",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Porter Billiards"
+      },
+      "format": "PRODUCT"
+    },
+    "44781d41-50b0-458e-ba70-9aaabe637c3a": {
+      "children": [],
+      "data": {
+        "Name": "Покрывало для бильярдного стола 12 футов Комильфо зеленая бахрома",
+        "SKU": "11294",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Porter Billiards"
+      },
+      "format": "PRODUCT"
+    },
+    "9d3d614c-8558-4de3-b59b-a298ab709509": {
+      "children": [],
+      "data": {
+        "Name": "Покрывало для бильярдного стола 7 футов Браво бордовое",
+        "SKU": "16404",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Porter Billiards"
+      },
+      "format": "PRODUCT"
+    },
+    "f29c88cf-dbb2-4532-97c6-51def6ac1e6a": {
+      "children": [],
+      "data": {
+        "Name": "Покрывало для бильярдного стола 7 футов Браво зеленое",
+        "SKU": "16403",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Porter Billiards"
+      },
+      "format": "PRODUCT"
+    },
+    "ef580714-853f-4f7c-9798-d290bcc84e32": {
+      "children": [],
+      "data": {
+        "Name": "Покрывало для бильярдного стола 7 футов Браво синее",
+        "SKU": "16402",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Porter Billiards"
+      },
+      "format": "PRODUCT"
+    },
+    "e827ea16-1bc3-4f3c-acc1-2d72fba4f102": {
+      "children": [],
+      "data": {
+        "Name": "Покрывало для бильярдного стола 8 футов Аллегро желтая бахрома",
+        "SKU": "11306",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Porter Billiards"
+      },
+      "format": "PRODUCT"
+    },
+    "8010154f-11f1-4c9f-89e7-78fcf882497e": {
+      "children": [],
+      "data": {
+        "Name": "Покрывало для бильярдного стола 8 футов Аллегро зеленая бахрома",
+        "SKU": "11307",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Porter Billiards"
+      },
+      "format": "PRODUCT"
+    },
+    "260ebc64-6d8a-4a1f-bdf5-81f323fdba9c": {
+      "children": [],
+      "data": {
+        "Name": "Покрывало для бильярдного стола 8 футов Браво бордовое",
+        "SKU": "13035",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Porter Billiards"
+      },
+      "format": "PRODUCT"
+    },
+    "c036e02a-7df9-4031-b7e9-55b9f5c83ae9": {
+      "children": [],
+      "data": {
+        "Name": "Покрывало для бильярдного стола 8 футов Браво зеленое",
+        "SKU": "9307",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Porter Billiards"
+      },
+      "format": "PRODUCT"
+    },
+    "651aa4f1-ac31-4e45-81d0-d7be6966cf7d": {
+      "children": [],
+      "data": {
+        "Name": "Покрывало для бильярдного стола 8 футов Браво синее",
+        "SKU": "13034",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Porter Billiards"
+      },
+      "format": "PRODUCT"
+    },
+    "5cb7e577-438d-4b52-a422-917abd3af8f6": {
+      "children": [],
+      "data": {
+        "Name": "Покрывало для бильярдного стола 8 футов Карнавал бирюзовое",
+        "SKU": "11338",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Porter Billiards"
+      },
+      "format": "PRODUCT"
+    },
+    "8062888c-37c5-4d76-b18a-909e9529f933": {
+      "children": [],
+      "data": {
+        "Name": "Покрывало для бильярдного стола 8 футов Карнавал бордовое",
+        "SKU": "11326",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Porter Billiards"
+      },
+      "format": "PRODUCT"
+    },
+    "11ebb59b-0af9-4cd3-a40f-af9459bcb833": {
+      "children": [],
+      "data": {
+        "Name": "Покрывало для бильярдного стола 8 футов Карнавал зеленое",
+        "SKU": "11330",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Porter Billiards"
+      },
+      "format": "PRODUCT"
+    },
+    "01c38b16-75a1-4435-b027-5243e9701c65": {
+      "children": [],
+      "data": {
+        "Name": "Покрывало для бильярдного стола 8 футов Карнавал золотое",
+        "SKU": "11327",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Porter Billiards"
+      },
+      "format": "PRODUCT"
+    },
+    "033ee5eb-cca1-4af1-ae7f-4e101a8b5fe1": {
+      "children": [],
+      "data": {
+        "Name": "Покрывало для бильярдного стола 8 футов Карнавал коричневое",
+        "SKU": "11328",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Porter Billiards"
+      },
+      "format": "PRODUCT"
+    },
+    "f89ed19f-6adf-43b0-8a0d-f9e62d48baf2": {
+      "children": [],
+      "data": {
+        "Name": "Покрывало для бильярдного стола 8 футов Карнавал оливковое",
+        "SKU": "11329",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Porter Billiards"
+      },
+      "format": "PRODUCT"
+    },
+    "7d8b123a-11e8-40f3-91a2-e4b26e48d865": {
+      "children": [],
+      "data": {
+        "Name": "Покрывало для бильярдного стола 8 футов Карнавал серебристое",
+        "SKU": "12745",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Porter Billiards"
+      },
+      "format": "PRODUCT"
+    },
+    "b0b2b079-3b75-4e28-b313-9fd156eb79fe": {
+      "children": [],
+      "data": {
+        "Name": "Покрывало для бильярдного стола 8 футов Комильфо желтая бахрома",
+        "SKU": "9275",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Porter Billiards"
+      },
+      "format": "PRODUCT"
+    },
+    "b2a1d280-4fea-4df3-b70c-91c9b1269895": {
+      "children": [],
+      "data": {
+        "Name": "Покрывало для бильярдного стола 8 футов Комильфо зеленая бахрома",
+        "SKU": "11295",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Porter Billiards"
+      },
+      "format": "PRODUCT"
+    },
+    "83d105f6-9efa-4c40-9743-1597f3a5bd06": {
+      "children": [],
+      "data": {
+        "Name": "Покрывало для бильярдного стола 9 футов Аллегро желтая бахрома",
+        "SKU": "11308",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Porter Billiards"
+      },
+      "format": "PRODUCT"
+    },
+    "93a37f7b-3390-4809-9d6b-cd420d3e0beb": {
+      "children": [],
+      "data": {
+        "Name": "Покрывало для бильярдного стола 9 футов Аллегро зеленая бахрома",
+        "SKU": "11309",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Porter Billiards"
+      },
+      "format": "PRODUCT"
+    },
+    "eed07cde-71fb-46b1-9bc4-d4235e809360": {
+      "children": [],
+      "data": {
+        "Name": "Покрывало для бильярдного стола 9 футов Браво бордовое",
+        "SKU": "13037",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Porter Billiards"
+      },
+      "format": "PRODUCT"
+    },
+    "b8d1e3c4-0c5c-41fc-90b2-998f58f4e27c": {
+      "children": [],
+      "data": {
+        "Name": "Покрывало для бильярдного стола 9 футов Браво зеленое",
+        "SKU": "7043",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Porter Billiards"
+      },
+      "format": "PRODUCT"
+    },
+    "dcc2b117-4d32-469b-88c1-517b96930c40": {
+      "children": [],
+      "data": {
+        "Name": "Покрывало для бильярдного стола 9 футов Браво синее",
+        "SKU": "13036",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Porter Billiards"
+      },
+      "format": "PRODUCT"
+    },
+    "034c3a64-5f5e-4af3-a530-4878a9d5bd73": {
+      "children": [],
+      "data": {
+        "Name": "Покрывало для бильярдного стола 9 футов Карнавал бирюзовое",
+        "SKU": "11339",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Porter Billiards"
+      },
+      "format": "PRODUCT"
+    },
+    "864d8744-b85f-4b17-8dca-3507e0571b3e": {
+      "children": [],
+      "data": {
+        "Name": "Покрывало для бильярдного стола 9 футов Карнавал бордовое",
+        "SKU": "11331",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Porter Billiards"
+      },
+      "format": "PRODUCT"
+    },
+    "33422fd1-c1c2-4010-9a79-bc5d171c8fa3": {
+      "children": [],
+      "data": {
+        "Name": "Покрывало для бильярдного стола 9 футов Карнавал золотое",
+        "SKU": "11332",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Porter Billiards"
+      },
+      "format": "PRODUCT"
+    },
+    "8dd36b56-3173-48c3-b71e-0226aa80d849": {
+      "children": [],
+      "data": {
+        "Name": "Покрывало для бильярдного стола 9 футов Карнавал коричневое",
+        "SKU": "11333",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Porter Billiards"
+      },
+      "format": "PRODUCT"
+    },
+    "ec3620e5-56d4-4928-85ec-662a2bb77bec": {
+      "children": [],
+      "data": {
+        "Name": "Покрывало для бильярдного стола 9 футов Карнавал оливковое",
+        "SKU": "11334",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Porter Billiards"
+      },
+      "format": "PRODUCT"
+    },
+    "a9abb8bb-a302-4d3d-bc1a-5128c63c809d": {
+      "children": [],
+      "data": {
+        "Name": "Покрывало для бильярдного стола 9 футов Карнавал серебристое",
+        "SKU": "12746",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Porter Billiards"
+      },
+      "format": "PRODUCT"
+    },
+    "8aecd267-9eab-4c46-9c4e-1116bf7f7257": {
+      "children": [],
+      "data": {
+        "Name": "Покрывало для бильярдного стола 9 футов Карнавал темно-зеленое",
+        "SKU": "9115",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Porter Billiards"
+      },
+      "format": "PRODUCT"
+    },
+    "7d45a783-7f86-4417-82de-09036a88a515": {
+      "children": [],
+      "data": {
+        "Name": "Покрывало для бильярдного стола 9 футов Комильфо желтая бахрома",
+        "SKU": "11296",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Porter Billiards"
+      },
+      "format": "PRODUCT"
+    },
+    "36236d97-a232-42b5-a78d-5c5cfcedc941": {
+      "children": [],
+      "data": {
+        "Name": "Покрывало для бильярдного стола 9 футов Комильфо зеленая бахрома",
+        "SKU": "11297",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Porter Billiards"
+      },
+      "format": "PRODUCT"
+    },
+    "db89449a-24e4-4c5e-98db-0a6cb8070347": {
+      "children": [],
+      "data": {
+        "Name": "Чехол / покрывало для бильярдного стола 10 футов Porter Fan с резинкой 330х195см",
+        "SKU": "9435",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Porter Billiards"
+      },
+      "format": "PRODUCT"
+    },
+    "47636b5f-5010-48fe-88dc-6deebb77945d": {
+      "children": [],
+      "data": {
+        "Name": "Чехол / покрывало для бильярдного стола 10 футов Арена с резинкой",
+        "SKU": "13934",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Porter Billiards"
+      },
+      "format": "PRODUCT"
+    },
+    "ce3cc5f6-2206-403d-be3b-94dc7186bd18": {
+      "children": [],
+      "data": {
+        "Name": "Чехол / покрывало для бильярдного стола 12 футов Porter Fan с резинкой",
+        "SKU": "9436",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Porter Billiards"
+      },
+      "format": "PRODUCT"
+    },
+    "72f63dcf-8d63-4f19-a008-b961e9c630c3": {
+      "children": [],
+      "data": {
+        "Name": "Чехол / покрывало для бильярдного стола 12 футов Арена с резинкой",
+        "SKU": "13935",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Porter Billiards"
+      },
+      "format": "PRODUCT"
+    },
+    "f2a439d7-7491-48d6-803f-a3d618237131": {
+      "children": [],
+      "data": {
+        "Name": "Чехол / покрывало для бильярдного стола 7 футов Porter Fan с резинкой 240х130 см",
+        "SKU": "16510",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Porter Billiards"
+      },
+      "format": "PRODUCT"
+    },
+    "33636eef-b383-46c8-ae21-a53d1de23266": {
+      "children": [],
+      "data": {
+        "Name": "Чехол / покрывало для бильярдного стола 7 футов Арена с резинкой",
+        "SKU": "13931",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Porter Billiards"
+      },
+      "format": "PRODUCT"
+    },
+    "204c768f-d0f6-4ead-9be2-a1b6de8a6a3b": {
+      "children": [],
+      "data": {
+        "Name": "Чехол / покрывало для бильярдного стола 8 футов Porter Fan с резинкой 265х150см",
+        "SKU": "9165",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Porter Billiards"
+      },
+      "format": "PRODUCT"
+    },
+    "3425fb1f-debd-494e-bfe3-937237ce0130": {
+      "children": [],
+      "data": {
+        "Name": "Чехол / покрывало для бильярдного стола 8 футов Арена с резинкой",
+        "SKU": "13932",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Porter Billiards"
+      },
+      "format": "PRODUCT"
+    },
+    "8bedd054-2785-44b6-9beb-812dd1feb98f": {
+      "children": [],
+      "data": {
+        "Name": "Чехол / покрывало для бильярдного стола 9 футов Porter Fan с резинкой 290x160см",
+        "SKU": "9166",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Porter Billiards"
+      },
+      "format": "PRODUCT"
+    },
+    "42e40c8d-c5c5-403a-ae16-951bd67264f3": {
+      "children": [],
+      "data": {
+        "Name": "Чехол / покрывало для бильярдного стола 9 футов Арена с резинкой",
+        "SKU": "13933",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Porter Billiards"
+      },
+      "format": "PRODUCT"
+    },
+    "dd615b7d-8daf-4a56-a180-2b5c20a743f3": {
+      "children": [
+        "f426fe75-8ec1-4d4d-98fe-d8f474e6bfa4",
+        "d7707125-4a2a-49d6-bea5-8b0aa93c078f",
+        "4c58afed-00c5-423a-a216-72e9b4ddfb60",
+        "7e49a15d-c348-4e46-b353-50448019dfa7",
+        "a5adf5dc-52f7-4659-94b3-f9d448308b16",
+        "9f5463d5-84fb-4c35-b8ad-699966afab74",
+        "d009ca62-783f-4fa4-886e-85e9d2930459",
+        "cc670b38-4bef-40ab-8346-1ae519c9e523",
+        "5842d794-cf51-4f54-91ec-2b008bba4cbf",
+        "52fbceb8-ef2f-4a4c-95ca-ec8f495bcd7f",
+        "10dd7635-77ff-4317-b6df-1453115b925e",
+        "37c32f97-479b-473c-a10b-9bd3b435f267",
+        "a74c1143-5007-405f-b51d-cbf1823decae",
+        "36a97a23-aac2-454d-9fdf-769282a1e0c9",
+        "1c9f9cd4-ea65-4c0b-99be-46a4a4bc6636",
+        "47643730-b001-406e-9d50-3bb2aa2b2fa9",
+        "d55645b2-d8de-40b4-877f-a8b3664a067e",
+        "595136a6-04ec-4ba0-953a-6e89f6adf219",
+        "03a39d15-732c-4f12-b53a-7b74f1a65813",
+        "940a91a7-08bb-42ae-9cb1-feafeba5d7f6",
+        "228389b8-494a-46c8-be0f-576142ab662b",
+        "be8514af-3353-4dc7-ae6f-4c6310c8e326",
+        "d2e9ee74-0597-49db-ba34-12953839f5db",
+        "efbff832-3ac6-419b-a144-f8b907dc8e10",
+        "c1555774-0c68-4ada-bf03-30319ae968c3",
+        "b37a9fc6-8020-4895-8483-053f3c548a9a",
+        "1b9ea198-a4b4-48f6-bfa7-83f181a70680",
+        "44781d41-50b0-458e-ba70-9aaabe637c3a",
+        "9d3d614c-8558-4de3-b59b-a298ab709509",
+        "f29c88cf-dbb2-4532-97c6-51def6ac1e6a",
+        "ef580714-853f-4f7c-9798-d290bcc84e32",
+        "e827ea16-1bc3-4f3c-acc1-2d72fba4f102",
+        "8010154f-11f1-4c9f-89e7-78fcf882497e",
+        "260ebc64-6d8a-4a1f-bdf5-81f323fdba9c",
+        "c036e02a-7df9-4031-b7e9-55b9f5c83ae9",
+        "651aa4f1-ac31-4e45-81d0-d7be6966cf7d",
+        "5cb7e577-438d-4b52-a422-917abd3af8f6",
+        "8062888c-37c5-4d76-b18a-909e9529f933",
+        "11ebb59b-0af9-4cd3-a40f-af9459bcb833",
+        "01c38b16-75a1-4435-b027-5243e9701c65",
+        "033ee5eb-cca1-4af1-ae7f-4e101a8b5fe1",
+        "f89ed19f-6adf-43b0-8a0d-f9e62d48baf2",
+        "7d8b123a-11e8-40f3-91a2-e4b26e48d865",
+        "b0b2b079-3b75-4e28-b313-9fd156eb79fe",
+        "b2a1d280-4fea-4df3-b70c-91c9b1269895",
+        "83d105f6-9efa-4c40-9743-1597f3a5bd06",
+        "93a37f7b-3390-4809-9d6b-cd420d3e0beb",
+        "eed07cde-71fb-46b1-9bc4-d4235e809360",
+        "b8d1e3c4-0c5c-41fc-90b2-998f58f4e27c",
+        "dcc2b117-4d32-469b-88c1-517b96930c40",
+        "034c3a64-5f5e-4af3-a530-4878a9d5bd73",
+        "864d8744-b85f-4b17-8dca-3507e0571b3e",
+        "33422fd1-c1c2-4010-9a79-bc5d171c8fa3",
+        "8dd36b56-3173-48c3-b71e-0226aa80d849",
+        "ec3620e5-56d4-4928-85ec-662a2bb77bec",
+        "a9abb8bb-a302-4d3d-bc1a-5128c63c809d",
+        "8aecd267-9eab-4c46-9c4e-1116bf7f7257",
+        "7d45a783-7f86-4417-82de-09036a88a515",
+        "36236d97-a232-42b5-a78d-5c5cfcedc941",
+        "db89449a-24e4-4c5e-98db-0a6cb8070347",
+        "47636b5f-5010-48fe-88dc-6deebb77945d",
+        "ce3cc5f6-2206-403d-be3b-94dc7186bd18",
+        "72f63dcf-8d63-4f19-a008-b961e9c630c3",
+        "f2a439d7-7491-48d6-803f-a3d618237131",
+        "33636eef-b383-46c8-ae21-a53d1de23266",
+        "204c768f-d0f6-4ead-9be2-a1b6de8a6a3b",
+        "3425fb1f-debd-494e-bfe3-937237ce0130",
+        "8bedd054-2785-44b6-9beb-812dd1feb98f",
+        "42e40c8d-c5c5-403a-ae16-951bd67264f3"
+      ],
+      "data": {
+        "Name": "Чехлы для столов",
+        "Count": "69",
+        "Path": ""
+      },
+      "format": "CATEGORY"
+    },
+    "af0fb7d5-f75a-4a8e-b367-21cbc87da10e": {
+      "children": [
+        "18dcfc3e-f29e-4654-b17c-cbf1b2e7bcf8",
+        "dd615b7d-8daf-4a56-a180-2b5c20a743f3"
+      ],
+      "data": {
+        "Name": "Чехлы и тубусы",
+        "Count": "0",
+        "Path": ""
+      },
+      "format": "CATEGORY"
+    },
+    "f431c1a9-6155-4dcf-ac60-15e614977a9b": {
+      "children": [],
+      "data": {
+        "Name": "Прочие шары",
+        "Count": "0",
+        "Path": ""
+      },
+      "format": "CATEGORY"
+    },
+    "b4ef213f-9a2d-4187-9f33-e5647e14f772": {
+      "children": [],
+      "data": {
+        "Name": "Шары для бильярда 57,2 мм Aramith Premium / шары для пула",
+        "SKU": "1823",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Aramith"
+      },
+      "format": "PRODUCT"
+    },
+    "10158069-6b2e-4363-b3cc-c38b21153bdb": {
+      "children": [
+        "b4ef213f-9a2d-4187-9f33-e5647e14f772"
+      ],
+      "data": {
+        "Name": "Пул",
+        "Count": "1",
+        "Path": ""
+      },
+      "format": "CATEGORY"
+    },
+    "22ea22e7-5c24-4ffd-b195-e2945fa78fcf": {
+      "children": [],
+      "data": {
+        "Name": "Русский бильярд",
+        "Count": "0",
+        "Path": ""
+      },
+      "format": "CATEGORY"
+    },
+    "799b74df-d2b4-47d4-a74f-864b3dcbf45d": {
+      "children": [],
+      "data": {
+        "Name": "Шары для снукера Standard 52,4 мм",
+        "SKU": "1837",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Porter Billiards"
+      },
+      "format": "PRODUCT"
+    },
+    "139f7ac0-4a9d-48e2-9ad0-d9fb83a7128e": {
+      "children": [
+        "799b74df-d2b4-47d4-a74f-864b3dcbf45d"
+      ],
+      "data": {
+        "Name": "Снукер",
+        "Count": "1",
+        "Path": ""
+      },
+      "format": "CATEGORY"
+    },
+    "87c29181-c589-4f0e-b8ab-c659314d0b35": {
+      "children": [],
+      "data": {
+        "Name": "Тренировочные",
+        "Count": "0",
+        "Path": ""
+      },
+      "format": "CATEGORY"
+    },
+    "3e4fec99-4389-4422-87ea-02336494680f": {
+      "children": [
+        "f431c1a9-6155-4dcf-ac60-15e614977a9b",
+        "10158069-6b2e-4363-b3cc-c38b21153bdb",
+        "22ea22e7-5c24-4ffd-b195-e2945fa78fcf",
+        "139f7ac0-4a9d-48e2-9ad0-d9fb83a7128e",
+        "87c29181-c589-4f0e-b8ab-c659314d0b35"
+      ],
+      "data": {
+        "Name": "Шары",
+        "Count": "0",
+        "Path": ""
+      },
+      "format": "CATEGORY"
+    },
+    "f88e00ca-fb33-4e60-8fe9-ce4046d919a0": {
+      "children": [
+        "e044dbb8-4e5e-4e60-a2bb-ac26df58ac2a",
+        "2affd858-097c-4aaa-9cc8-39933a9f3a67",
+        "d9cb7c8f-ca03-4059-ac35-5ea277d93bca",
+        "cb7e5939-b02b-4bc3-bcc5-a5538d85156b",
+        "564d88c3-af4c-4051-9986-3ffbd2e02107",
+        "b6a4684a-e198-4319-9543-d2f31ab4efca",
+        "360b9b9d-16c1-418f-8418-c0b49b6b7677",
+        "a6daccd5-4890-4dc8-bdad-c1c268493e58",
+        "af0fb7d5-f75a-4a8e-b367-21cbc87da10e",
+        "3e4fec99-4389-4422-87ea-02336494680f"
+      ],
+      "data": {
+        "Name": "Бильярд",
+        "Count": "0",
+        "Path": ""
+      },
+      "format": "CATEGORY"
+    },
+    "444cbf7f-8f47-4dcd-b84f-9ead77b90105": {
+      "children": [],
+      "data": {
+        "Name": "Прочее",
+        "Count": "0",
+        "Path": ""
+      },
+      "format": "CATEGORY"
+    },
+    "cdfea388-2cc0-4e5c-acc2-80453b6606fb": {
+      "children": [
+        "444cbf7f-8f47-4dcd-b84f-9ead77b90105"
+      ],
+      "data": {
+        "Name": "Аксессуары",
+        "Count": "0",
+        "Path": ""
+      },
+      "format": "CATEGORY"
+    },
+    "8867fae0-7651-46c8-9df8-59ffe27fa885": {
+      "children": [],
+      "data": {
+        "Name": "Дротики",
+        "Count": "0",
+        "Path": ""
+      },
+      "format": "CATEGORY"
+    },
+    "c3a5c4af-c1cb-4738-bda7-8068eaa013c7": {
+      "children": [
+        "8867fae0-7651-46c8-9df8-59ffe27fa885"
+      ],
+      "data": {
+        "Name": "Дротики",
+        "Count": "0",
+        "Path": ""
+      },
+      "format": "CATEGORY"
+    },
+    "1fae6aca-bd6c-4dbf-8991-9759a88ae564": {
+      "children": [
+        "cdfea388-2cc0-4e5c-acc2-80453b6606fb",
+        "c3a5c4af-c1cb-4738-bda7-8068eaa013c7"
+      ],
+      "data": {
+        "Name": "Дартс",
+        "Count": "0",
+        "Path": ""
+      },
+      "format": "CATEGORY"
+    },
+    "24df0771-4dc1-466f-9a97-732e7bebaab1": {
+      "children": [],
+      "data": {
+        "Name": "Аэрохоккей",
+        "Count": "0",
+        "Path": ""
+      },
+      "format": "CATEGORY"
+    },
+    "8255a2fd-8033-45e1-8396-fd61b899e508": {
+      "children": [
+        "24df0771-4dc1-466f-9a97-732e7bebaab1"
+      ],
+      "data": {
+        "Name": "Аэрохоккей",
+        "Count": "0",
+        "Path": ""
+      },
+      "format": "CATEGORY"
+    },
+    "b97fc5bf-573b-481f-81c6-abc5718d565f": {
+      "children": [],
+      "data": {
+        "Name": "Кикер",
+        "Count": "0",
+        "Path": ""
+      },
+      "format": "CATEGORY"
+    },
+    "78bf57f2-741b-4012-9757-ff48cce0c1fb": {
+      "children": [
+        "b97fc5bf-573b-481f-81c6-abc5718d565f"
+      ],
+      "data": {
+        "Name": "Настольный футбол",
+        "Count": "0",
+        "Path": ""
+      },
+      "format": "CATEGORY"
+    },
+    "089e7a10-216d-4a75-80f0-75a806293bff": {
+      "children": [
+        "8255a2fd-8033-45e1-8396-fd61b899e508",
+        "78bf57f2-741b-4012-9757-ff48cce0c1fb"
+      ],
+      "data": {
+        "Name": "Игровые столы",
+        "Count": "0",
+        "Path": ""
+      },
+      "format": "CATEGORY"
+    },
+    "6c5b9d1e-a355-422e-a864-e2e472721a81": {
+      "children": [],
+      "data": {
+        "Name": "Ракетки",
+        "Count": "0",
+        "Path": ""
+      },
+      "format": "CATEGORY"
+    },
+    "1f56fa60-50d4-4c60-b631-abee13bc94bb": {
+      "children": [
+        "6c5b9d1e-a355-422e-a864-e2e472721a81"
+      ],
+      "data": {
+        "Name": "Ракетки",
+        "Count": "0",
+        "Path": ""
+      },
+      "format": "CATEGORY"
+    },
+    "f99d0baa-5e35-45cb-b23b-1820c2c51c20": {
+      "children": [],
+      "data": {
+        "Name": "Теннисные столы",
+        "Count": "0",
+        "Path": ""
+      },
+      "format": "CATEGORY"
+    },
+    "7d27833b-f4be-4b51-b9a2-83fce362dec7": {
+      "children": [
+        "f99d0baa-5e35-45cb-b23b-1820c2c51c20"
+      ],
+      "data": {
+        "Name": "Столы",
+        "Count": "0",
+        "Path": ""
+      },
+      "format": "CATEGORY"
+    },
+    "83c799de-ef46-42b4-badd-8dbcaecc8c53": {
+      "children": [
+        "1f56fa60-50d4-4c60-b631-abee13bc94bb",
+        "7d27833b-f4be-4b51-b9a2-83fce362dec7"
+      ],
+      "data": {
+        "Name": "Настольный теннис",
+        "Count": "0",
+        "Path": ""
+      },
+      "format": "CATEGORY"
+    },
+    "7a1c9852-2c93-4b5d-836f-fddae2caaeb1": {
+      "children": [],
+      "data": {
+        "Name": "Карты для покера Ace Premium Club Special № 98 красная рубашка",
+        "SKU": "9448",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Нет бренда"
+      },
+      "format": "PRODUCT"
+    },
+    "f6337b9e-b7e8-4949-b98b-837abd8558e6": {
+      "children": [
+        "7a1c9852-2c93-4b5d-836f-fddae2caaeb1"
+      ],
+      "data": {
+        "Name": "Карты",
+        "Count": "1",
+        "Path": ""
+      },
+      "format": "CATEGORY"
+    },
+    "77411879-a360-41a0-884c-0202a239c4eb": {
+      "children": [
+        "f6337b9e-b7e8-4949-b98b-837abd8558e6"
+      ],
+      "data": {
+        "Name": "Карты",
+        "Count": "0",
+        "Path": ""
+      },
+      "format": "CATEGORY"
+    },
+    "2fb96f36-7eef-4fe8-81ac-31aaee3d0cb3": {
+      "children": [],
+      "data": {
+        "Name": "Наборы для покера",
+        "Count": "0",
+        "Path": ""
+      },
+      "format": "CATEGORY"
+    },
+    "04cccfa2-13bb-4c64-bda4-d1cbe3fab324": {
+      "children": [
+        "2fb96f36-7eef-4fe8-81ac-31aaee3d0cb3"
+      ],
+      "data": {
+        "Name": "Наборы",
+        "Count": "0",
+        "Path": ""
+      },
+      "format": "CATEGORY"
+    },
+    "ca003477-b39a-46b5-9915-5c0498b3564b": {
+      "children": [],
+      "data": {
+        "Name": "Фишки",
+        "Count": "0",
+        "Path": ""
+      },
+      "format": "CATEGORY"
+    },
+    "e6c72947-4587-483a-b35f-56b6bfa5dfc0": {
+      "children": [
+        "ca003477-b39a-46b5-9915-5c0498b3564b"
+      ],
+      "data": {
+        "Name": "Фишки",
+        "Count": "0",
+        "Path": ""
+      },
+      "format": "CATEGORY"
+    },
+    "00db382b-151e-470a-84fe-68bbbf39b5a9": {
+      "children": [
+        "77411879-a360-41a0-884c-0202a239c4eb",
+        "04cccfa2-13bb-4c64-bda4-d1cbe3fab324",
+        "e6c72947-4587-483a-b35f-56b6bfa5dfc0"
+      ],
+      "data": {
+        "Name": "Покер",
+        "Count": "0",
+        "Path": ""
+      },
+      "format": "CATEGORY"
+    },
+    "e1c56775-2647-464d-9576-fb141596a937": {
+      "children": [],
+      "data": {
+        "Name": "Кии для пула 4 штуки Porter Ramin 1-составные / цельные 150 см",
+        "SKU": "5866-4",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Porter Billiards"
+      },
+      "format": "PRODUCT"
+    },
+    "baa50df4-2d40-4d05-9c9b-6f7cbc101a8a": {
+      "children": [],
+      "data": {
+        "Name": "Шары для карамболя 61,5 мм Aramith Super Carom 4 шт",
+        "SKU": "15565",
+        "Price": "",
+        "Stock": "0",
+        "Brand": "Aramith"
+      },
+      "format": "PRODUCT"
+    },
+    "95d1e44b-63e1-4d05-a7cb-9129d2e0dbb1": {
+      "children": [
+        "e1c56775-2647-464d-9576-fb141596a937",
+        "baa50df4-2d40-4d05-9c9b-6f7cbc101a8a"
+      ],
+      "data": {
+        "Name": "Прочее",
+        "Count": "2",
+        "Path": ""
+      },
+      "format": "CATEGORY"
+    },
+    "0edcb360-385c-4501-8f82-5c170e22b678": {
+      "children": [
+        "95d1e44b-63e1-4d05-a7cb-9129d2e0dbb1"
+      ],
+      "data": {
+        "Name": "Без категории",
+        "Count": "0",
+        "Path": ""
+      },
+      "format": "CATEGORY"
+    },
+    "3427f377-3662-4477-a273-e5b14ce6b97a": {
+      "children": [
+        "0edcb360-385c-4501-8f82-5c170e22b678"
+      ],
+      "data": {
+        "Name": "Прочее",
+        "Count": "0",
+        "Path": ""
+      },
+      "format": "CATEGORY"
+    },
+    "254f6a57-d30a-4d5f-b4dd-4563e99d13a6": {
+      "children": [],
+      "data": {
+        "Name": "Тренажеры",
+        "Count": "0",
+        "Path": ""
+      },
+      "format": "CATEGORY"
+    },
+    "888fdaa6-a48b-44b4-970a-d3bf8188c1b2": {
+      "children": [
+        "254f6a57-d30a-4d5f-b4dd-4563e99d13a6"
+      ],
+      "data": {
+        "Name": "Тренажеры",
+        "Count": "0",
+        "Path": ""
+      },
+      "format": "CATEGORY"
+    },
+    "8822c6a4-da09-46bb-9df1-e22bf7419294": {
+      "children": [
+        "888fdaa6-a48b-44b4-970a-d3bf8188c1b2"
+      ],
+      "data": {
+        "Name": "Тренажеры",
+        "Count": "0",
+        "Path": ""
+      },
+      "format": "CATEGORY"
+    },
+    "9537899a-a249-455b-a8ac-e5cbed6100b0": {
+      "children": [
+        "f88e00ca-fb33-4e60-8fe9-ce4046d919a0",
+        "1fae6aca-bd6c-4dbf-8991-9759a88ae564",
+        "089e7a10-216d-4a75-80f0-75a806293bff",
+        "83c799de-ef46-42b4-badd-8dbcaecc8c53",
+        "00db382b-151e-470a-84fe-68bbbf39b5a9",
+        "3427f377-3662-4477-a273-e5b14ce6b97a",
+        "8822c6a4-da09-46bb-9df1-e22bf7419294"
+      ],
+      "data": {
+        "Name": "Каталог ERP",
+        "Count": "412",
+        "Path": ""
+      },
+      "format": "CATEGORY"
+    }
+  },
+  "properties": {
+    "tlversion": "3.1.4",
+    "topnodes": [
+      "9537899a-a249-455b-a8ac-e5cbed6100b0"
+    ]
+  }
+}

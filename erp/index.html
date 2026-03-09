@@ -19,10 +19,11 @@
 
     <div class="app">
         <!-- Sidebar: Main ERP Nav -->
-        <nav class="sidebar" v-if="currentRoute !== 'inventory'">
+        <nav class="sidebar" v-if="currentRoute !== 'inventory'" :style="{ width: sidebarWidth + 'px' }">
+            <div class="sidebar-resize" @mousedown="startMainSidebarResize"></div>
             <div class="sidebar-logo">
                 <span style="display: flex; align-items: center; gap: 8px;"><i class="ph-fill ph-chart-pie-slice" style="color: var(--accent); font-size: 24px;"></i> Lenta ERP</span>
-                <small>v0.2.0</small>
+                <small>v0.3.0</small>
             </div>
 
             <!-- Top-level items -->
@@ -30,24 +31,73 @@
                 <span class="icon"><i class="ph ph-squares-four"></i></span><span class="nav-label">Дашборд</span>
             </div>
             <div :class="['nav-item', { active: currentRoute === 'journal' }]" @click="navigate('journal')">
-                <span class="icon"><i class="ph ph-list-dashes"></i></span><span class="nav-label">Лента событий</span>
+                <span class="icon"><i class="ph ph-list-dashes"></i></span><span class="nav-label">Журнал</span>
             </div>
 
-            <!-- Group: Торговля -->
+            <div class="nav-sep"></div>
+
+            <!-- Group: Закупки -->
             <div class="nav-group">
-                <div class="nav-group-header" @click="toggleGroup('trade')">
-                    <i class="ph ph-package" style="font-size: 16px;"></i> Торговля
-                    <span :class="['chevron', { open: expandedGroups.trade }]"><i class="ph ph-caret-right"></i></span>
+                <div class="nav-group-header" @click="toggleGroup('purchasing')">
+                    <i class="ph ph-truck" style="font-size: 16px;"></i> Закупки
+                    <span :class="['chevron', { open: expandedGroups.purchasing }]"><i class="ph ph-caret-right"></i></span>
                 </div>
-                <div :class="['nav-group-items', { expanded: expandedGroups.trade }]">
+                <div :class="['nav-group-items', { expanded: expandedGroups.purchasing }]">
                     <div :class="['nav-item', { active: currentRoute === 'supplies' }]" @click="navigate('supplies')">
-                        <span class="icon"><i class="ph ph-truck"></i></span><span class="nav-label">Закупки</span>
+                        <span class="icon"><i class="ph ph-file-text"></i></span><span class="nav-label">Заказы поставщикам</span>
                     </div>
+                    <div :class="['nav-item', { active: currentRoute === 'receiving' }]" @click="navigate('receiving')">
+                        <span class="icon"><i class="ph ph-package"></i></span><span class="nav-label">Приёмки</span>
+                    </div>
+                    <div :class="['nav-item', { active: currentRoute === 'purchase_payments' }]" @click="navigate('purchase_payments')">
+                        <span class="icon"><i class="ph ph-credit-card"></i></span><span class="nav-label">Оплаты</span>
+                    </div>
+                    <div :class="['nav-item', { active: currentRoute === 'suppliers' }]" @click="navigate('suppliers')">
+                        <span class="icon"><i class="ph ph-address-book"></i></span><span class="nav-label">Поставщики</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Group: Продажи -->
+            <div class="nav-group">
+                <div class="nav-group-header" @click="toggleGroup('sales')">
+                    <i class="ph ph-shopping-cart" style="font-size: 16px;"></i> Продажи
+                    <span :class="['chevron', { open: expandedGroups.sales }]"><i class="ph ph-caret-right"></i></span>
+                </div>
+                <div :class="['nav-group-items', { expanded: expandedGroups.sales }]">
                     <div :class="['nav-item', { active: currentRoute === 'sales' }]" @click="navigate('sales')">
-                        <span class="icon"><i class="ph ph-shopping-cart"></i></span><span class="nav-label">Продажи</span>
+                        <span class="icon"><i class="ph ph-file-text"></i></span><span class="nav-label">Заказы покупателей</span>
                     </div>
+                    <div :class="['nav-item', { active: currentRoute === 'shipments' }]" @click="navigate('shipments')">
+                        <span class="icon"><i class="ph ph-export"></i></span><span class="nav-label">Отгрузки</span>
+                    </div>
+                    <div :class="['nav-item', { active: currentRoute === 'returns' }]" @click="navigate('returns')">
+                        <span class="icon"><i class="ph ph-arrow-u-up-left"></i></span><span class="nav-label">Возвраты</span>
+                    </div>
+                    <div :class="['nav-item', { active: currentRoute === 'incoming_payments' }]" @click="navigate('incoming_payments')">
+                        <span class="icon"><i class="ph ph-money"></i></span><span class="nav-label">Поступления</span>
+                    </div>
+                    <div :class="['nav-item', { active: currentRoute === 'profitability' }]" @click="navigate('profitability')">
+                        <span class="icon"><i class="ph ph-chart-line-up"></i></span><span class="nav-label">Доходность</span>
+                    </div>
+                    <div :class="['nav-item', { active: currentRoute === 'crm' }]" @click="navigate('crm')">
+                        <span class="icon"><i class="ph ph-user-circle"></i></span><span class="nav-label">Клиенты</span>
+                    </div>
+                    <div :class="['nav-item', { active: currentRoute === 'deals' }]" @click="navigate('deals')">
+                        <span class="icon"><i class="ph ph-handshake"></i></span><span class="nav-label">Сделки</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Group: Товары -->
+            <div class="nav-group">
+                <div class="nav-group-header" @click="toggleGroup('goods')">
+                    <i class="ph ph-package" style="font-size: 16px;"></i> Товары
+                    <span :class="['chevron', { open: expandedGroups.goods }]"><i class="ph ph-caret-right"></i></span>
+                </div>
+                <div :class="['nav-group-items', { expanded: expandedGroups.goods }]">
                     <div :class="['nav-item', { active: currentRoute === 'inventory' }]" @click="navigate('inventory')">
-                        <span class="icon"><i class="ph ph-factory"></i></span><span class="nav-label">Склад</span>
+                        <span class="icon"><i class="ph ph-squares-four"></i></span><span class="nav-label">Каталог</span>
                     </div>
                 </div>
             </div>
@@ -60,7 +110,7 @@
                 </div>
                 <div :class="['nav-group-items', { expanded: expandedGroups.finance }]">
                     <div :class="['nav-item', { active: currentRoute === 'finance' }]" @click="navigate('finance')">
-                        <span class="icon"><i class="ph ph-money"></i></span><span class="nav-label">Расходы / Доходы</span>
+                        <span class="icon"><i class="ph ph-money"></i></span><span class="nav-label">Транзакции</span>
                     </div>
                     <div :class="['nav-item', { active: currentRoute === 'reports' }]" @click="navigate('reports')">
                         <span class="icon"><i class="ph ph-chart-bar"></i></span><span class="nav-label">Отчёты</span>
@@ -68,24 +118,7 @@
                 </div>
             </div>
 
-            <!-- Group: CRM -->
-            <div class="nav-group">
-                <div class="nav-group-header" @click="toggleGroup('crm')">
-                    <i class="ph ph-users" style="font-size: 16px;"></i> CRM
-                    <span :class="['chevron', { open: expandedGroups.crm }]"><i class="ph ph-caret-right"></i></span>
-                </div>
-                <div :class="['nav-group-items', { expanded: expandedGroups.crm }]">
-                    <div :class="['nav-item', { active: currentRoute === 'crm' }]" @click="navigate('crm')">
-                        <span class="icon"><i class="ph ph-user-circle"></i></span><span class="nav-label">Клиенты</span>
-                    </div>
-                    <div :class="['nav-item', { active: currentRoute === 'deals' }]" @click="navigate('deals')">
-                        <span class="icon"><i class="ph ph-handshake"></i></span><span class="nav-label">Сделки</span>
-                    </div>
-                    <div :class="['nav-item', { active: currentRoute === 'suppliers' }]" @click="navigate('suppliers')">
-                        <span class="icon"><i class="ph ph-truck"></i></span><span class="nav-label">Поставщики</span>
-                    </div>
-                </div>
-            </div>
+            <div class="nav-sep"></div>
 
             <!-- Group: Задачи -->
             <div class="nav-group">
@@ -107,7 +140,6 @@
             </div>
 
             <div class="nav-spacer"></div>
-            <div class="nav-sep"></div>
 
             <!-- Bottom items -->
             <div :class="['nav-item', { active: currentRoute === 'ai' }]" @click="navigate('ai')">
@@ -118,35 +150,18 @@
             </div>
         </nav>
 
-        <!-- Sidebar: Catalog (replaces main nav for Склад) -->
+        <!-- Sidebar: Catalog (replaces main nav for Товары) -->
         <nav class="catalog-sidebar" v-if="currentRoute === 'inventory'" :style="{ width: catalogSidebarWidth + 'px' }">
             <div class="catalog-sidebar-resize" @mousedown="startSidebarResize"></div>
             <div class="catalog-sidebar-header">
                 <div class="back-link" @click="navigate('dashboard')">
                     <i class="ph ph-arrow-left"></i> Назад в ERP
                 </div>
-                <h3>🏭 Склад</h3>
+                <h3>📦 Товары</h3>
                 <input class="form-input" type="text" v-model="catalogFilter.q" placeholder="Поиск товаров..." @input="debounceCatalogSearch">
             </div>
 
-            <!-- Section nav -->
-            <ul class="catalog-nav">
-                <li :class="['catalog-nav-item', { active: inventoryTab === 'catalog' }]" @click="switchInventoryTab('catalog')">
-                    <i class="ph ph-squares-four"></i> Каталог
-                    <span class="cnt">{{ catalogTotal }}</span>
-                </li>
-                <li :class="['catalog-nav-item', { active: inventoryTab === 'stock' }]" @click="switchInventoryTab('stock')">
-                    <i class="ph ph-warehouse"></i> Остатки
-                    <span class="cnt">{{ inventoryList.length }}</span>
-                </li>
-                <li :class="['catalog-nav-item', { active: inventoryTab === 'movements' }]" @click="switchInventoryTab('movements')">
-                    <i class="ph ph-arrows-left-right"></i> Движения
-                    <span class="cnt">{{ movements.length }}</span>
-                </li>
-            </ul>
-
-            <div class="catalog-sidebar-body" v-if="inventoryTab === 'catalog'">
-                <div class="catalog-nav-sep"></div>
+            <div class="catalog-sidebar-body">
 
                 <!-- Sidebar view mode toggle -->
                 <div style="display:flex;gap:4px;padding:0 12px 8px;">
@@ -282,66 +297,9 @@
                     </div>
                 </div>
 
-                <!-- Brands accordion -->
-                <div class="catalog-sidebar-section" v-if="catalogBrands.length">
-                    <div class="accordion-toggle" @click="sidebarAccordion.brands = !sidebarAccordion.brands">
-                        <h4>Бренд</h4>
-                        <i :class="['ph ph-caret-down acc-icon', { open: sidebarAccordion.brands }]"></i>
-                    </div>
-                    <div :class="['accordion-body', { collapsed: !sidebarAccordion.brands }]" :style="sidebarAccordion.brands ? 'max-height:600px' : ''">
-                        <div class="sidebar-filter" v-for="b in catalogBrands" :key="b">
-                            <label>
-                                <input type="checkbox" :value="b" v-model="catalogFilter.brands" @change="loadCatalog">
-                                {{ b }}
-                            </label>
-                        </div>
-                    </div>
-                </div>
 
-                <!-- Sources accordion -->
-                <div class="catalog-sidebar-section" v-if="catalogSources.length">
-                    <div class="accordion-toggle" @click="sidebarAccordion.sources = !sidebarAccordion.sources">
-                        <h4>Источник</h4>
-                        <i :class="['ph ph-caret-down acc-icon', { open: sidebarAccordion.sources }]"></i>
-                    </div>
-                    <div :class="['accordion-body', { collapsed: !sidebarAccordion.sources }]" :style="sidebarAccordion.sources ? 'max-height:600px' : ''">
-                        <div class="sidebar-filter" v-for="s in catalogSources" :key="s">
-                            <label>
-                                <input type="checkbox" :value="s" v-model="catalogFilter.sources" @change="loadCatalog">
-                                {{ sourceLabel(s) }}
-                            </label>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Suppliers accordion -->
-                <div class="catalog-sidebar-section" v-if="catalogSuppliers.length">
-                    <div class="accordion-toggle" @click="sidebarAccordion.suppliers = !sidebarAccordion.suppliers">
-                        <h4>Поставщик</h4>
-                        <i :class="['ph ph-caret-down acc-icon', { open: sidebarAccordion.suppliers }]"></i>
-                    </div>
-                    <div :class="['accordion-body', { collapsed: !sidebarAccordion.suppliers }]" :style="sidebarAccordion.suppliers ? 'max-height:600px' : ''">
-                        <div class="sidebar-filter" v-for="s in catalogSuppliers" :key="s">
-                            <label>
-                                <input type="checkbox" :value="s" v-model="catalogFilter.suppliers" @change="loadCatalog">
-                                {{ s }}
-                            </label>
-                        </div>
-                    </div>
-                </div>
             </div>
 
-            <!-- Stock/Movements: sidebar actions -->
-            <div class="catalog-sidebar-body" v-if="inventoryTab === 'stock' || inventoryTab === 'movements'">
-                <div class="catalog-nav-sep"></div>
-                <div class="catalog-sidebar-section">
-                    <h4>Операции</h4>
-                    <button class="btn btn-success btn-sm" style="width:100%;margin-bottom:6px" @click="showModal='inventoryReceive'">📥 Приход</button>
-                    <button class="btn btn-danger btn-sm" style="width:100%;margin-bottom:6px" @click="showModal='inventoryShip'">📤 Расход</button>
-                    <button class="btn btn-ghost btn-sm" style="width:100%;margin-bottom:6px" @click="showModal='inventoryAdjust'">📋 Коррекция</button>
-                    <button class="btn btn-ghost btn-sm" style="width:100%" @click="showModal='inventoryTransfer'">🔄 Перемещение</button>
-                </div>
-            </div>
         </nav>
 
         <!-- Main content -->
@@ -622,6 +580,11 @@
                                 <label><input type="checkbox" :checked="colVisible.sell_price" @change="toggleColVisible('sell_price')" style="accent-color:var(--accent)"> Продажа</label>
                                 <label><input type="checkbox" :checked="colVisible.stock" @change="toggleColVisible('stock')" style="accent-color:var(--accent)"> Остаток</label>
                                 <label><input type="checkbox" :checked="colVisible.source" @change="toggleColVisible('source')" style="accent-color:var(--accent)"> Источник</label>
+                                <template v-if="isCueCategory">
+                                    <label><input type="checkbox" :checked="colVisible.cue_type" @change="toggleColVisible('cue_type')" style="accent-color:var(--accent)"> Тип кия</label>
+                                    <label><input type="checkbox" :checked="colVisible.cue_parts" @change="toggleColVisible('cue_parts')" style="accent-color:var(--accent)"> Части</label>
+                                    <label><input type="checkbox" :checked="colVisible.cue_material" @change="toggleColVisible('cue_material')" style="accent-color:var(--accent)"> Материал</label>
+                                </template>
                             </div>
                         </div>
                         <span class="catalog-stats">
@@ -633,6 +596,7 @@
                     <div class="bulk-bar" v-if="bulkSelected.length">
                         <span>Выбрано: <b class="bulk-count">{{ bulkSelected.length }}</b></span>
                         <button @click="showModal='bulkMove'"><i class="ph ph-folder-simple-arrow-right"></i> Переместить</button>
+                        <button v-if="isCueCategory" @click="showModal='bulkAttr'"><i class="ph ph-tag"></i> Назначить атрибуты</button>
                         <button @click="selectAllVisible">Выбрать все ({{ catalogProducts.length }})</button>
                         <span class="bulk-close" @click="bulkSelected.length=0;bulkMode=false" title="Снять выделение"><i class="ph ph-x"></i></span>
                     </div>
@@ -728,6 +692,33 @@
                                             </div>
                                         </div>
                                     </th>
+                                    <th v-if="isCueCategory && colVisible.cue_type">
+                                        <div class="col-header">
+                                            <span>Тип</span>
+                                            <i :class="['ph ph-funnel col-filter-btn', { active: catalogFilter.cue_types.length }]" @click.stop="toggleColFilter('cue_type')"></i>
+                                            <div class="col-filter-popup" v-if="colFilterOpen === 'cue_type'" @click.stop>
+                                                <label v-for="t in cueTypeOptions" :key="t"><input type="checkbox" :value="t" v-model="catalogFilter.cue_types" @change="loadCatalog" style="accent-color:var(--accent)"> {{ t.charAt(0).toUpperCase() + t.slice(1) }}</label>
+                                            </div>
+                                        </div>
+                                    </th>
+                                    <th v-if="isCueCategory && colVisible.cue_parts">
+                                        <div class="col-header">
+                                            <span>Части</span>
+                                            <i :class="['ph ph-funnel col-filter-btn', { active: catalogFilter.cue_parts.length }]" @click.stop="toggleColFilter('cue_parts')"></i>
+                                            <div class="col-filter-popup" v-if="colFilterOpen === 'cue_parts'" @click.stop>
+                                                <label v-for="p in cuePartsOptions" :key="p"><input type="checkbox" :value="p" v-model="catalogFilter.cue_parts" @change="loadCatalog" style="accent-color:var(--accent)"> {{ p === 1 ? 'Цельный (1)' : 'Составной (2+)' }}</label>
+                                            </div>
+                                        </div>
+                                    </th>
+                                    <th v-if="isCueCategory && colVisible.cue_material">
+                                        <div class="col-header">
+                                            <span>Материал</span>
+                                            <i :class="['ph ph-funnel col-filter-btn', { active: catalogFilter.cue_materials.length }]" @click.stop="toggleColFilter('cue_material')"></i>
+                                            <div class="col-filter-popup" v-if="colFilterOpen === 'cue_material'" @click.stop>
+                                                <label v-for="m in cueMaterialOptions" :key="m"><input type="checkbox" :value="m" v-model="catalogFilter.cue_materials" @change="loadCatalog" style="accent-color:var(--accent)"> {{ m.charAt(0).toUpperCase() + m.slice(1) }}</label>
+                                            </div>
+                                        </div>
+                                    </th>
                                     <th></th>
                                 </tr>
                             </thead>
@@ -739,7 +730,7 @@
                                         <i v-else class="ph ph-image" style="font-size:20px;color:var(--border)"></i>
                                     </td>
                                     <td v-if="colVisible.sku" style="font-family:monospace;font-size:12px">{{ p.sku }}</td>
-                                    <td v-if="colVisible.name" style="font-weight:500">{{ p.name }}</td>
+                                    <td v-if="colVisible.name" style="font-weight:500;white-space:normal;min-width:200px">{{ p.name }}</td>
                                     <td v-if="colVisible.brand" style="font-size:12px;color:var(--accent2)">{{ p.brand || '—' }}</td>
                                     <td v-if="colVisible.supplier" style="font-size:12px;color:var(--text2)">{{ p.supplier_alias || p.supplier || '—' }}</td>
                                     <td v-if="colVisible.purchase_price">{{ p.purchase_price ? formatMoney(p.purchase_price) : '—' }}</td>
@@ -750,6 +741,9 @@
                                         </span>
                                     </td>
                                     <td v-if="colVisible.source"><span class="badge badge-inventory" v-if="p.marketplace_source">{{ sourceLabel(p.marketplace_source) }}</span></td>
+                                    <td v-if="isCueCategory && colVisible.cue_type" style="font-size:12px">{{ p.cue_type || '—' }}</td>
+                                    <td v-if="isCueCategory && colVisible.cue_parts" style="font-size:12px">{{ p.cue_parts || '—' }}</td>
+                                    <td v-if="isCueCategory && colVisible.cue_material" style="font-size:12px">{{ p.cue_material || '—' }}</td>
                                     <td class="actions">
                                         <button class="btn-icon" title="Редактировать" @click.stop="editProduct(p)"><i class="ph ph-pencil-simple"></i></button>
                                         <button class="btn-icon danger" title="Удалить" @click.stop="confirmDelete('product', p)"><i class="ph ph-trash"></i></button>
@@ -977,7 +971,13 @@
                         <h1>{{ { tasks: '✅ Все задачи', tasks_my: '📌 Мои задачи', tasks_from: '📤 От меня' }[currentRoute] }}</h1>
                         <div class="subtitle">Планирование и контроль</div>
                     </div>
-                    <button class="btn btn-primary" @click="showModal='taskCreate'">+ Задача</button>
+                    <div style="display:flex;gap:8px;align-items:center">
+                        <div class="view-toggle">
+                            <button :class="{ active: taskView === 'list' }" @click="taskView='list'" title="Список"><i class="ph ph-list"></i></button>
+                            <button :class="{ active: taskView === 'board' }" @click="taskView='board'" title="Доска"><i class="ph ph-kanban"></i></button>
+                        </div>
+                        <button class="btn btn-primary" @click="showModal='taskCreate'">+ Задача</button>
+                    </div>
                 </div>
 
                 <div class="cards" v-if="taskStats">
@@ -992,7 +992,7 @@
                 </div>
 
                 <div class="filters">
-                    <select class="form-select" v-model="taskFilter.status" @change="loadTasks">
+                    <select class="form-select" v-model="taskFilter.status" @change="loadTasks" v-if="taskView === 'list'">
                         <option value="">Все статусы</option>
                         <option value="todo">К выполнению</option>
                         <option value="in_progress">В работе</option>
@@ -1008,7 +1008,8 @@
                     </select>
                 </div>
 
-                <div class="table-wrap">
+                <!-- List View -->
+                <div class="table-wrap" v-if="taskView === 'list'">
                     <table>
                         <thead>
                             <tr><th style="width:40px"></th><th>Задача</th><th>Приоритет</th><th>Статус</th><th>Исполнитель</th><th>Срок</th><th style="width:80px"></th></tr>
@@ -1032,6 +1033,47 @@
                             <tr v-if="!tasks.items?.length"><td colspan="7" style="text-align:center;color:var(--text2)">Нет задач</td></tr>
                         </tbody>
                     </table>
+                </div>
+
+                <!-- Board (Kanban) View -->
+                <div class="kanban-board" v-if="taskView === 'board'">
+                    <div class="kanban-column" v-for="col in taskColumns" :key="col.status"
+                         @dragover.prevent @dragenter.prevent="dragOverColumn = col.status"
+                         @drop="dropTask($event, col.status)"
+                         :class="{ 'drag-over': dragOverColumn === col.status }">
+                        <div class="kanban-column-header">
+                            <span class="kanban-column-title">
+                                <span :class="'kanban-dot kanban-dot-' + col.status"></span>
+                                {{ col.label }}
+                            </span>
+                            <span class="kanban-column-count">{{ tasksByStatus[col.status]?.length || 0 }}</span>
+                        </div>
+                        <div class="kanban-column-body">
+                            <div class="kanban-card" v-for="t in tasksByStatus[col.status]" :key="t.id"
+                                 draggable="true"
+                                 @dragstart="dragTask($event, t)"
+                                 @dragend="dragOverColumn = null"
+                                 :class="{ 'overdue': isOverdue(t) }">
+                                <div class="kanban-card-title">{{ t.title }}</div>
+                                <div class="kanban-card-meta">
+                                    <span :class="'badge badge-' + t.priority" style="font-size:11px">{{ t.priority }}</span>
+                                    <span v-if="t.assignee" class="kanban-card-assignee"><i class="ph ph-user"></i> {{ t.assignee }}</span>
+                                </div>
+                                <div class="kanban-card-footer" v-if="t.due_date">
+                                    <span :style="isOverdue(t) ? 'color:var(--red)' : 'color:var(--text2)'">
+                                        <i class="ph ph-calendar"></i> {{ t.due_date }}
+                                    </span>
+                                </div>
+                                <div class="kanban-card-actions">
+                                    <button class="btn-icon btn-sm" @click.stop="editTask(t)" title="Редактировать"><i class="ph ph-pencil-simple"></i></button>
+                                    <button class="btn-icon btn-sm" @click.stop="toggleTask(t)" :title="t.status === 'done' ? 'Вернуть' : 'Завершить'">
+                                        <i :class="t.status === 'done' ? 'ph ph-arrow-counter-clockwise' : 'ph ph-check'"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <div v-if="!tasksByStatus[col.status]?.length" class="kanban-empty">Нет задач</div>
+                        </div>
+                    </div>
                 </div>
             </template>
 
@@ -1350,6 +1392,54 @@
                     </div>
                 </div>
             </template>
+
+            <!-- Приёмки (stub) -->
+            <template v-if="currentRoute === 'receiving'">
+                <div class="page-header">
+                    <div><h1>📥 Приёмки</h1><div class="subtitle">Приёмка товаров от поставщиков</div></div>
+                </div>
+                <div class="empty-state"><div class="icon">🚧</div><p>Раздел в разработке</p></div>
+            </template>
+
+            <!-- Оплаты поставщикам (stub) -->
+            <template v-if="currentRoute === 'purchase_payments'">
+                <div class="page-header">
+                    <div><h1>💳 Оплаты поставщикам</h1><div class="subtitle">Исходящие платежи</div></div>
+                </div>
+                <div class="empty-state"><div class="icon">🚧</div><p>Раздел в разработке</p></div>
+            </template>
+
+            <!-- Отгрузки (stub) -->
+            <template v-if="currentRoute === 'shipments'">
+                <div class="page-header">
+                    <div><h1>📤 Отгрузки</h1><div class="subtitle">Отгрузка товаров покупателям</div></div>
+                </div>
+                <div class="empty-state"><div class="icon">🚧</div><p>Раздел в разработке</p></div>
+            </template>
+
+            <!-- Возвраты покупателей (stub) -->
+            <template v-if="currentRoute === 'returns'">
+                <div class="page-header">
+                    <div><h1>↩️ Возвраты покупателей</h1><div class="subtitle">Возвраты от клиентов</div></div>
+                </div>
+                <div class="empty-state"><div class="icon">🚧</div><p>Раздел в разработке</p></div>
+            </template>
+
+            <!-- Поступления (stub) -->
+            <template v-if="currentRoute === 'incoming_payments'">
+                <div class="page-header">
+                    <div><h1>💰 Поступления</h1><div class="subtitle">Входящие платежи от покупателей</div></div>
+                </div>
+                <div class="empty-state"><div class="icon">🚧</div><p>Раздел в разработке</p></div>
+            </template>
+
+            <!-- Доходность (stub) -->
+            <template v-if="currentRoute === 'profitability'">
+                <div class="page-header">
+                    <div><h1>📈 Доходность</h1><div class="subtitle">Анализ прибыльности</div></div>
+                </div>
+                <div class="empty-state"><div class="icon">🚧</div><p>Раздел в разработке</p></div>
+            </template>
         </div>
     </div>
 
@@ -1373,6 +1463,40 @@
             <div class="modal-buttons" style="margin-top:12px">
                 <button class="btn btn-ghost" @click="showModal=null">Отмена</button>
                 <button class="btn btn-primary" :disabled="!bulkMoveTarget" @click="executeBulkMove">Переместить</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bulk Assign Attributes Modal -->
+    <div class="modal-overlay" v-if="showModal==='bulkAttr'" @click.self="showModal=null">
+        <div class="modal" style="max-width:420px">
+            <h2><i class="ph ph-tag"></i> Назначить атрибуты</h2>
+            <p style="font-size:13px;color:var(--text2);margin-bottom:16px">Выбрано товаров: <b>{{ bulkSelected.length }}</b>. Оставьте поле пустым чтобы не менять.</p>
+            <div class="form-group">
+                <label>Тип кия</label>
+                <select class="form-select" v-model="bulkAttrFields.cue_type">
+                    <option value="">— не менять —</option>
+                    <option v-for="t in cueTypeOptions" :key="t" :value="t">{{ t.charAt(0).toUpperCase() + t.slice(1) }}</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Части</label>
+                <select class="form-select" v-model="bulkAttrFields.cue_parts">
+                    <option value="">— не менять —</option>
+                    <option :value="1">Цельный (1)</option>
+                    <option :value="2">Составной (2+)</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Материал</label>
+                <select class="form-select" v-model="bulkAttrFields.cue_material">
+                    <option value="">— не менять —</option>
+                    <option v-for="m in cueMaterialOptions" :key="m" :value="m">{{ m.charAt(0).toUpperCase() + m.slice(1) }}</option>
+                </select>
+            </div>
+            <div class="modal-buttons">
+                <button class="btn btn-ghost" @click="showModal=null">Отмена</button>
+                <button class="btn btn-primary" @click="executeBulkAttr">Применить</button>
             </div>
         </div>
     </div>
@@ -1781,6 +1905,32 @@
             <div class="form-group"><label>OZON Product ID</label><input class="form-input" v-model="editData.ozon_product_id"></div>
             <div class="form-group"><label>OZON SKU</label><input class="form-input" v-model="editData.ozon_sku"></div>
             <div class="form-group"><label>Поставщик</label><input class="form-input" v-model="editData.supplier" list="supplier-list"><datalist id="supplier-list"><option v-for="s in catalogSuppliers" :key="s" :value="s"></option></datalist></div>
+            <template v-if="isCueCategory">
+                <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px">
+                    <div class="form-group">
+                        <label>Тип кия</label>
+                        <select class="form-select" v-model="editData.cue_type">
+                            <option :value="null">—</option>
+                            <option v-for="t in cueTypeOptions" :key="t" :value="t">{{ t.charAt(0).toUpperCase() + t.slice(1) }}</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Части</label>
+                        <select class="form-select" v-model="editData.cue_parts">
+                            <option :value="null">—</option>
+                            <option :value="1">Цельный (1)</option>
+                            <option :value="2">Составной (2+)</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Материал</label>
+                        <select class="form-select" v-model="editData.cue_material">
+                            <option :value="null">—</option>
+                            <option v-for="m in cueMaterialOptions" :key="m" :value="m">{{ m.charAt(0).toUpperCase() + m.slice(1) }}</option>
+                        </select>
+                    </div>
+                </div>
+            </template>
             <div class="modal-buttons">
                 <button class="btn btn-ghost" @click="showModal=null">Отмена</button>
                 <button class="btn btn-primary" @click="saveProduct">Сохранить</button>

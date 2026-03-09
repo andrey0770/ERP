@@ -1,0 +1,6 @@
+{
+  "devDependencies": {
+    "@vue/compiler-dom": "^3.5.13",
+    "jsdom": "^28.1.0"
+  }
+}

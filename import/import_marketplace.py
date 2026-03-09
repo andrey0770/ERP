@@ -20,8 +20,24 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 from pathlib import Path
 from dotenv import load_dotenv
 
-# Load .env from same directory as this script
-load_dotenv(Path(__file__).parent / ".env")
+# Load .env: local first, then Google Drive fallback
+_script_dir = Path(__file__).parent
+_env_candidates = [
+    _script_dir / ".env",                          # local (git-ignored)
+    Path.home() / "Google Drive" / "secrets" / "ERP" / ".env",
+    Path("G:/Мой диск/secrets/ERP/.env"),           # Google Drive (Windows RU)
+    Path("G:/My Drive/secrets/ERP/.env"),            # Google Drive (Windows EN)
+]
+_env_loaded = False
+for _env_path in _env_candidates:
+    if _env_path.is_file():
+        load_dotenv(_env_path)
+        _env_loaded = True
+        break
+if not _env_loaded:
+    raise FileNotFoundError(
+        "Не найден .env с секретами. Скопируйте его из Google Drive в import/.env"
+    )
 
 # Force unbuffered output
 sys.stdout.reconfigure(encoding='utf-8')

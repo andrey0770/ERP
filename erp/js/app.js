@@ -16,13 +16,37 @@ const app = createApp({
     setup() {
         // ── Navigation ──────────────────────────────
         const currentRoute = ref('inventory');
-        const expandedGroups = reactive({ trade: true, finance: true, crm: true, tasks: true });
+        const expandedGroups = reactive({ purchasing: true, sales: true, goods: true, finance: true, tasks: true });
+        const sidebarWidth = ref(parseInt(localStorage.getItem('sidebarWidth')) || 240);
 
         function toggleGroup(group) {
             expandedGroups[group] = !expandedGroups[group];
         }
 
-        const routeGroups = { supplies: 'trade', sales: 'trade', inventory: 'trade', products: 'trade', finance: 'finance', reports: 'finance', crm: 'crm', deals: 'crm', tasks: 'tasks', tasks_my: 'tasks', tasks_from: 'tasks' };
+        function startMainSidebarResize(e) {
+            e.preventDefault();
+            const startX = e.clientX;
+            const startW = sidebarWidth.value;
+            const handle = e.target;
+            handle.classList.add('dragging');
+            document.body.style.cursor = 'col-resize';
+            document.body.style.userSelect = 'none';
+            function onMove(ev) {
+                sidebarWidth.value = Math.max(180, Math.min(400, startW + ev.clientX - startX));
+            }
+            function onUp() {
+                handle.classList.remove('dragging');
+                document.body.style.cursor = '';
+                document.body.style.userSelect = '';
+                localStorage.setItem('sidebarWidth', sidebarWidth.value);
+                document.removeEventListener('mousemove', onMove);
+                document.removeEventListener('mouseup', onUp);
+            }
+            document.addEventListener('mousemove', onMove);
+            document.addEventListener('mouseup', onUp);
+        }
+
+        const routeGroups = { supplies: 'purchasing', receiving: 'purchasing', purchase_payments: 'purchasing', suppliers: 'purchasing', sales: 'sales', shipments: 'sales', returns: 'sales', incoming_payments: 'sales', profitability: 'sales', crm: 'sales', deals: 'sales', inventory: 'goods', finance: 'finance', reports: 'finance', tasks: 'tasks', tasks_my: 'tasks', tasks_from: 'tasks' };
 
         function navigate(route) {
             currentRoute.value = route;
@@ -120,7 +144,7 @@ const app = createApp({
         // ── Return all to template ──────────────────
         return {
             // Navigation
-            currentRoute, expandedGroups, toggleGroup, navigate,
+            currentRoute, expandedGroups, toggleGroup, navigate, sidebarWidth, startMainSidebarResize,
             // Toasts
             toasts, toast,
             // Shared state

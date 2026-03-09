@@ -9,10 +9,23 @@
 
 import paramiko
 from pathlib import Path
+import os
 
-SFTP_HOST = "sborka.billiarder.ru"
-SFTP_USER = "bril"
-SFTP_PASS = "V471=Zr*m1t2mfVk"
+# ── Load .env ──
+def load_env():
+    env_path = Path(__file__).resolve().parent / ".env"
+    if env_path.exists():
+        for line in env_path.read_text(encoding="utf-8").splitlines():
+            line = line.strip()
+            if line and not line.startswith("#") and "=" in line:
+                key, _, val = line.partition("=")
+                os.environ.setdefault(key.strip(), val.strip())
+
+load_env()
+
+SFTP_HOST = os.environ.get("SFTP_HOST", "sborka.billiarder.ru")
+SFTP_USER = os.environ.get("SFTP_USER", "")
+SFTP_PASS = os.environ.get("SFTP_PASS", "")
 REMOTE_FOLDER = "erp"
 
 DEPLOY_TARGETS = [

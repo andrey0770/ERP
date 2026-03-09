@@ -210,7 +210,7 @@ function initCatalog(ctx) {
 
     async function saveProduct() {
         try {
-            await api('products.update', { id: editData.id, sku: editData.sku, name: editData.name, barcode: editData.barcode, purchase_price: editData.purchase_price, sell_price: editData.sell_price, min_stock: editData.min_stock, ozon_product_id: editData.ozon_product_id, ozon_sku: editData.ozon_sku, supplier: editData.supplier });
+            await api('products.update', { id: editData.id, sku: editData.sku, name: editData.name, barcode: editData.barcode, purchase_price: editData.purchase_price, sell_price: editData.sell_price, min_stock: editData.min_stock, ozon_product_id: editData.ozon_product_id, ozon_sku: editData.ozon_sku, supplier: editData.supplier, cue_type: editData.cue_type, cue_parts: editData.cue_parts, cue_material: editData.cue_material });
             toast('Товар обновлён', 'success');
             showModal.value = null;
             loadProducts();
@@ -224,13 +224,13 @@ function initCatalog(ctx) {
     const catalogBrands = ref([]);
     const catalogSources = ref([]);
     const catalogSuppliers = ref([]);
-    const catalogFilter = reactive({ q: '', filter_sku: '', filter_name: '', category_id: null, has_image: false, no_image: false, in_stock: false, zero_stock: false, brands: [], sources: [], suppliers: [], sort: 'name' });
-    const catalogView = ref('grid');
+    const catalogFilter = reactive({ q: '', filter_sku: '', filter_name: '', category_id: null, has_image: false, no_image: false, in_stock: false, zero_stock: false, brands: [], sources: [], suppliers: [], cue_types: [], cue_parts: [], cue_materials: [], sort: 'name' });
+    const catalogView = ref('list');
     const catalogSidebarMode = ref('tree');
     const catalogLoading = ref(false);
     const colFilterOpen = ref(null);
     const colVisibleOpen = ref(false);
-    const defaultCols = { image: true, sku: true, name: true, brand: true, supplier: true, purchase_price: true, sell_price: true, stock: true, source: true };
+    const defaultCols = { image: true, sku: true, name: true, brand: true, supplier: true, purchase_price: true, sell_price: true, stock: true, source: true, cue_type: true, cue_parts: true, cue_material: true };
     const colVisible = reactive(JSON.parse(localStorage.getItem('catalogColVisible') || 'null') || { ...defaultCols });
 
     function toggleColVisible(col) {
@@ -240,7 +240,7 @@ function initCatalog(ctx) {
 
     let catalogSearchTimer = null;
     const catalogPageSize = 60;
-    const sidebarAccordion = reactive({ categories: true, filters: true, brands: false, sources: false, suppliers: false });
+    const sidebarAccordion = reactive({ categories: true, filters: true, brands: false, sources: false, suppliers: false, cueAttrs: true });
     const expandedCats = reactive({});
     const catalogSidebarWidth = ref(parseInt(localStorage.getItem('catalogSidebarWidth')) || 300);
 
@@ -293,6 +293,9 @@ function initCatalog(ctx) {
             if (catalogFilter.brands.length) params.brand = catalogFilter.brands.join(',');
             if (catalogFilter.sources.length) params.marketplace_source = catalogFilter.sources.join(',');
             if (catalogFilter.suppliers.length) params.supplier = catalogFilter.suppliers.join(',');
+            if (catalogFilter.cue_types.length) params.cue_type = catalogFilter.cue_types.join(',');
+            if (catalogFilter.cue_parts.length) params.cue_parts = catalogFilter.cue_parts.join(',');
+            if (catalogFilter.cue_materials.length) params.cue_material = catalogFilter.cue_materials.join(',');
             if (catalogFilter.filter_sku) params.filter_sku = catalogFilter.filter_sku;
             if (catalogFilter.filter_name) params.filter_name = catalogFilter.filter_name;
 
@@ -314,8 +317,47 @@ function initCatalog(ctx) {
         catalogSearchTimer = setTimeout(() => loadCatalog(true), 400);
     }
 
+    // Detect if current category is inside "Кии" subtree
+    const CUE_CATEGORY_NAME = 'Кии';
+    const isCueCategory = computed(() => {
+        const catId = catalogFilter.category_id;
+        if (!catId) return false;
+        const cats = catalogCategories.value;
+        // Find "Кии" node and check if catId is it or a descendant
+        function findNode(nodes, id) {
+            for (const n of nodes) {
+                if (n.id === id) return n;
+                if (n.children) { const f = findNode(n.children, id); if (f) return f; }
+            }
+            return null;
+        }
+        function findByName(nodes, name) {
+            for (const n of nodes) {
+                if (n.name === name) return n;
+                if (n.children) { const f = findByName(n.children, name); if (f) return f; }
+            }
+            return null;
+        }
+        function isDescendant(node, targetId) {
+            if (node.id === targetId) return true;
+            if (node.children) { for (const c of node.children) { if (isDescendant(c, targetId)) return true; } }
+            return false;
+        }
+        const cueNode = findByName(cats, CUE_CATEGORY_NAME);
+        if (!cueNode) return false;
+        return isDescendant(cueNode, catId);
+    });
+
+    const cueTypeOptions = ['пирамида', 'пул', 'снукер', 'укороченный', 'удлинённый', 'древко'];
+    const cuePartsOptions = [1, 2];
+    const cueMaterialOptions = ['клён', 'рамин', 'композит'];
+
     function selectCategory(catId) {
         catalogFilter.category_id = catId;
+        // Reset cue filters when leaving cue category
+        catalogFilter.cue_types.length = 0;
+        catalogFilter.cue_parts.length = 0;
+        catalogFilter.cue_materials.length = 0;
         loadCatalog(true);
     }
 
@@ -435,6 +477,37 @@ function initCatalog(ctx) {
         } catch (e) { toast('Ошибка: ' + e.message, 'error'); }
     }
 
+    // Bulk assign attributes
+    const bulkAttrFields = reactive({ cue_type: '', cue_parts: '', cue_material: '' });
+
+    async function executeBulkAttr() {
+        const fields = {};
+        if (bulkAttrFields.cue_type) fields.cue_type = bulkAttrFields.cue_type;
+        if (bulkAttrFields.cue_parts) fields.cue_parts = bulkAttrFields.cue_parts;
+        if (bulkAttrFields.cue_material) fields.cue_material = bulkAttrFields.cue_material;
+        if (!Object.keys(fields).length) { toast('Выберите хотя бы одно значение', 'error'); return; }
+        try {
+            await api('products.bulk_update_attr', { ids: [...bulkSelected], fields });
+            toast(`Атрибуты обновлены для ${bulkSelected.length} товаров`, 'success');
+            bulkSelected.length = 0;
+            bulkMode.value = false;
+            Object.assign(bulkAttrFields, { cue_type: '', cue_parts: '', cue_material: '' });
+            showModal.value = null;
+            loadCatalog();
+        } catch (e) { toast('Ошибка: ' + e.message, 'error'); }
+    }
+
+    // Auto-fill cue attributes from names
+    async function autoFillCueAttrs() {
+        const catId = catalogFilter.category_id;
+        if (!catId) { toast('Сначала выберите категорию Кии', 'error'); return; }
+        try {
+            const data = await api('products.auto_fill_cue', { category_id: catId });
+            toast(`Автозаполнение: ${data.updated} обновлено, ${data.skipped} не определено`, 'success');
+            loadCatalog();
+        } catch (e) { toast('Ошибка: ' + e.message, 'error'); }
+    }
+
     async function loadCategories() {
         try {
             const data = await api('products.categories');
@@ -489,8 +562,10 @@ function initCatalog(ctx) {
         catalogSidebarMode, leafCategoriesByLetter,
         sidebarAccordion, expandedCats, toggleCatExpand, onFilterImageToggle, onFilterStockToggle,
         catalogSidebarWidth, startSidebarResize,
+        isCueCategory, cueTypeOptions, cuePartsOptions, cueMaterialOptions,
         bulkMode, bulkSelected, bulkMoveTarget, bulkMoveSearch,
         toggleBulkSelect, selectAllVisible, filteredMoveCategories, executeBulkMove,
+        bulkAttrFields, executeBulkAttr, autoFillCueAttrs,
         // Product detail
         productDetail, productDetailImgIdx, productDetailMainImg, showProductDetail,
         // Column visibility
@@ -499,6 +574,8 @@ function initCatalog(ctx) {
         loadCategories, loadCatalogMeta,
     };
 }
+
+// v0.3.1
 
 
 // ── inventory.js ──
@@ -1066,19 +1143,43 @@ function initFinance(ctx) {
 
 
 // ── tasks.js ──
-// ── tasks.js — Tasks with filters ──
+// ── tasks.js — Tasks with filters + kanban board ──
 function initTasks(ctx) {
-    const { api, toast, showModal, editData, ref, reactive } = ctx;
+    const { api, toast, showModal, editData, ref, reactive, computed } = ctx;
 
     const tasks = reactive({ items: [], total: 0 });
     const taskStats = ref(null);
     const taskFilter = reactive({ status: '', priority: '', assignee: '', creator: '' });
     const newTask = reactive({ title: '', description: '', priority: 'normal', due_date: '', assignee: '' });
 
+    // View mode: 'list' or 'board'
+    const taskView = ref('list');
+    const dragOverColumn = ref(null);
+
+    // Kanban columns definition
+    const taskColumns = [
+        { status: 'todo', label: 'К выполнению' },
+        { status: 'in_progress', label: 'В работе' },
+        { status: 'done', label: 'Выполнено' },
+        { status: 'cancelled', label: 'Отменено' },
+    ];
+
+    // Tasks grouped by status for the kanban board
+    const tasksByStatus = computed(() => {
+        const grouped = { todo: [], in_progress: [], done: [], cancelled: [] };
+        for (const t of tasks.items) {
+            if (grouped[t.status]) grouped[t.status].push(t);
+        }
+        return grouped;
+    });
+
     async function loadTasks() {
         try {
+            const params = { ...taskFilter, limit: 200 };
+            // On board view, don't filter by status (show all columns)
+            if (taskView.value === 'board') params.status = '';
             const [data, stats] = await Promise.all([
-                api('tasks.list', { ...taskFilter, limit: 100 }),
+                api('tasks.list', params),
                 api('tasks.stats'),
             ]);
             tasks.items = data.items || [];
@@ -1126,9 +1227,30 @@ function initTasks(ctx) {
         return task.due_date && task.due_date < new Date().toISOString().split('T')[0] && task.status !== 'done' && task.status !== 'cancelled';
     }
 
+    // Drag and drop handlers for kanban
+    function dragTask(event, task) {
+        event.dataTransfer.setData('text/plain', String(task.id));
+        event.dataTransfer.effectAllowed = 'move';
+    }
+
+    async function dropTask(event, newStatus) {
+        dragOverColumn.value = null;
+        const taskId = parseInt(event.dataTransfer.getData('text/plain'));
+        if (!taskId) return;
+        const task = tasks.items.find(t => t.id === taskId);
+        if (!task || task.status === newStatus) return;
+        try {
+            await api('tasks.update', { id: taskId, status: newStatus });
+            task.status = newStatus;
+            toast('Статус обновлён', 'success');
+            loadTasks();
+        } catch (e) { toast('Ошибка: ' + e.message, 'error'); }
+    }
+
     return {
         tasks, taskStats, taskFilter, loadTasks, createTask, newTask, toggleTask, isOverdue,
         editTask, saveTask,
+        taskView, taskColumns, tasksByStatus, dragOverColumn, dragTask, dropTask,
     };
 }
 
@@ -1212,13 +1334,37 @@ const app = createApp({
     setup() {
         // ── Navigation ──────────────────────────────
         const currentRoute = ref('inventory');
-        const expandedGroups = reactive({ trade: true, finance: true, crm: true, tasks: true });
+        const expandedGroups = reactive({ purchasing: true, sales: true, goods: true, finance: true, tasks: true });
+        const sidebarWidth = ref(parseInt(localStorage.getItem('sidebarWidth')) || 240);
 
         function toggleGroup(group) {
             expandedGroups[group] = !expandedGroups[group];
         }
 
-        const routeGroups = { supplies: 'trade', sales: 'trade', inventory: 'trade', products: 'trade', finance: 'finance', reports: 'finance', crm: 'crm', deals: 'crm', tasks: 'tasks', tasks_my: 'tasks', tasks_from: 'tasks' };
+        function startMainSidebarResize(e) {
+            e.preventDefault();
+            const startX = e.clientX;
+            const startW = sidebarWidth.value;
+            const handle = e.target;
+            handle.classList.add('dragging');
+            document.body.style.cursor = 'col-resize';
+            document.body.style.userSelect = 'none';
+            function onMove(ev) {
+                sidebarWidth.value = Math.max(180, Math.min(400, startW + ev.clientX - startX));
+            }
+            function onUp() {
+                handle.classList.remove('dragging');
+                document.body.style.cursor = '';
+                document.body.style.userSelect = '';
+                localStorage.setItem('sidebarWidth', sidebarWidth.value);
+                document.removeEventListener('mousemove', onMove);
+                document.removeEventListener('mouseup', onUp);
+            }
+            document.addEventListener('mousemove', onMove);
+            document.addEventListener('mouseup', onUp);
+        }
+
+        const routeGroups = { supplies: 'purchasing', receiving: 'purchasing', purchase_payments: 'purchasing', suppliers: 'purchasing', sales: 'sales', shipments: 'sales', returns: 'sales', incoming_payments: 'sales', profitability: 'sales', crm: 'sales', deals: 'sales', inventory: 'goods', finance: 'finance', reports: 'finance', tasks: 'tasks', tasks_my: 'tasks', tasks_from: 'tasks' };
 
         function navigate(route) {
             currentRoute.value = route;
@@ -1316,7 +1462,7 @@ const app = createApp({
         // ── Return all to template ──────────────────
         return {
             // Navigation
-            currentRoute, expandedGroups, toggleGroup, navigate,
+            currentRoute, expandedGroups, toggleGroup, navigate, sidebarWidth, startMainSidebarResize,
             // Toasts
             toasts, toast,
             // Shared state

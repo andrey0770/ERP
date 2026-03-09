@@ -48,10 +48,10 @@ a:hover { color: var(--accent-hover); }
 /* ── Layout ───────────────────────────────────── */
 .app { display: flex; min-height: 100vh; }
 .sidebar {
-    width: 260px;
+    width: 240px;
     background: var(--bg2);
     border-right: 1px solid var(--border);
-    padding: 20px 0;
+    padding: 12px 0;
     flex-shrink: 0;
     display: flex;
     flex-direction: column;
@@ -59,14 +59,22 @@ a:hover { color: var(--accent-hover); }
     max-height: 100vh;
     box-shadow: var(--shadow-sm);
     z-index: 10;
+    position: relative;
 }
+.sidebar-resize {
+    position: absolute; top: 0; right: 0; width: 6px; height: 100%;
+    cursor: col-resize; z-index: 20; background: transparent;
+    transition: background 0.15s;
+}
+.sidebar-resize:hover,
+.sidebar-resize.dragging { background: var(--accent); opacity: 0.5; }
 .sidebar-logo {
-    padding: 0 24px 20px;
-    font-size: 20px;
+    padding: 0 16px 12px;
+    font-size: 17px;
     font-weight: 700;
     color: var(--text);
     border-bottom: 1px solid var(--border);
-    margin-bottom: 12px;
+    margin-bottom: 8px;
     display: flex;
     align-items: center;
     gap: 8px;
@@ -77,12 +85,12 @@ a:hover { color: var(--accent-hover); }
 .nav-item {
     display: flex;
     align-items: center;
-    gap: 12px;
-    padding: 10px 24px;
+    gap: 10px;
+    padding: 6px 16px;
     color: var(--text2);
     cursor: pointer;
     transition: all 0.2s ease;
-    font-size: 14px;
+    font-size: 13px;
     font-weight: 500;
     border-left: 3px solid transparent;
 }
@@ -92,16 +100,16 @@ a:hover { color: var(--accent-hover); }
     color: var(--accent);
     border-left-color: var(--accent);
 }
-.nav-item .icon { font-size: 18px; width: 24px; text-align: center; flex-shrink: 0; }
+.nav-item .icon { font-size: 16px; width: 20px; text-align: center; flex-shrink: 0; }
 
 /* ── Nav Groups ───────────────────────────── */
-.nav-group { margin-top: 8px; }
+.nav-group { margin-top: 4px; }
 .nav-group-header {
     display: flex;
     align-items: center;
     gap: 8px;
-    padding: 10px 24px;
-    font-size: 12px;
+    padding: 6px 16px;
+    font-size: 11px;
     font-weight: 600;
     color: var(--text2);
     text-transform: uppercase;
@@ -124,10 +132,10 @@ a:hover { color: var(--accent-hover); }
     transition: max-height 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 .nav-group-items.expanded { max-height: 500px; }
-.nav-group-items .nav-item { padding-left: 36px; padding-top: 8px; padding-bottom: 8px; font-size: 13.5px; }
+.nav-group-items .nav-item { padding-left: 32px; padding-top: 5px; padding-bottom: 5px; font-size: 12.5px; }
 
 /* ── Nav separator & spacer ───────────────── */
-.nav-sep { border-top: 1px solid var(--border); margin: 12px 24px; }
+.nav-sep { border-top: 1px solid var(--border); margin: 8px 16px; }
 .nav-spacer { flex: 1; min-height: 20px; }
 
 .main {
@@ -170,28 +178,35 @@ a:hover { color: var(--accent-hover); }
     background: var(--bg2);
     border: 1px solid var(--border);
     border-radius: var(--radius);
-    overflow-x: auto;
+    overflow: auto;
+    max-height: calc(100vh - 200px);
     box-shadow: var(--shadow-sm);
 }
 table { width: 100%; border-collapse: separate; border-spacing: 0; text-align: left; }
+.product-list-table { min-width: 900px; }
 th {
     background: var(--bg3);
-    padding: 14px 20px;
-    font-size: 12px;
+    padding: 10px 16px;
+    font-size: 11px;
     font-weight: 600;
     text-transform: uppercase;
     color: var(--text2);
     letter-spacing: 0.05em;
     border-bottom: 1px solid var(--border);
+    position: sticky;
+    top: 0;
+    z-index: 2;
 }
 td {
-    padding: 16px 20px;
+    padding: 10px 16px;
     border-bottom: 1px solid var(--border);
-    font-size: 14px;
+    font-size: 13px;
     color: var(--text);
+    white-space: nowrap;
 }
 tr:last-child td { border-bottom: none; }
 tr:hover td { background: var(--bg3); }
+td.actions { white-space: nowrap; }
 
 /* ── Buttons ──────────────────────────────────── */
 .btn {
@@ -426,7 +441,7 @@ tr:hover td { background: var(--bg3); }
     position: relative;
 }
 .catalog-sidebar-resize {
-    position: absolute; top: 0; right: -3px; width: 6px; height: 100%;
+    position: absolute; top: 0; right: 0; width: 6px; height: 100%;
     cursor: col-resize; z-index: 20; background: transparent;
     transition: background 0.15s;
 }
@@ -510,20 +525,6 @@ tr:hover td { background: var(--bg3); }
 .move-cat-item .cat-folder { color: #e8a838; font-size: 15px; }
 .move-cat-children { padding-left: 20px; }
 .catalog-sidebar .form-input { font-size: 13px; padding: 8px 12px; background: var(--bg); }
-/* Sidebar nav items */
-.catalog-nav { list-style: none; padding: 0; margin: 0 0 8px; }
-.catalog-nav-item {
-    display: flex; align-items: center; gap: 10px;
-    padding: 9px 20px; font-size: 13.5px; font-weight: 500; color: var(--text2);
-    cursor: pointer; transition: all 0.15s; border-left: 3px solid transparent;
-}
-.catalog-nav-item:hover { background: var(--bg3); color: var(--text); }
-.catalog-nav-item.active { background: rgba(79,70,229,0.1); color: var(--accent); border-left-color: var(--accent); }
-.catalog-nav-item i { font-size: 16px; width: 20px; text-align: center; }
-.catalog-nav-item .cnt { margin-left: auto; font-size: 11px; background: var(--bg); padding: 1px 7px; border-radius: 9999px; }
-.catalog-nav-item.active .cnt { background: rgba(79,70,229,0.12); }
-.catalog-nav-sep { border-top: 1px solid var(--border); margin: 8px 16px; }
-
 /* Category tree */
 .cat-tree { list-style: none; padding: 0; margin: 0; }
 .cat-tree li { margin: 0; }
@@ -711,4 +712,142 @@ tr:hover td { background: var(--bg3); }
     .product-detail-top { flex-direction: column; }
     .product-detail-images { width: 100%; }
     .subtabs { overflow-x: auto; }
+    .kanban-board { flex-direction: column; }
+    .kanban-column { min-width: 0; max-width: none; min-height: auto; }
+}
+
+/* ── Kanban Board ─────────────────────────────── */
+.kanban-board {
+    display: flex;
+    gap: 16px;
+    overflow-x: auto;
+    padding-bottom: 16px;
+    min-height: 400px;
+    align-items: flex-start;
+}
+.kanban-column {
+    flex: 1;
+    min-width: 260px;
+    max-width: 340px;
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    display: flex;
+    flex-direction: column;
+    transition: border-color 0.2s;
+}
+.kanban-column.drag-over {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 2px rgba(79, 70, 229, 0.15);
+}
+.kanban-column-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 16px;
+    border-bottom: 1px solid var(--border);
+    background: var(--bg2);
+    border-radius: var(--radius) var(--radius) 0 0;
+}
+.kanban-column-title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--text);
+}
+.kanban-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+.kanban-dot-todo { background: var(--text2); }
+.kanban-dot-in_progress { background: var(--blue); }
+.kanban-dot-done { background: var(--green); }
+.kanban-dot-cancelled { background: var(--red); }
+.kanban-column-count {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text2);
+    background: var(--bg);
+    padding: 2px 8px;
+    border-radius: 9999px;
+}
+.kanban-column-body {
+    padding: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    min-height: 80px;
+    flex: 1;
+}
+.kanban-card {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 14px;
+    cursor: grab;
+    transition: transform 0.15s, box-shadow 0.15s;
+    position: relative;
+}
+.kanban-card:hover {
+    transform: translateY(-1px);
+    box-shadow: var(--shadow);
+}
+.kanban-card:active {
+    cursor: grabbing;
+}
+.kanban-card.overdue {
+    border-left: 3px solid var(--red);
+}
+.kanban-card-title {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text);
+    margin-bottom: 8px;
+    line-height: 1.4;
+}
+.kanban-card-meta {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 6px;
+    flex-wrap: wrap;
+}
+.kanban-card-assignee {
+    font-size: 12px;
+    color: var(--text2);
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+.kanban-card-footer {
+    font-size: 12px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    margin-top: 4px;
+}
+.kanban-card-actions {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    display: flex;
+    gap: 4px;
+    opacity: 0;
+    transition: opacity 0.15s;
+}
+.kanban-card:hover .kanban-card-actions {
+    opacity: 1;
+}
+.kanban-empty {
+    text-align: center;
+    padding: 20px 10px;
+    color: var(--text2);
+    font-size: 13px;
+    font-style: italic;
 }
