@@ -655,6 +655,17 @@ td.actions { white-space: nowrap; }
 .col-filter-popup label { display: flex; align-items: center; gap: 6px; font-size: 12px; padding: 3px 4px; cursor: pointer; border-radius: 3px; }
 .col-filter-popup label:hover { background: var(--bg3); }
 
+/* Supplier country tags */
+.supplier-country-tag {
+    display: inline-flex; align-items: center; padding: 4px 10px; border-radius: 12px;
+    font-size: 12px; cursor: pointer; border: 1px solid var(--border);
+    background: var(--bg2); color: var(--text2); transition: all 0.15s; user-select: none;
+}
+.supplier-country-tag:hover { border-color: var(--accent); color: var(--accent); }
+.supplier-country-tag.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+.supplier-country-tag.clear { background: none; border-style: dashed; font-size: 11px; }
+.supplier-country-tag.clear:hover { border-color: var(--danger); color: var(--danger); }
+
 /* Subtabs */
 .subtabs { display: flex; gap: 0; border-bottom: 2px solid var(--border); margin-bottom: 20px; }
 .subtab {

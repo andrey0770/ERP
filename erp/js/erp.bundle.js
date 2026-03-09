@@ -684,24 +684,45 @@ function initInventory(ctx) {
 // ── purchasing.js ──
 // ── purchasing.js — Suppliers reference + Supply orders ──
 function initPurchasing(ctx) {
-    const { api, toast, showModal, detailData, editData, ref, reactive } = ctx;
+    const { api, toast, showModal, detailData, editData, ref, reactive, computed } = ctx;
 
     // ── Suppliers (Поставщики — справочник) ──────
     const suppliersData = reactive({ items: [], total: 0 });
-    const supplierStats = reactive({ total_suppliers: 0, with_products: 0 });
-    const supplierFilter = reactive({ q: '' });
+    const supplierFilter = reactive({ q: '', countries: [] });
     let supplierSearchTimer2 = null;
     const newSupplierData = reactive({ name: '', alias: '', synonyms: '', inn: '', phone: '', email: '', website: '', country: '', address: '', notes: '' });
 
+    // Column visibility
+    const supplierColVisOpen = ref(false);
+    const defaultSupplierCols = { name: true, alias: true, synonyms: false, country: true, phone: true, email: true, products: true };
+    const supplierColVis = reactive(JSON.parse(localStorage.getItem('supplierColVisible') || 'null') || { ...defaultSupplierCols });
+    function toggleSupplierCol(col) {
+        supplierColVis[col] = !supplierColVis[col];
+        localStorage.setItem('supplierColVisible', JSON.stringify(supplierColVis));
+    }
+    document.addEventListener('click', () => { supplierColVisOpen.value = false; });
+
+    const supplierCountries = computed(() => {
+        const set = new Set();
+        (suppliersData.items || []).forEach(s => { if (s.country) set.add(s.country); });
+        return [...set].sort();
+    });
+    const filteredSuppliers = computed(() => {
+        if (!supplierFilter.countries.length) return suppliersData.items;
+        return suppliersData.items.filter(s => supplierFilter.countries.includes(s.country));
+    });
+    function toggleCountryFilter(c) {
+        const i = supplierFilter.countries.indexOf(c);
+        if (i >= 0) supplierFilter.countries.splice(i, 1); else supplierFilter.countries.push(c);
+    }
+
     async function loadSuppliers2() {
         try {
-            const [data, stats] = await Promise.all([
+            const [data] = await Promise.all([
                 api('suppliers.list', { q: supplierFilter.q, limit: 200 }),
-                api('suppliers.stats'),
             ]);
             suppliersData.items = data.items || [];
             suppliersData.total = data.total || 0;
-            Object.assign(supplierStats, stats);
         } catch (e) { toast('Ошибка загрузки поставщиков: ' + e.message, 'error'); }
     }
 
@@ -827,7 +848,9 @@ function initPurchasing(ctx) {
 
     return {
         // Suppliers
-        suppliersData, supplierStats, supplierFilter, newSupplierData,
+        suppliersData, supplierFilter, newSupplierData,
+        supplierColVisOpen, supplierColVis, toggleSupplierCol,
+        supplierCountries, filteredSuppliers, toggleCountryFilter,
         loadSuppliers2, debounceSearchSuppliers2, createSupplier2, showSupplierDetail2,
         editSupplier2, saveSupplier2,
         // Supplies
@@ -1333,7 +1356,7 @@ const { createApp, ref, reactive, computed, onMounted, nextTick, watch } = Vue;
 const app = createApp({
     setup() {
         // ── Navigation ──────────────────────────────
-        const currentRoute = ref('inventory');
+        const currentRoute = ref(localStorage.getItem('erpRoute') || 'inventory');
         const expandedGroups = reactive({ purchasing: true, sales: true, goods: true, finance: true, tasks: true });
         const sidebarWidth = ref(parseInt(localStorage.getItem('sidebarWidth')) || 240);
 
@@ -1368,6 +1391,7 @@ const app = createApp({
 
         function navigate(route) {
             currentRoute.value = route;
+            localStorage.setItem('erpRoute', route);
             if (routeGroups[route]) expandedGroups[routeGroups[route]] = true;
             loadRouteData(route);
         }
@@ -1456,7 +1480,9 @@ const app = createApp({
 
         // ── Init ────────────────────────────────────
         onMounted(() => {
-            loadRouteData(currentRoute.value);
+            const r = currentRoute.value;
+            if (routeGroups[r]) expandedGroups[routeGroups[r]] = true;
+            loadRouteData(r);
         });
 
         // ── Return all to template ──────────────────

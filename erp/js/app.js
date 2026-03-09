@@ -15,7 +15,7 @@ const { createApp, ref, reactive, computed, onMounted, nextTick, watch } = Vue;
 const app = createApp({
     setup() {
         // ── Navigation ──────────────────────────────
-        const currentRoute = ref('inventory');
+        const currentRoute = ref(localStorage.getItem('erpRoute') || 'inventory');
         const expandedGroups = reactive({ purchasing: true, sales: true, goods: true, finance: true, tasks: true });
         const sidebarWidth = ref(parseInt(localStorage.getItem('sidebarWidth')) || 240);
 
@@ -50,6 +50,7 @@ const app = createApp({
 
         function navigate(route) {
             currentRoute.value = route;
+            localStorage.setItem('erpRoute', route);
             if (routeGroups[route]) expandedGroups[routeGroups[route]] = true;
             loadRouteData(route);
         }
@@ -138,7 +139,9 @@ const app = createApp({
 
         // ── Init ────────────────────────────────────
         onMounted(() => {
-            loadRouteData(currentRoute.value);
+            const r = currentRoute.value;
+            if (routeGroups[r]) expandedGroups[routeGroups[r]] = true;
+            loadRouteData(r);
         });
 
         // ── Return all to template ──────────────────

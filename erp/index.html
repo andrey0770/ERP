@@ -1330,33 +1330,50 @@
                     <button class="btn btn-primary" @click="newSupplierData = { name:'', alias:'', synonyms:'', inn:'', phone:'', email:'', website:'', country:'', address:'', notes:'' }; showModal='supplierCreate'">+ Поставщик</button>
                 </div>
 
-                <div class="cards">
-                    <div class="card">
-                        <div class="card-label">Всего</div>
-                        <div class="card-value blue">{{ supplierStats.total_suppliers || 0 }}</div>
-                    </div>
-                    <div class="card">
-                        <div class="card-label">С товарами</div>
-                        <div class="card-value green">{{ supplierStats.with_products || 0 }}</div>
+                <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;flex-wrap:wrap">
+                    <input class="form-input" v-model="supplierFilter.q" placeholder="Поиск..." @input="debounceSearchSuppliers2" style="width:220px;flex:none">
+                    <div class="col-toggle-wrap" style="margin-left:auto">
+                        <div class="col-toggle-btn" @click.stop="supplierColVisOpen = !supplierColVisOpen"><i class="ph ph-columns"></i> Столбцы</div>
+                        <div class="col-toggle-popup" v-if="supplierColVisOpen" @click.stop>
+                            <label><input type="checkbox" :checked="supplierColVis.name" @change="toggleSupplierCol('name')" style="accent-color:var(--accent)"> Название</label>
+                            <label><input type="checkbox" :checked="supplierColVis.alias" @change="toggleSupplierCol('alias')" style="accent-color:var(--accent)"> Краткое</label>
+                            <label><input type="checkbox" :checked="supplierColVis.synonyms" @change="toggleSupplierCol('synonyms')" style="accent-color:var(--accent)"> Синонимы</label>
+                            <label><input type="checkbox" :checked="supplierColVis.country" @change="toggleSupplierCol('country')" style="accent-color:var(--accent)"> Страна</label>
+                            <label><input type="checkbox" :checked="supplierColVis.phone" @change="toggleSupplierCol('phone')" style="accent-color:var(--accent)"> Телефон</label>
+                            <label><input type="checkbox" :checked="supplierColVis.email" @change="toggleSupplierCol('email')" style="accent-color:var(--accent)"> Email</label>
+                            <label><input type="checkbox" :checked="supplierColVis.products" @change="toggleSupplierCol('products')" style="accent-color:var(--accent)"> Товаров</label>
+                        </div>
                     </div>
                 </div>
 
-                <div class="input-row" style="margin-bottom:16px">
-                    <input class="form-input" v-model="supplierFilter.q" placeholder="Поиск поставщиков..." @input="debounceSearchSuppliers2">
+                <div v-if="supplierCountries.length" style="display:flex;gap:6px;margin-bottom:12px;flex-wrap:wrap">
+                    <span v-for="c in supplierCountries" :key="c"
+                        class="supplier-country-tag" :class="{ active: supplierFilter.countries.includes(c) }"
+                        @click="toggleCountryFilter(c)">{{ c }}</span>
+                    <span v-if="supplierFilter.countries.length" class="supplier-country-tag clear" @click="supplierFilter.countries = []">✕ Сброс</span>
                 </div>
 
                 <div class="card">
-                    <table class="table" v-if="suppliersData.items?.length">
-                        <thead><tr><th>Название</th><th>Краткое</th><th>Синонимы</th><th>Страна</th><th>Телефон</th><th>Email</th><th>Товаров</th><th></th></tr></thead>
+                    <table class="table" v-if="filteredSuppliers.length">
+                        <thead><tr>
+                            <th v-if="supplierColVis.name">Название</th>
+                            <th v-if="supplierColVis.alias">Краткое</th>
+                            <th v-if="supplierColVis.synonyms">Синонимы</th>
+                            <th v-if="supplierColVis.country">Страна</th>
+                            <th v-if="supplierColVis.phone">Телефон</th>
+                            <th v-if="supplierColVis.email">Email</th>
+                            <th v-if="supplierColVis.products">Товаров</th>
+                            <th></th>
+                        </tr></thead>
                         <tbody>
-                            <tr v-for="s in suppliersData.items" :key="s.id" style="cursor:pointer" @click="showSupplierDetail2(s.id)">
-                                <td><strong>{{ s.name }}</strong></td>
-                                <td>{{ s.alias || '—' }}</td>
-                                <td style="font-size:12px;color:var(--text2);max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" :title="s.synonyms">{{ s.synonyms || '—' }}</td>
-                                <td>{{ s.country || '—' }}</td>
-                                <td>{{ s.phone || '—' }}</td>
-                                <td>{{ s.email || '—' }}</td>
-                                <td>{{ s.product_count || 0 }}</td>
+                            <tr v-for="s in filteredSuppliers" :key="s.id" style="cursor:pointer" @click="showSupplierDetail2(s.id)">
+                                <td v-if="supplierColVis.name"><strong>{{ s.name }}</strong></td>
+                                <td v-if="supplierColVis.alias">{{ s.alias || '—' }}</td>
+                                <td v-if="supplierColVis.synonyms" style="font-size:12px;color:var(--text2);max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" :title="s.synonyms">{{ s.synonyms || '—' }}</td>
+                                <td v-if="supplierColVis.country">{{ s.country || '—' }}</td>
+                                <td v-if="supplierColVis.phone">{{ s.phone || '—' }}</td>
+                                <td v-if="supplierColVis.email">{{ s.email || '—' }}</td>
+                                <td v-if="supplierColVis.products">{{ s.product_count || 0 }}</td>
                                 <td>
                                     <div class="actions">
                                         <button class="btn-icon" @click.stop="editSupplier2(s)" title="Редактировать"><i class="ph ph-pencil-simple"></i></button>
