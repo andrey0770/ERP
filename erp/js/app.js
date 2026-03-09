@@ -46,7 +46,7 @@ const app = createApp({
             document.addEventListener('mouseup', onUp);
         }
 
-        const routeGroups = { supplies: 'purchasing', receiving: 'purchasing', counterparties: 'purchasing', sales: 'sales', shipments: 'sales', returns: 'sales', profitability: 'sales', crm: 'sales', deals: 'sales', inventory: 'goods', warehouses: 'goods', finance: 'finance', reports: 'finance', tasks: 'tasks', tasks_my: 'tasks', tasks_from: 'tasks' };
+        const routeGroups = { supplies: 'purchasing', receiving: 'purchasing', suppliers: 'purchasing', sales: 'sales', shipments: 'sales', returns: 'sales', profitability: 'sales', customers: 'sales', crm: 'sales', deals: 'sales', inventory: 'goods', warehouses: 'goods', finance: 'finance', reports: 'finance', tasks: 'tasks', tasks_my: 'tasks', tasks_from: 'tasks' };
 
         function navigate(route) {
             currentRoute.value = route;
@@ -101,7 +101,9 @@ const app = createApp({
                 case 'tasks_from': tasks.taskFilter.assignee = ''; tasks.taskFilter.creator = 'me'; tasks.loadTasks(); break;
                 case 'crm':       crm.loadCrm(); break;
                 case 'deals':     crm.loadDeals(); crm.loadCrm(); break;
-                case 'counterparties': purchasing.loadSuppliers2(); break;
+                case 'counterparties': purchasing.loadCounterparties(''); break;
+                case 'suppliers': purchasing.loadCounterparties('supplier'); break;
+                case 'customers': purchasing.loadCounterparties('customer'); break;
                 case 'warehouses': inventory.loadWarehouses(); break;
                 case 'settings':  settings.loadSettings(); break;
             }

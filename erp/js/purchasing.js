@@ -32,14 +32,26 @@ export function initPurchasing(ctx) {
         if (i >= 0) supplierFilter.countries.splice(i, 1); else supplierFilter.countries.push(c);
     }
 
+    let counterpartyRouteType = '';
+
+    function loadCounterparties(type) {
+        if (type !== undefined) {
+            counterpartyRouteType = type;
+            supplierFilter.type = type;
+        }
+        loadSuppliers2();
+    }
+
     async function loadSuppliers2() {
         try {
             const params = { q: supplierFilter.q, limit: 200 };
-            if (supplierFilter.type) params.type = supplierFilter.type;
+            const effectiveType = counterpartyRouteType || supplierFilter.type;
+            if (effectiveType) params.type = effectiveType;
             const data = await api('counterparties.list', params);
             suppliersData.items = data.items || [];
             suppliersData.total = data.total || 0;
         } catch (e) { toast('Ошибка загрузки контрагентов: ' + e.message, 'error'); }
+    }
     }
 
     function debounceSearchSuppliers2() {
@@ -167,7 +179,7 @@ export function initPurchasing(ctx) {
         suppliersData, supplierFilter, newSupplierData,
         supplierColVisOpen, supplierColVis, toggleSupplierCol,
         supplierCountries, filteredSuppliers, toggleCountryFilter,
-        loadSuppliers2, debounceSearchSuppliers2, createSupplier2, showSupplierDetail2,
+        loadSuppliers2, loadCounterparties, debounceSearchSuppliers2, createSupplier2, showSupplierDetail2,
         editSupplier2, saveSupplier2,
         // Supplies
         supplies, supplyStats, supplyFilter, newSupply,

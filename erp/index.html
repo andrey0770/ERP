@@ -49,8 +49,8 @@
                     <div :class="['nav-item', { active: currentRoute === 'receiving' }]" @click="navigate('receiving')">
                         <span class="icon"><i class="ph ph-package"></i></span><span class="nav-label">Приёмки</span>
                     </div>
-                    <div :class="['nav-item', { active: currentRoute === 'counterparties' }]" @click="navigate('counterparties')">
-                        <span class="icon"><i class="ph ph-address-book"></i></span><span class="nav-label">Контрагенты</span>
+                    <div :class="['nav-item', { active: currentRoute === 'suppliers' }]" @click="navigate('suppliers')">
+                        <span class="icon"><i class="ph ph-address-book"></i></span><span class="nav-label">Поставщики</span>
                     </div>
                 </div>
             </div>
@@ -74,8 +74,11 @@
                     <div :class="['nav-item', { active: currentRoute === 'profitability' }]" @click="navigate('profitability')">
                         <span class="icon"><i class="ph ph-chart-line-up"></i></span><span class="nav-label">Доходность</span>
                     </div>
+                    <div :class="['nav-item', { active: currentRoute === 'customers' }]" @click="navigate('customers')">
+                        <span class="icon"><i class="ph ph-address-book"></i></span><span class="nav-label">Покупатели</span>
+                    </div>
                     <div :class="['nav-item', { active: currentRoute === 'crm' }]" @click="navigate('crm')">
-                        <span class="icon"><i class="ph ph-user-circle"></i></span><span class="nav-label">Клиенты</span>
+                        <span class="icon"><i class="ph ph-user-circle"></i></span><span class="nav-label">CRM</span>
                     </div>
                     <div :class="['nav-item', { active: currentRoute === 'deals' }]" @click="navigate('deals')">
                         <span class="icon"><i class="ph ph-handshake"></i></span><span class="nav-label">Сделки</span>
@@ -113,6 +116,12 @@
                         <span class="icon"><i class="ph ph-chart-bar"></i></span><span class="nav-label">Отчёты</span>
                     </div>
                 </div>
+            </div>
+
+            <div class="nav-sep"></div>
+
+            <div :class="['nav-item', { active: currentRoute === 'counterparties' }]" @click="navigate('counterparties')">
+                <span class="icon"><i class="ph ph-address-book"></i></span><span class="nav-label">Контрагенты</span>
             </div>
 
             <div class="nav-sep"></div>
@@ -1324,19 +1333,19 @@
                 </div>
             </template>
 
-            <!-- Counterparties (Контрагенты) -->
-            <template v-if="currentRoute === 'counterparties'">
+            <!-- Counterparties (Контрагенты / Поставщики / Покупатели) -->
+            <template v-if="currentRoute === 'counterparties' || currentRoute === 'suppliers' || currentRoute === 'customers'">
                 <div class="page-header">
                     <div>
-                        <h1>📋 Контрагенты</h1>
-                        <div class="subtitle">Справочник контрагентов · {{ suppliersData.total || 0 }}</div>
+                        <h1>{{ currentRoute === 'suppliers' ? '🚚 Поставщики' : currentRoute === 'customers' ? '🛒 Покупатели' : '📋 Контрагенты' }}</h1>
+                        <div class="subtitle">{{ currentRoute === 'suppliers' ? 'Поставщики товаров и услуг' : currentRoute === 'customers' ? 'Покупатели и клиенты' : 'Все контрагенты' }} · {{ suppliersData.total || 0 }}</div>
                     </div>
-                    <button class="btn btn-primary" @click="newSupplierData = { name:'', type:'supplier', alias:'', synonyms:'', inn:'', phone:'', email:'', website:'', country:'', address:'', notes:'', currency:'RUB' }; showModal='supplierCreate'">+ Контрагент</button>
+                    <button class="btn btn-primary" @click="newSupplierData = { name:'', type: currentRoute === 'customers' ? 'customer' : 'supplier', alias:'', synonyms:'', inn:'', phone:'', email:'', website:'', country:'', address:'', notes:'', currency:'RUB' }; showModal='supplierCreate'">+ {{ currentRoute === 'customers' ? 'Покупатель' : currentRoute === 'suppliers' ? 'Поставщик' : 'Контрагент' }}</button>
                 </div>
 
                 <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;flex-wrap:wrap">
                     <input class="form-input" v-model="supplierFilter.q" placeholder="Поиск..." @input="debounceSearchSuppliers2" style="width:220px;flex:none">
-                    <select class="form-select" v-model="supplierFilter.type" @change="loadSuppliers2()" style="width:150px;flex:none">
+                    <select v-if="currentRoute === 'counterparties'" class="form-select" v-model="supplierFilter.type" @change="loadSuppliers2()" style="width:150px;flex:none">
                         <option value="">Все типы</option>
                         <option value="supplier">Поставщики</option>
                         <option value="customer">Покупатели</option>
