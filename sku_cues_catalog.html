@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<title>Каталог киев — Система артикулов</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: 'Segoe UI', Arial, sans-serif; background: #f0f2f5; color: #333; padding: 24px; max-width: 900px; margin: 0 auto; }
+h1 { font-size: 22px; margin-bottom: 6px; }
+.subtitle { color: #666; font-size: 13px; margin-bottom: 20px; }
+
+.format-box { background: #fff; border-radius: 10px; padding: 16px 20px; margin-bottom: 16px; box-shadow: 0 1px 4px rgba(0,0,0,0.08); }
+.format-box h3 { margin-bottom: 10px; font-size: 14px; }
+.fmt { display: flex; gap: 3px; margin-bottom: 6px; }
+.fmt div { padding: 10px 0; border-radius: 6px; text-align: center; font-weight: 700; font-size: 18px; letter-spacing: 2px; color: #fff; }
+.fmt .f1 { flex: 2; background: #3f51b5; }
+.fmt .f2 { flex: 1; background: #e65100; }
+.fmt .f3 { flex: 2; background: #6a1b9a; }
+.fmt-labels { display: flex; gap: 3px; font-size: 11px; color: #888; text-align: center; }
+.fmt-labels div:nth-child(1) { flex: 2; }
+.fmt-labels div:nth-child(2) { flex: 1; }
+.fmt-labels div:nth-child(3) { flex: 2; }
+
+.legend { display: flex; gap: 16px; margin-bottom: 20px; flex-wrap: wrap; }
+.legend-item { display: flex; align-items: center; gap: 5px; font-size: 12px; }
+.legend-dot { width: 12px; height: 12px; border-radius: 3px; }
+
+/* Accordion */
+.acc { margin-bottom: 2px; }
+.acc-header {
+    display: flex; align-items: center; gap: 8px;
+    padding: 0; cursor: pointer; user-select: none;
+    border: none; background: none; width: 100%; text-align: left;
+    font-family: inherit; color: inherit;
+}
+.acc-header:hover { filter: brightness(0.97); }
+.acc-arrow { font-size: 10px; transition: transform 0.2s; width: 16px; text-align: center; flex-shrink: 0; }
+.acc-header.open .acc-arrow { transform: rotate(90deg); }
+.acc-body { display: none; }
+.acc-header.open + .acc-body { display: block; }
+
+/* Level 1 - Category */
+.L1 > .acc-header {
+    background: #3f51b5; color: #fff; border-radius: 10px; padding: 12px 16px;
+    font-size: 16px; font-weight: 700; margin-bottom: 2px;
+    box-shadow: 0 2px 6px rgba(63,81,181,0.3);
+}
+.L1 > .acc-body { padding: 4px 0 4px 0; }
+
+/* Level 2 - Game type */
+.L2 > .acc-header {
+    background: #fff; border-radius: 8px; padding: 10px 16px; margin: 2px 0 2px 20px;
+    font-size: 14px; font-weight: 600; color: #e65100;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.06); border-left: 4px solid #e65100;
+}
+.L2 > .acc-body { padding: 2px 0 2px 20px; }
+
+/* Level 3 - Supplier */
+.L3 > .acc-header {
+    border-radius: 6px; padding: 8px 14px; margin: 2px 0 2px 20px;
+    font-size: 13px; font-weight: 600;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.04);
+}
+.L3 > .acc-body { padding: 0 0 0 20px; }
+
+.L3.s-meilin > .acc-header { background: #e8f5e9; color: #2e7d32; border-left: 4px solid #4caf50; }
+.L3.s-smart > .acc-header { background: #e3f2fd; color: #1565c0; border-left: 4px solid #2196f3; }
+.L3.s-condi > .acc-header { background: #fff3e0; color: #e65100; border-left: 4px solid #ff9800; }
+.L3.s-fortuna > .acc-header { background: #f3e5f5; color: #7b1fa2; border-left: 4px solid #9c27b0; }
+
+/* Product rows */
+.product-list { margin: 2px 0 6px 20px; }
+.product {
+    display: flex; align-items: center; gap: 8px;
+    padding: 5px 12px; border-radius: 4px; font-size: 13px;
+    background: #fff; margin: 1px 0;
+    border-left: 3px solid transparent;
+}
+.product:hover { background: #f5f7ff; }
+.product.reserve { color: #bbb; font-style: italic; }
+.product.reserve .p-sku { color: #d0d0d0; }
+.product .p-sku {
+    font-family: 'Consolas', monospace; font-weight: 700; font-size: 14px;
+    letter-spacing: 1px; width: 60px; flex-shrink: 0;
+}
+.product .p-name { flex: 1; }
+.product .p-old { color: #999; font-size: 12px; width: 60px; text-align: right; flex-shrink: 0; }
+
+.product.s-meilin { border-left-color: #4caf50; }
+.product.s-smart { border-left-color: #2196f3; }
+.product.s-condi { border-left-color: #ff9800; }
+.product.s-fortuna { border-left-color: #9c27b0; }
+
+.badge { display: inline-block; padding: 2px 8px; border-radius: 10px; font-size: 11px; font-weight: 600; margin-left: 8px; }
+.badge-count { background: rgba(255,255,255,0.3); }
+.badge-reserve { background: rgba(255,255,255,0.15); font-weight: 400; }
+.L2 .badge-count { background: #fff3e0; color: #e65100; }
+.L2 .badge-reserve { background: #fafafa; color: #aaa; }
+</style>
+</head>
+<body>
+
+<h1>🎱 Каталог киев — Система артикулов</h1>
+<p class="subtitle">5 цифр: CC (категория) + T (тип игры) + NN (номер по поставщику)</p>
+
+<div class="format-box">
+    <h3>Структура артикула</h3>
+    <div class="fmt">
+        <div class="f1">CC</div>
+        <div class="f2">T</div>
+        <div class="f3">NN</div>
+    </div>
+    <div class="fmt-labels">
+        <div>01 Цельный · 02 Разборный · 03 Три части</div>
+        <div>1 Пир · 2 Пул · 3 Снук · 4 Унив</div>
+        <div>01–15 Мейлин · 16–25 Smart · 26–40 Конди · 41+ Фортуна</div>
+    </div>
+</div>
+
+<div class="legend">
+    <div class="legend-item"><div class="legend-dot" style="background:#4caf50"></div> Мейлин (Porter, снукерные)</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#2196f3"></div> Smart (Compositor, Тафгай)</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#ff9800"></div> Конди (Maple Crown, Crown)</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#9c27b0"></div> Фортуна (Astro, Player)</div>
+</div>
+
+<div id="root"></div>
+
+<script>
+const cats = [
+  { code:'01', name:'Кий цельный', types: [
+    { t:'1', name:'Пирамида', suppliers: [
+      { s:'meilin', name:'Мейлин', items:[
+        {nn:'01', name:'Porter Ramin 158 см', old:'5865'},
+        {nn:'02'}, {nn:'03'}, {nn:'04'}, {nn:'05'},
+      ]},
+      { s:'smart', name:'Smart', items:[
+        {nn:'16', name:'Compositor 161 см', old:'9201'},
+        {nn:'17', name:'Compositor укороч. 122 см', old:'15549'},
+        {nn:'18', name:'Compositor укороч. 133 см', old:'15550'},
+        {nn:'19', name:'Тафгай карбон 158 см', old:'16505'},
+        {nn:'20'}, {nn:'21'}, {nn:'22'}, {nn:'23'}, {nn:'24'},
+      ]},
+      { s:'condi', name:'Конди', items:[
+        {nn:'26', name:'Crown 161 см (вар.1)', old:'16276'},
+        {nn:'27', name:'Crown 161 см (вар.2)', old:'13203'},
+        {nn:'28'}, {nn:'29'}, {nn:'30'}, {nn:'31'}, {nn:'32'},
+      ]},
+      { s:'fortuna', name:'Фортуна', items:[
+        {nn:'41', name:'Player Black 159 см', old:'13202'},
+        {nn:'42', name:'Player Brown 159 см', old:'15874'},
+      ]},
+    ]},
+    { t:'2', name:'Пул', suppliers: [
+      { s:'meilin', name:'Мейлин', items:[
+        {nn:'01', name:'Porter Ramin 150 см', old:'5866'},
+        {nn:'02'}, {nn:'03'}, {nn:'04'}, {nn:'05'},
+      ]},
+      { s:'smart', name:'Smart', items:[
+        {nn:'16', name:'Compositor 148 см', old:'15152'},
+        {nn:'17', name:'Тафгай карбон 147 см', old:'16506'},
+        {nn:'18', name:'Тафгай укороч. 122 см', old:'16508'},
+        {nn:'19', name:'Тафгай укороч. 133 см', old:'16507'},
+        {nn:'20'}, {nn:'21'}, {nn:'22'}, {nn:'23'}, {nn:'24'},
+      ]},
+      { s:'condi', name:'Конди', items:[
+        {nn:'26'}, {nn:'27'}, {nn:'28'}, {nn:'29'}, {nn:'30'},
+      ]},
+      { s:'fortuna', name:'Фортуна', items:[
+        {nn:'41', name:'Player Black 148 см', old:'16179'},
+        {nn:'42', name:'Player Brown 148 см', old:'13659'},
+        {nn:'43', name:'Player укороч. 101 см', old:'13676'},
+        {nn:'44', name:'Player укороч. 123 см', old:'13922'},
+      ]},
+    ]},
+    { t:'3', name:'Снукер', suppliers: [
+      { s:'meilin', name:'Мейлин', items:[
+        {nn:'01', name:'Oxford', old:'5398'},
+        {nn:'02', name:'Dandy 145 см', old:'16518'},
+        {nn:'03', name:'Bridge JDH 143 см', old:'16419'},
+        {nn:'04'}, {nn:'05'}, {nn:'06'}, {nn:'07'}, {nn:'08'},
+      ]},
+    ]},
+    { t:'4', name:'Универсальный', suppliers: [
+      { s:'meilin', name:'Мейлин', items:[ {nn:'01'}, {nn:'02'}, {nn:'03'} ]},
+    ]},
+  ]},
+
+  { code:'02', name:'Кий разборный (2 части)', types: [
+    { t:'1', name:'Пирамида', suppliers: [
+      { s:'meilin', name:'Мейлин', items:[
+        {nn:'01'}, {nn:'02'}, {nn:'03'}, {nn:'04'}, {nn:'05'},
+      ]},
+      { s:'smart', name:'Smart', items:[
+        {nn:'16'}, {nn:'17'}, {nn:'18'}, {nn:'19'}, {nn:'20'},
+      ]},
+      { s:'condi', name:'Конди', items:[
+        {nn:'26', name:'Maple Crown D-501R 163 см', old:'9334'},
+        {nn:'27', name:'Maple Crown D-502R 163 см', old:'9335'},
+        {nn:'28', name:'Maple Crown D-510R 163 см', old:'9336'},
+        {nn:'29'}, {nn:'30'}, {nn:'31'}, {nn:'32'}, {nn:'33'},
+      ]},
+      { s:'fortuna', name:'Фортуна', items:[
+        {nn:'41', name:'Player 162 см', old:'12845'},
+        {nn:'42', name:'Astro Atlas 161 см', old:'12466'},
+        {nn:'43', name:'Astro Excalibur 161 см', old:'9270'},
+        {nn:'44', name:'Astro Hercules 161 см', old:'9269'},
+        {nn:'45', name:'Astro Mystery (1)', old:'12485'},
+        {nn:'46', name:'Astro Mystery (2)', old:'12486'},
+        {nn:'47', name:'Astro Mystery (3)', old:'9267'},
+        {nn:'48', name:'Astro Orion 161 см', old:'9278'},
+        {nn:'49', name:'Astro Saturn 161 см', old:'9268'},
+        {nn:'50', name:'Astro Scorpion 161 см', old:'9414'},
+        {nn:'51', name:'Astro Sirius 161 см', old:'9470'},
+        {nn:'52', name:'Astro Taurus 161 см', old:'9279'},
+        {nn:'53', name:'Astro Titan 161 см', old:'12484'},
+        {nn:'54', name:'Astro Vega 161 см', old:'9356'},
+      ]},
+    ]},
+    { t:'2', name:'Пул', suppliers: [
+      { s:'meilin', name:'Мейлин', items:[
+        {nn:'01', name:'Porter Ramin 146 см', old:'16230'},
+        {nn:'02'}, {nn:'03'}, {nn:'04'}, {nn:'05'},
+      ]},
+      { s:'smart', name:'Smart', items:[
+        {nn:'16'}, {nn:'17'}, {nn:'18'}, {nn:'19'}, {nn:'20'},
+      ]},
+      { s:'condi', name:'Конди', items:[
+        {nn:'26', name:'Maple Crown D-501 149 см', old:'9339'},
+        {nn:'27', name:'Maple Crown D-509 149 см', old:'16519'},
+        {nn:'28', name:'Maple Crown D-510 149 см', old:'9340'},
+        {nn:'29', name:'Maple Crown MA-01 151 см', old:'16501'},
+        {nn:'30', name:'Maple Crown MA-02 151 см', old:'16502'},
+        {nn:'31', name:'Maple Crown MA-03 151 см', old:'16503'},
+        {nn:'32'}, {nn:'33'}, {nn:'34'}, {nn:'35'}, {nn:'36'},
+      ]},
+      { s:'fortuna', name:'Фортуна', items:[
+        {nn:'41', name:'Player 148 см', old:'5199'},
+        {nn:'42', name:'Astro Atlas 148 см', old:'9139'},
+        {nn:'43', name:'Astro Excalibur 148 см', old:'9106'},
+        {nn:'44', name:'Astro Hercules 148 см', old:'9127'},
+        {nn:'45', name:'Astro Orion 148 см', old:'12396'},
+        {nn:'46', name:'Astro Saturn 148 см', old:'9094'},
+        {nn:'47', name:'Astro Scorpion 148 см', old:'9122'},
+        {nn:'48', name:'Astro Sirius 148 см', old:'12397'},
+        {nn:'49', name:'Astro Taurus 148 см', old:'12398'},
+        {nn:'50', name:'Astro Titan 148 см', old:'12399'},
+        {nn:'51', name:'Astro Vega 148 см', old:'12400'},
+      ]},
+    ]},
+    { t:'3', name:'Снукер', suppliers: [
+      { s:'meilin', name:'Мейлин', items:[
+        {nn:'01', name:'Bridge 3/4 143 см', old:'16418'},
+        {nn:'02', name:'Manchester 3/4', old:'9157'},
+        {nn:'03', name:'Liverpool (вар.1)', old:'12490'},
+        {nn:'04', name:'Liverpool (вар.2)', old:'9405'},
+        {nn:'05', name:'Bradford 3/4', old:'12487'},
+        {nn:'06', name:'Bradford Black 3/4', old:'13601'},
+        {nn:'07'}, {nn:'08'}, {nn:'09'}, {nn:'10'}, {nn:'11'},
+      ]},
+    ]},
+    { t:'4', name:'Универсальный', suppliers: [
+      { s:'meilin', name:'Мейлин', items:[ {nn:'01'}, {nn:'02'}, {nn:'03'} ]},
+    ]},
+  ]},
+
+  { code:'03', name:'Кий 3/4 (три части)', types: [
+    { t:'1', name:'Пирамида', suppliers: [
+      { s:'meilin', name:'Мейлин', items:[ {nn:'01'}, {nn:'02'}, {nn:'03'} ]},
+      { s:'condi', name:'Конди', items:[ {nn:'26'}, {nn:'27'}, {nn:'28'} ]},
+    ]},
+    { t:'2', name:'Пул', suppliers: [
+      { s:'meilin', name:'Мейлин', items:[ {nn:'01'}, {nn:'02'}, {nn:'03'} ]},
+    ]},
+    { t:'3', name:'Снукер', suppliers: [
+      { s:'meilin', name:'Мейлин', items:[ {nn:'01'}, {nn:'02'}, {nn:'03'} ]},
+    ]},
+    { t:'4', name:'Универсальный', suppliers: [
+      { s:'meilin', name:'Мейлин', items:[ {nn:'01'}, {nn:'02'}, {nn:'03'} ]},
+    ]},
+  ]},
+];
+
+function countItems(items) {
+    let real = 0, res = 0;
+    items.forEach(i => i.name ? real++ : res++);
+    return { real, res };
+}
+
+function buildProducts(catCode, typeCode, supplier) {
+    let html = '<div class="product-list">';
+    supplier.items.forEach(it => {
+        const sku = catCode + typeCode + it.nn;
+        const isReserve = !it.name;
+        const cls = isReserve ? `product reserve s-${supplier.s}` : `product s-${supplier.s}`;
+        html += `<div class="${cls}">`;
+        html += `<span class="p-sku">${sku}</span>`;
+        html += `<span class="p-name">${isReserve ? '— резерв —' : it.name}</span>`;
+        html += `<span class="p-old">${it.old || ''}</span>`;
+        html += `</div>`;
+    });
+    html += '</div>';
+    return html;
+}
+
+function buildSupplier(catCode, typeCode, supplier) {
+    const c = countItems(supplier.items);
+    const label = c.real > 0
+        ? `${supplier.name} — ${c.real} товар. + ${c.res} резерв`
+        : `${supplier.name} — ${c.res} резерв`;
+    return `<div class="acc L3 s-${supplier.s}">
+        <div class="acc-header" onclick="toggle(this)">
+            <span class="acc-arrow">&#9654;</span>
+            <span>${label}</span>
+        </div>
+        <div class="acc-body">${buildProducts(catCode, typeCode, supplier)}</div>
+    </div>`;
+}
+
+function buildType(catCode, type) {
+    let totalReal = 0, totalRes = 0;
+    type.suppliers.forEach(sup => {
+        const c = countItems(sup.items);
+        totalReal += c.real;
+        totalRes += c.res;
+    });
+    let suppliersHtml = type.suppliers.map(s => buildSupplier(catCode, type.t, s)).join('');
+    return `<div class="acc L2">
+        <div class="acc-header" onclick="toggle(this)">
+            <span class="acc-arrow">&#9654;</span>
+            <span>T=${type.t} ${type.name}</span>
+            <span class="badge badge-count">${totalReal} тов.</span>
+            <span class="badge badge-reserve">+${totalRes} рез.</span>
+        </div>
+        <div class="acc-body">${suppliersHtml}</div>
+    </div>`;
+}
+
+function buildCat(cat) {
+    let totalReal = 0, totalRes = 0;
+    cat.types.forEach(type => {
+        type.suppliers.forEach(sup => {
+            const c = countItems(sup.items);
+            totalReal += c.real;
+            totalRes += c.res;
+        });
+    });
+    let typesHtml = cat.types.map(t => buildType(cat.code, t)).join('');
+    return `<div class="acc L1">
+        <div class="acc-header" onclick="toggle(this)">
+            <span class="acc-arrow">&#9654;</span>
+            <span>${cat.code} — ${cat.name}</span>
+            <span class="badge badge-count">${totalReal} товаров</span>
+            <span class="badge badge-reserve">+${totalRes} резерв</span>
+        </div>
+        <div class="acc-body">${typesHtml}</div>
+    </div>`;
+}
+
+document.getElementById('root').innerHTML = cats.map(buildCat).join('');
+
+function toggle(el) {
+    el.classList.toggle('open');
+}
+
+// Auto-open first two levels
+document.querySelectorAll('.L1 > .acc-header').forEach(h => h.classList.add('open'));
+</script>
+</body>
+</html>

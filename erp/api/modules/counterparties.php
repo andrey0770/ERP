@@ -40,11 +40,7 @@ class ERP_Counterparties {
 
         $stmt = $pdo->prepare("
             SELECT c.*,
-                   (SELECT COUNT(*) FROM erp_products WHERE counterparty_id = c.id AND is_active = 1) as product_count,
-                   COALESCE((SELECT SUM(CASE WHEN ft.type = 'expense' THEN ft.amount ELSE 0 END) -
-                                    SUM(CASE WHEN ft.type = 'income' THEN ft.amount ELSE 0 END)
-                             FROM erp_finance_transactions ft
-                             WHERE ft.counterparty_id = c.id), 0) as balance
+                   (SELECT COUNT(*) FROM erp_products WHERE counterparty_id = c.id AND is_active = 1) as product_count
             FROM erp_counterparties c
             WHERE {$whereSQL}
             ORDER BY c.name ASC
@@ -94,14 +90,7 @@ class ERP_Counterparties {
         $txns->execute([$id]);
         $cp['transactions'] = $txns->fetchAll();
 
-        // Баланс: expenses - incomes
-        $bal = $pdo->prepare("
-            SELECT COALESCE(SUM(CASE WHEN type = 'expense' THEN amount ELSE 0 END) -
-                            SUM(CASE WHEN type = 'income' THEN amount ELSE 0 END), 0) as balance
-            FROM erp_finance_transactions WHERE counterparty_id = ?
-        ");
-        $bal->execute([$id]);
-        $cp['balance'] = (float) $bal->fetchColumn();
+        $cp['balance'] = (float) ($cp['balance'] ?? 0);
 
         // Поставки
         $supplies = $pdo->prepare("
@@ -187,17 +176,65 @@ class ERP_Counterparties {
             INNER JOIN erp_products p ON p.counterparty_id = c.id AND p.is_active = 1
             WHERE c.is_active = 1
         ")->fetchColumn();
-        $totalBalance = $pdo->query("
-            SELECT COALESCE(SUM(CASE WHEN type = 'expense' THEN amount ELSE 0 END) -
-                            SUM(CASE WHEN type = 'income' THEN amount ELSE 0 END), 0)
-            FROM erp_finance_transactions WHERE counterparty_id IS NOT NULL
+        $totalBalance = (float) $pdo->query("
+            SELECT COALESCE(SUM(balance), 0) FROM erp_counterparties WHERE is_active = 1
         ")->fetchColumn();
 
         return [
             'total' => $total,
             'by_type' => $byType,
             'with_products' => $withProducts,
-            'total_balance' => (float) $totalBalance,
+            'total_balance' => $totalBalance,
         ];
+    }
+
+    /**
+     * Пересчитать баланс контрагента из транзакций
+     */
+    public static function recalcBalance(PDO $pdo, int $counterpartyId): void {
+        if (!$counterpartyId) return;
+        $stmt = $pdo->prepare("
+            SELECT COALESCE(
+                SUM(CASE WHEN ft.type = 'expense' THEN ft.amount ELSE 0 END) -
+                SUM(CASE WHEN ft.type = 'income' THEN ft.amount ELSE 0 END), 0)
+            FROM erp_finance_transactions ft WHERE ft.counterparty_id = ?
+        ");
+        $stmt->execute([$counterpartyId]);
+        $balance = $stmt->fetchColumn();
+        $pdo->prepare("UPDATE erp_counterparties SET balance = ? WHERE id = ?")->execute([$balance, $counterpartyId]);
+    }
+
+    /**
+     * Пересчитать все балансы (API endpoint)
+     */
+    public function recalc_balances(): array {
+        $pdo = DB::get();
+
+        // Убеждаемся что колонка balance существует
+        $check = $pdo->query("
+            SELECT COUNT(*) FROM INFORMATION_SCHEMA.COLUMNS
+            WHERE TABLE_SCHEMA = DATABASE()
+              AND TABLE_NAME = 'erp_counterparties'
+              AND COLUMN_NAME = 'balance'
+        ");
+        if ((int) $check->fetchColumn() === 0) {
+            $pdo->exec("ALTER TABLE erp_counterparties ADD COLUMN balance DECIMAL(12,2) NOT NULL DEFAULT 0.00");
+        }
+
+        // Сначала обнуляем все
+        $pdo->exec("UPDATE erp_counterparties SET balance = 0");
+        // Обновляем через JOIN
+        $pdo->exec("UPDATE erp_counterparties c
+            JOIN (
+                SELECT ft.counterparty_id,
+                       COALESCE(SUM(CASE WHEN ft.type = 'expense' THEN ft.amount ELSE 0 END) -
+                                SUM(CASE WHEN ft.type = 'income' THEN ft.amount ELSE 0 END), 0) as calc_balance
+                FROM erp_finance_transactions ft
+                WHERE ft.counterparty_id IS NOT NULL
+                GROUP BY ft.counterparty_id
+            ) b ON b.counterparty_id = c.id
+            SET c.balance = b.calc_balance");
+        $total = (int) $pdo->query("SELECT COUNT(*) FROM erp_counterparties WHERE balance != 0")->fetchColumn();
+        return ['ok' => true, 'updated' => $total];
     }
 }

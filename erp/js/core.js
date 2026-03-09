@@ -1,4 +1,4 @@
-// ── core.js — API client & shared utilities ─────
+// ── core.js — API client & shared utilities ── v26 ──
 const API_BASE = (() => {
     const loc = window.location;
     if (loc.hostname === 'localhost' || loc.hostname === '127.0.0.1') {
@@ -38,6 +38,14 @@ export async function api(action, data = null) {
 export function formatMoney(val) {
     const n = parseFloat(val) || 0;
     return n.toLocaleString('ru-RU', { minimumFractionDigits: 0, maximumFractionDigits: 0 }) + ' ₽';
+}
+
+export function formatAmount(val, currency) {
+    const n = parseFloat(val) || 0;
+    const sym = { RUB: '₽', CNY: '¥', USD: '$', USDT: 'USDT', EUR: '€' };
+    const s = sym[currency] || currency || '₽';
+    const formatted = Math.abs(n).toLocaleString('ru-RU', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    return (n < 0 ? '-' : n > 0 ? '+' : '') + formatted + ' ' + s;
 }
 
 export function formatDate(dt) {

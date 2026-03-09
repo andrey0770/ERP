@@ -2,12 +2,15 @@
 /**
  * ERP Module: Задачи
  * 
- * tasks.list    — список задач (с фильтрами)
- * tasks.get     — одна задача
- * tasks.create  — создать
- * tasks.update  — обновить
- * tasks.done    — отметить выполненной
- * tasks.stats   — статистика
+ * tasks.list        — список задач (с фильтрами)
+ * tasks.get         — одна задача
+ * tasks.create      — создать
+ * tasks.update      — обновить
+ * tasks.done        — отметить выполненной
+ * tasks.stats       — статистика
+ * tasks.notes       — заметки задачи
+ * tasks.add_note    — добавить заметку
+ * tasks.delete_note — удалить заметку
  */
 class ERP_Tasks {
 
@@ -17,37 +20,38 @@ class ERP_Tasks {
         $params = [];
 
         if ($status = param('status')) {
-            $where[] = 'status = ?';
+            $where[] = 't.status = ?';
             $params[] = $status;
         }
         if ($priority = param('priority')) {
-            $where[] = 'priority = ?';
+            $where[] = 't.priority = ?';
             $params[] = $priority;
         }
         if ($assignee = param('assignee')) {
-            $where[] = 'assignee = ?';
+            $where[] = 't.assignee = ?';
             $params[] = $assignee;
         }
         $overdue = param('overdue');
         if ($overdue) {
-            $where[] = "due_date < CURDATE() AND status NOT IN ('done','cancelled')";
+            $where[] = "t.due_date < CURDATE() AND t.status NOT IN ('done','cancelled')";
         }
 
         $whereSQL = implode(' AND ', $where);
         $limit  = min((int)(param('limit', 100)), 500);
         $offset = max((int)(param('offset', 0)), 0);
 
-        $total = $pdo->prepare("SELECT COUNT(*) FROM erp_tasks WHERE {$whereSQL}");
+        $total = $pdo->prepare("SELECT COUNT(*) FROM erp_tasks t WHERE {$whereSQL}");
         $total->execute($params);
 
         $stmt = $pdo->prepare("
-            SELECT * FROM erp_tasks
+            SELECT t.*, COALESCE((SELECT COUNT(*) FROM erp_task_notes n WHERE n.task_id = t.id), 0) as notes_count
+            FROM erp_tasks t
             WHERE {$whereSQL}
             ORDER BY 
-                FIELD(priority, 'urgent', 'high', 'normal', 'low'),
-                CASE WHEN due_date IS NULL THEN 1 ELSE 0 END,
-                due_date ASC,
-                created_at DESC
+                FIELD(t.priority, 'urgent', 'high', 'normal', 'low'),
+                CASE WHEN t.due_date IS NULL THEN 1 ELSE 0 END,
+                t.due_date ASC,
+                t.created_at DESC
             LIMIT {$limit} OFFSET {$offset}
         ");
         $stmt->execute($params);
@@ -69,6 +73,11 @@ class ERP_Tasks {
         $stmt->execute([$id]);
         $row = $stmt->fetch();
         if (!$row) errorResponse('Not found', 404);
+
+        // Attach notes
+        $notes = $pdo->prepare("SELECT * FROM erp_task_notes WHERE task_id = ? ORDER BY created_at DESC");
+        $notes->execute([$id]);
+        $row['notes'] = $notes->fetchAll();
 
         return $row;
     }
@@ -171,5 +180,56 @@ class ERP_Tasks {
             'overdue'     => $overdue,
             'due_today'   => $dueToday,
         ];
+    }
+
+    /**
+     * Заметки к задаче
+     */
+    public function notes(): array {
+        $id = (int) param('id');
+        if (!$id) errorResponse('id required');
+
+        $pdo = DB::get();
+        $stmt = $pdo->prepare("SELECT * FROM erp_task_notes WHERE task_id = ? ORDER BY created_at DESC");
+        $stmt->execute([$id]);
+
+        return ['items' => $stmt->fetchAll()];
+    }
+
+    /**
+     * Добавить заметку к задаче
+     */
+    public function add_note(): array {
+        $input = jsonInput();
+        $taskId = (int)($input['task_id'] ?? 0);
+        $content = trim($input['content'] ?? '');
+        if (!$taskId) errorResponse('task_id required');
+        if (!$content) errorResponse('content required');
+
+        $pdo = DB::get();
+
+        // Check task exists
+        $check = $pdo->prepare("SELECT id FROM erp_tasks WHERE id = ?");
+        $check->execute([$taskId]);
+        if (!$check->fetch()) errorResponse('Task not found', 404);
+
+        $stmt = $pdo->prepare("INSERT INTO erp_task_notes (task_id, content, author) VALUES (?, ?, ?)");
+        $stmt->execute([$taskId, $content, $input['author'] ?? null]);
+
+        return ['ok' => true, 'id' => (int) $pdo->lastInsertId()];
+    }
+
+    /**
+     * Удалить заметку
+     */
+    public function delete_note(): array {
+        $input = jsonInput();
+        $id = (int)($input['id'] ?? param('id'));
+        if (!$id) errorResponse('id required');
+
+        $pdo = DB::get();
+        $pdo->prepare("DELETE FROM erp_task_notes WHERE id = ?")->execute([$id]);
+
+        return ['ok' => true];
     }
 }

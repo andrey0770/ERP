@@ -329,6 +329,21 @@ td.actions { white-space: nowrap; }
 .badge-deal-won { background: rgba(16, 185, 129, 0.1); color: var(--green); }
 .badge-deal-lost { text-decoration: line-through; color: var(--text2); }
 
+/* ── Finance: grouped transfer rows ─────────── */
+.tx-group-separator td { padding: 0; height: 6px; border: none; background: transparent; }
+.tx-group-row { background: var(--bg3); }
+.tx-group-row td { border-bottom-color: transparent; }
+.tx-group-first td { border-top: 2px solid var(--blue); }
+.tx-group-first td:first-child { border-left: 3px solid var(--blue); border-top-left-radius: 4px; }
+.tx-group-last td { border-bottom: 2px solid var(--blue) !important; }
+.tx-group-last td:first-child { border-left: 3px solid var(--blue); border-bottom-left-radius: 4px; }
+.tx-group-mid td:first-child { border-left: 3px solid var(--blue); }
+.tx-group-row:hover td { background: rgba(59, 130, 246, 0.06); }
+.tx-group-arrow { color: var(--blue); font-size: 16px; }
+.tx-link-target { cursor: pointer; }
+.tx-link-target:hover td { background: rgba(59, 130, 246, 0.12); }
+.tx-link-source td { background: rgba(59, 130, 246, 0.15); }
+
 /* ── Modal ────────────────────────────────────── */
 .modal-overlay {
     position: fixed; inset: 0;

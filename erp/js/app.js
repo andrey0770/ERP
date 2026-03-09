@@ -1,5 +1,5 @@
 // ── app.js — Vue app shell, routing, shared state ──
-import { api, formatMoney, formatDate, formatDateTime, sourceLabel, movementTypeLabel } from './core.js';
+import { api, formatMoney, formatAmount, formatDate, formatDateTime, sourceLabel, movementTypeLabel } from './core.js';
 import { initDashboard } from './dashboard.js';
 import { initCatalog } from './catalog.js';
 import { initInventory } from './inventory.js';
@@ -72,7 +72,7 @@ const app = createApp({
         const showModal = ref(null);
 
         // ── Shared context for modules ──────────────
-        const ctx = { api, toast, showModal, detailData, editData, deleteTarget, summaryData, formatMoney, formatDate, formatDateTime, sourceLabel, movementTypeLabel, ref, reactive, computed, watch, nextTick };
+        const ctx = { api, toast, showModal, detailData, editData, deleteTarget, summaryData, formatMoney, formatAmount, formatDate, formatDateTime, sourceLabel, movementTypeLabel, ref, reactive, computed, watch, nextTick };
 
         // ── Init all modules ────────────────────────
         const dashboard = initDashboard(ctx);
@@ -158,7 +158,7 @@ const app = createApp({
             // Delete
             confirmDelete, executeDelete,
             // Formatting
-            formatMoney, formatDate, formatDateTime, sourceLabel, movementTypeLabel,
+            formatMoney, formatAmount, formatDate, formatDateTime, sourceLabel, movementTypeLabel,
             // Dashboard module
             ...dashboard,
             // Catalog module

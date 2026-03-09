@@ -1,12 +1,55 @@
 // ── finance.js — Finance transactions, accounts, reports ──
 export function initFinance(ctx) {
-    const { api, toast, showModal, editData, summaryData, formatMoney, ref, reactive, watch } = ctx;
+    const { api, toast, showModal, editData, summaryData, formatMoney, ref, reactive, watch, computed } = ctx;
 
     const finance = reactive({ items: [], total: 0 });
     const financeAccounts = ref([]);
     const financeFilter = reactive({ type: '', from: '', to: '', q: '' });
     let financeSearchTimer = null;
-    const newFinance = reactive({ type: 'expense', amount: null, date: new Date().toISOString().split('T')[0], category: '', counterparty: '', account_id: null, description: '' });
+    const newFinance = reactive({ type: 'expense', amount: null, date: new Date().toISOString().split('T')[0], category: '', counterparty: '', account_id: null, to_account_id: null, dest_amount: null, dest_currency: null, description: '' });
+
+    // Группировка связанных транзакций (переводы)
+    const financeGrouped = computed(() => {
+        const items = finance.items;
+        if (!items.length) return [];
+
+        // Собираем группы по linked_id
+        const groups = {};
+        const ungrouped = [];
+        items.forEach(tx => {
+            if (tx.linked_id) {
+                if (!groups[tx.linked_id]) groups[tx.linked_id] = [];
+                groups[tx.linked_id].push(tx);
+            } else {
+                ungrouped.push(tx);
+            }
+        });
+
+        // Собираем результат: помечаем позицию в группе
+        const result = [];
+        const processed = new Set();
+        items.forEach(tx => {
+            if (processed.has(tx.id)) return;
+            if (tx.linked_id && groups[tx.linked_id]) {
+                const grp = groups[tx.linked_id];
+                // Сортируем по id (хронологический порядок цепочки)
+                grp.sort((a, b) => a.id - b.id);
+                grp.forEach((g, i) => {
+                    processed.add(g.id);
+                    result.push({
+                        ...g,
+                        _groupPos: i === 0 ? 'first' : i === grp.length - 1 ? 'last' : 'mid',
+                        _groupSize: grp.length,
+                        _groupItems: grp,
+                    });
+                });
+            } else {
+                processed.add(tx.id);
+                result.push({ ...tx, _groupPos: null, _groupSize: 0, _groupItems: null });
+            }
+        });
+        return result;
+    });
 
     async function loadFinance() {
         try {
@@ -35,7 +78,13 @@ export function initFinance(ctx) {
 
     async function createFinance() {
         try {
-            await api('finance.create', { ...newFinance });
+            const payload = { ...newFinance };
+            if (payload.type !== 'transfer') {
+                delete payload.to_account_id;
+                delete payload.dest_amount;
+                delete payload.dest_currency;
+            }
+            await api('finance.create', payload);
             toast('Транзакция создана', 'success');
             showModal.value = null;
             loadFinance();
@@ -49,9 +98,54 @@ export function initFinance(ctx) {
 
     async function saveFinance() {
         try {
-            await api('finance.update', { id: editData.id, type: editData.type, amount: editData.amount, date: editData.date, category: editData.category, counterparty: editData.counterparty, account_id: editData.account_id, description: editData.description });
+            const payload = {
+                id: editData.id, type: editData.type, amount: editData.amount,
+                date: editData.date, category: editData.category,
+                counterparty: editData.counterparty, account_id: editData.account_id,
+                to_account_id: editData.to_account_id, linked_id: editData.linked_id,
+                dest_amount: editData.dest_amount, dest_currency: editData.dest_currency,
+                description: editData.description
+            };
+            if (payload.type !== 'transfer') {
+                delete payload.to_account_id;
+                delete payload.dest_amount;
+                delete payload.dest_currency;
+            }
+            await api('finance.update', payload);
             toast('Транзакция обновлена', 'success');
             showModal.value = null;
+            loadFinance();
+        } catch (e) { toast('Ошибка: ' + e.message, 'error'); }
+    }
+
+    // Связать транзакции (перевод)
+    const linkingMode = ref(false);
+    const linkSourceId = ref(null);
+
+    function startLink(txId) {
+        linkingMode.value = true;
+        linkSourceId.value = txId;
+    }
+
+    async function finishLink(targetId) {
+        if (!linkSourceId.value || linkSourceId.value === targetId) {
+            linkingMode.value = false;
+            linkSourceId.value = null;
+            return;
+        }
+        try {
+            await api('finance.link', { ids: [linkSourceId.value, targetId] });
+            toast('Транзакции связаны', 'success');
+            loadFinance();
+        } catch (e) { toast('Ошибка: ' + e.message, 'error'); }
+        linkingMode.value = false;
+        linkSourceId.value = null;
+    }
+
+    async function unlinkTx(txId) {
+        try {
+            await api('finance.unlink', { id: txId });
+            toast('Связь убрана', 'success');
             loadFinance();
         } catch (e) { toast('Ошибка: ' + e.message, 'error'); }
     }
@@ -98,5 +192,6 @@ export function initFinance(ctx) {
         createFinance, newFinance, editFinance, saveFinance,
         newAccount, createAccount,
         reportData,
+        financeGrouped, linkingMode, linkSourceId, startLink, finishLink, unlinkTx,
     };
 }

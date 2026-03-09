@@ -3,7 +3,7 @@
 "use strict";
 
 // ── core.js ──
-// ── core.js — API client & shared utilities ─────
+// ── core.js — API client & shared utilities ── v26 ──
 const API_BASE = (() => {
     const loc = window.location;
     if (loc.hostname === 'localhost' || loc.hostname === '127.0.0.1') {
@@ -43,6 +43,14 @@ async function api(action, data = null) {
 function formatMoney(val) {
     const n = parseFloat(val) || 0;
     return n.toLocaleString('ru-RU', { minimumFractionDigits: 0, maximumFractionDigits: 0 }) + ' ₽';
+}
+
+function formatAmount(val, currency) {
+    const n = parseFloat(val) || 0;
+    const sym = { RUB: '₽', CNY: '¥', USD: '$', USDT: 'USDT', EUR: '€' };
+    const s = sym[currency] || currency || '₽';
+    const formatted = Math.abs(n).toLocaleString('ru-RU', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    return (n < 0 ? '-' : n > 0 ? '+' : '') + formatted + ' ' + s;
 }
 
 function formatDate(dt) {
@@ -743,7 +751,7 @@ function initPurchasing(ctx) {
 
     // Column visibility
     const supplierColVisOpen = ref(false);
-    const defaultSupplierCols = { name: true, alias: true, type: true, synonyms: false, country: true, balance: true, phone: true, email: true, products: true };
+    const defaultSupplierCols = { name: true, alias: true, type: true, synonyms: false, country: true, currency: true, balance: true, phone: true, email: true, products: true };
     const supplierColVis = reactive(JSON.parse(localStorage.getItem('supplierColVisible') || 'null') || { ...defaultSupplierCols });
     function toggleSupplierCol(col) {
         supplierColVis[col] = !supplierColVis[col];
@@ -784,7 +792,6 @@ function initPurchasing(ctx) {
             suppliersData.items = data.items || [];
             suppliersData.total = data.total || 0;
         } catch (e) { toast('Ошибка загрузки контрагентов: ' + e.message, 'error'); }
-    }
     }
 
     function debounceSearchSuppliers2() {
@@ -1124,13 +1131,56 @@ function initCrm(ctx) {
 // ── finance.js ──
 // ── finance.js — Finance transactions, accounts, reports ──
 function initFinance(ctx) {
-    const { api, toast, showModal, editData, summaryData, formatMoney, ref, reactive, watch } = ctx;
+    const { api, toast, showModal, editData, summaryData, formatMoney, ref, reactive, watch, computed } = ctx;
 
     const finance = reactive({ items: [], total: 0 });
     const financeAccounts = ref([]);
     const financeFilter = reactive({ type: '', from: '', to: '', q: '' });
     let financeSearchTimer = null;
-    const newFinance = reactive({ type: 'expense', amount: null, date: new Date().toISOString().split('T')[0], category: '', counterparty: '', account_id: null, description: '' });
+    const newFinance = reactive({ type: 'expense', amount: null, date: new Date().toISOString().split('T')[0], category: '', counterparty: '', account_id: null, to_account_id: null, dest_amount: null, dest_currency: null, description: '' });
+
+    // Группировка связанных транзакций (переводы)
+    const financeGrouped = computed(() => {
+        const items = finance.items;
+        if (!items.length) return [];
+
+        // Собираем группы по linked_id
+        const groups = {};
+        const ungrouped = [];
+        items.forEach(tx => {
+            if (tx.linked_id) {
+                if (!groups[tx.linked_id]) groups[tx.linked_id] = [];
+                groups[tx.linked_id].push(tx);
+            } else {
+                ungrouped.push(tx);
+            }
+        });
+
+        // Собираем результат: помечаем позицию в группе
+        const result = [];
+        const processed = new Set();
+        items.forEach(tx => {
+            if (processed.has(tx.id)) return;
+            if (tx.linked_id && groups[tx.linked_id]) {
+                const grp = groups[tx.linked_id];
+                // Сортируем по id (хронологический порядок цепочки)
+                grp.sort((a, b) => a.id - b.id);
+                grp.forEach((g, i) => {
+                    processed.add(g.id);
+                    result.push({
+                        ...g,
+                        _groupPos: i === 0 ? 'first' : i === grp.length - 1 ? 'last' : 'mid',
+                        _groupSize: grp.length,
+                        _groupItems: grp,
+                    });
+                });
+            } else {
+                processed.add(tx.id);
+                result.push({ ...tx, _groupPos: null, _groupSize: 0, _groupItems: null });
+            }
+        });
+        return result;
+    });
 
     async function loadFinance() {
         try {
@@ -1159,7 +1209,13 @@ function initFinance(ctx) {
 
     async function createFinance() {
         try {
-            await api('finance.create', { ...newFinance });
+            const payload = { ...newFinance };
+            if (payload.type !== 'transfer') {
+                delete payload.to_account_id;
+                delete payload.dest_amount;
+                delete payload.dest_currency;
+            }
+            await api('finance.create', payload);
             toast('Транзакция создана', 'success');
             showModal.value = null;
             loadFinance();
@@ -1173,9 +1229,54 @@ function initFinance(ctx) {
 
     async function saveFinance() {
         try {
-            await api('finance.update', { id: editData.id, type: editData.type, amount: editData.amount, date: editData.date, category: editData.category, counterparty: editData.counterparty, account_id: editData.account_id, description: editData.description });
+            const payload = {
+                id: editData.id, type: editData.type, amount: editData.amount,
+                date: editData.date, category: editData.category,
+                counterparty: editData.counterparty, account_id: editData.account_id,
+                to_account_id: editData.to_account_id, linked_id: editData.linked_id,
+                dest_amount: editData.dest_amount, dest_currency: editData.dest_currency,
+                description: editData.description
+            };
+            if (payload.type !== 'transfer') {
+                delete payload.to_account_id;
+                delete payload.dest_amount;
+                delete payload.dest_currency;
+            }
+            await api('finance.update', payload);
             toast('Транзакция обновлена', 'success');
             showModal.value = null;
+            loadFinance();
+        } catch (e) { toast('Ошибка: ' + e.message, 'error'); }
+    }
+
+    // Связать транзакции (перевод)
+    const linkingMode = ref(false);
+    const linkSourceId = ref(null);
+
+    function startLink(txId) {
+        linkingMode.value = true;
+        linkSourceId.value = txId;
+    }
+
+    async function finishLink(targetId) {
+        if (!linkSourceId.value || linkSourceId.value === targetId) {
+            linkingMode.value = false;
+            linkSourceId.value = null;
+            return;
+        }
+        try {
+            await api('finance.link', { ids: [linkSourceId.value, targetId] });
+            toast('Транзакции связаны', 'success');
+            loadFinance();
+        } catch (e) { toast('Ошибка: ' + e.message, 'error'); }
+        linkingMode.value = false;
+        linkSourceId.value = null;
+    }
+
+    async function unlinkTx(txId) {
+        try {
+            await api('finance.unlink', { id: txId });
+            toast('Связь убрана', 'success');
             loadFinance();
         } catch (e) { toast('Ошибка: ' + e.message, 'error'); }
     }
@@ -1222,6 +1323,7 @@ function initFinance(ctx) {
         createFinance, newFinance, editFinance, saveFinance,
         newAccount, createAccount,
         reportData,
+        financeGrouped, linkingMode, linkSourceId, startLink, finishLink, unlinkTx,
     };
 }
 
@@ -1239,6 +1341,10 @@ function initTasks(ctx) {
     // View mode: 'list' or 'board'
     const taskView = ref('list');
     const dragOverColumn = ref(null);
+
+    // Task notes
+    const taskNotes = ref([]);
+    const newNote = ref('');
 
     // Kanban columns definition
     const taskColumns = [
@@ -1285,6 +1391,31 @@ function initTasks(ctx) {
     function editTask(t) {
         Object.assign(editData, { ...t, _type: 'task' });
         showModal.value = 'taskEdit';
+        loadTaskNotes(t.id);
+    }
+
+    async function loadTaskNotes(taskId) {
+        try {
+            const data = await api('tasks.notes', { id: taskId });
+            taskNotes.value = data.items || [];
+        } catch (e) { taskNotes.value = []; }
+    }
+
+    async function addTaskNote() {
+        const content = newNote.value.trim();
+        if (!content || !editData.id) return;
+        try {
+            await api('tasks.add_note', { task_id: editData.id, content });
+            newNote.value = '';
+            loadTaskNotes(editData.id);
+        } catch (e) { toast('Ошибка: ' + e.message, 'error'); }
+    }
+
+    async function deleteTaskNote(noteId) {
+        try {
+            await api('tasks.delete_note', { id: noteId });
+            loadTaskNotes(editData.id);
+        } catch (e) { toast('Ошибка: ' + e.message, 'error'); }
     }
 
     async function saveTask() {
@@ -1335,6 +1466,7 @@ function initTasks(ctx) {
         tasks, taskStats, taskFilter, loadTasks, createTask, newTask, toggleTask, isOverdue,
         editTask, saveTask,
         taskView, taskColumns, tasksByStatus, dragOverColumn, dragTask, dropTask,
+        taskNotes, newNote, addTaskNote, deleteTaskNote,
     };
 }
 
@@ -1474,7 +1606,7 @@ const app = createApp({
         const showModal = ref(null);
 
         // ── Shared context for modules ──────────────
-        const ctx = { api, toast, showModal, detailData, editData, deleteTarget, summaryData, formatMoney, formatDate, formatDateTime, sourceLabel, movementTypeLabel, ref, reactive, computed, watch, nextTick };
+        const ctx = { api, toast, showModal, detailData, editData, deleteTarget, summaryData, formatMoney, formatAmount, formatDate, formatDateTime, sourceLabel, movementTypeLabel, ref, reactive, computed, watch, nextTick };
 
         // ── Init all modules ────────────────────────
         const dashboard = initDashboard(ctx);
@@ -1560,7 +1692,7 @@ const app = createApp({
             // Delete
             confirmDelete, executeDelete,
             // Formatting
-            formatMoney, formatDate, formatDateTime, sourceLabel, movementTypeLabel,
+            formatMoney, formatAmount, formatDate, formatDateTime, sourceLabel, movementTypeLabel,
             // Dashboard module
             ...dashboard,
             // Catalog module

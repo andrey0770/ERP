@@ -10,7 +10,7 @@ export function initPurchasing(ctx) {
 
     // Column visibility
     const supplierColVisOpen = ref(false);
-    const defaultSupplierCols = { name: true, alias: true, type: true, synonyms: false, country: true, balance: true, phone: true, email: true, products: true };
+    const defaultSupplierCols = { name: true, alias: true, type: true, synonyms: false, country: true, currency: true, balance: true, phone: true, email: true, products: true };
     const supplierColVis = reactive(JSON.parse(localStorage.getItem('supplierColVisible') || 'null') || { ...defaultSupplierCols });
     function toggleSupplierCol(col) {
         supplierColVis[col] = !supplierColVis[col];
@@ -51,7 +51,6 @@ export function initPurchasing(ctx) {
             suppliersData.items = data.items || [];
             suppliersData.total = data.total || 0;
         } catch (e) { toast('Ошибка загрузки контрагентов: ' + e.message, 'error'); }
-    }
     }
 
     function debounceSearchSuppliers2() {

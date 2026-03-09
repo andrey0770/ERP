@@ -11,6 +11,10 @@ export function initTasks(ctx) {
     const taskView = ref('list');
     const dragOverColumn = ref(null);
 
+    // Task notes
+    const taskNotes = ref([]);
+    const newNote = ref('');
+
     // Kanban columns definition
     const taskColumns = [
         { status: 'todo', label: 'К выполнению' },
@@ -56,6 +60,31 @@ export function initTasks(ctx) {
     function editTask(t) {
         Object.assign(editData, { ...t, _type: 'task' });
         showModal.value = 'taskEdit';
+        loadTaskNotes(t.id);
+    }
+
+    async function loadTaskNotes(taskId) {
+        try {
+            const data = await api('tasks.notes', { id: taskId });
+            taskNotes.value = data.items || [];
+        } catch (e) { taskNotes.value = []; }
+    }
+
+    async function addTaskNote() {
+        const content = newNote.value.trim();
+        if (!content || !editData.id) return;
+        try {
+            await api('tasks.add_note', { task_id: editData.id, content });
+            newNote.value = '';
+            loadTaskNotes(editData.id);
+        } catch (e) { toast('Ошибка: ' + e.message, 'error'); }
+    }
+
+    async function deleteTaskNote(noteId) {
+        try {
+            await api('tasks.delete_note', { id: noteId });
+            loadTaskNotes(editData.id);
+        } catch (e) { toast('Ошибка: ' + e.message, 'error'); }
     }
 
     async function saveTask() {
@@ -106,5 +135,6 @@ export function initTasks(ctx) {
         tasks, taskStats, taskFilter, loadTasks, createTask, newTask, toggleTask, isOverdue,
         editTask, saveTask,
         taskView, taskColumns, tasksByStatus, dragOverColumn, dragTask, dropTask,
+        taskNotes, newNote, addTaskNote, deleteTaskNote,
     };
 }

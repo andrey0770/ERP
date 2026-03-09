@@ -484,6 +484,145 @@ class DB {
                     SET s.counterparty_id = c.id
                     WHERE s.counterparty_id IS NULL");
             },
+
+            // ── v026: Заметки к задачам ────────────────────
+            'v026_task_notes' => "
+                CREATE TABLE IF NOT EXISTS erp_task_notes (
+                    id INT AUTO_INCREMENT PRIMARY KEY,
+                    task_id INT NOT NULL,
+                    content TEXT NOT NULL,
+                    author VARCHAR(100) DEFAULT NULL,
+                    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+                    FOREIGN KEY (task_id) REFERENCES erp_tasks(id) ON DELETE CASCADE,
+                    INDEX idx_task (task_id)
+                ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+            ",
+
+            // ── v027: Поле balance в контрагентах ──────────
+            'v027_counterparty_balance' => function($pdo) {
+                $pdo->exec("ALTER TABLE erp_counterparties
+                    ADD COLUMN IF NOT EXISTS balance DECIMAL(12,2) NOT NULL DEFAULT 0.00");
+
+                // Пересчитываем балансы из финансовых транзакций
+                $pdo->exec("UPDATE erp_counterparties c SET c.balance = (
+                    SELECT COALESCE(
+                        SUM(CASE WHEN ft.type = 'expense' THEN ft.amount ELSE 0 END) -
+                        SUM(CASE WHEN ft.type = 'income' THEN ft.amount ELSE 0 END), 0)
+                    FROM erp_finance_transactions ft WHERE ft.counterparty_id = c.id
+                )");
+            },
+
+            // ── v028: Поле balance (повтор для MySQL совместимости) ──
+            'v028_counterparty_balance_fix' => function($pdo) {
+                // Проверяем наличие колонки через INFORMATION_SCHEMA
+                $check = $pdo->query("
+                    SELECT COUNT(*) FROM INFORMATION_SCHEMA.COLUMNS
+                    WHERE TABLE_SCHEMA = DATABASE()
+                      AND TABLE_NAME = 'erp_counterparties'
+                      AND COLUMN_NAME = 'balance'
+                ");
+                if ((int) $check->fetchColumn() === 0) {
+                    $pdo->exec("ALTER TABLE erp_counterparties ADD COLUMN balance DECIMAL(12,2) NOT NULL DEFAULT 0.00");
+                }
+
+                // Пересчёт балансов
+                $pdo->exec("UPDATE erp_counterparties c
+                    JOIN (
+                        SELECT ft.counterparty_id,
+                               COALESCE(SUM(CASE WHEN ft.type = 'expense' THEN ft.amount ELSE 0 END) -
+                                        SUM(CASE WHEN ft.type = 'income' THEN ft.amount ELSE 0 END), 0) as calc_balance
+                        FROM erp_finance_transactions ft
+                        WHERE ft.counterparty_id IS NOT NULL
+                        GROUP BY ft.counterparty_id
+                    ) b ON b.counterparty_id = c.id
+                    SET c.balance = b.calc_balance");
+            },
+
+            // ── v029: KL Logistics контрагент + переименование счетов ──
+            'v029_kl_logistics_accounts' => function($pdo) {
+                // Создаём KL Logistics как контрагента
+                $check = $pdo->query("SELECT id FROM erp_counterparties WHERE name = 'KL Logistics'")->fetchColumn();
+                if (!$check) {
+                    $pdo->exec("INSERT INTO erp_counterparties (name, type, alias, country, phone, notes, currency)
+                        VALUES ('KL Logistics', 'supplier', 'KL', 'Китай', '13533331440',
+                                'Логистическая компания в Китае. Наш код: KL157. Тел: 13533331440, 15303645057, 13039943064',
+                                'CNY')");
+                    // Привязываем CRM контакт KL Logistics к контрагенту
+                    $cpId = (int) $pdo->lastInsertId();
+                    $pdo->exec("UPDATE erp_contacts SET counterparty_id = {$cpId} WHERE company = 'KL Logistics' AND counterparty_id IS NULL");
+                }
+
+                // Переименовываем счета
+                $pdo->exec("UPDATE erp_finance_accounts SET name = 'CNY' WHERE name = 'WeChat CNY'");
+                $pdo->exec("UPDATE erp_finance_accounts SET name = 'USDT' WHERE name = 'USDT кошелёк'");
+            },
+
+            // ── v030: linked_id для группировки связанных транзакций ──
+            'v030_linked_transactions' => function($pdo) {
+                $exists = $pdo->query("SELECT COUNT(*) FROM INFORMATION_SCHEMA.COLUMNS 
+                    WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'erp_finance_transactions' AND COLUMN_NAME = 'linked_id'")->fetchColumn();
+                if (!$exists) {
+                    $pdo->exec("ALTER TABLE erp_finance_transactions ADD COLUMN linked_id INT DEFAULT NULL");
+                    $pdo->exec("CREATE INDEX idx_ft_linked ON erp_finance_transactions(linked_id)");
+                }
+                // Связываем существующие пары переводов
+                // tx1 (расход Тинькофф) + tx2 (приход USDT) — покупка крипты
+                $pdo->exec("UPDATE erp_finance_transactions SET linked_id = 1 WHERE id IN (1, 2)");
+                // tx3 (расход USDT) + tx4 (приход CNY) — обмен крипты на юани
+                $pdo->exec("UPDATE erp_finance_transactions SET linked_id = 3 WHERE id IN (3, 4)");
+            },
+
+            // ── v031: dest_amount + dest_currency для мультивалютных переводов ──
+            'v031_transfer_dest_amount' => function($pdo) {
+                $check = $pdo->query("SELECT COUNT(*) FROM INFORMATION_SCHEMA.COLUMNS 
+                    WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'erp_finance_transactions' AND COLUMN_NAME = 'dest_amount'")->fetchColumn();
+                if (!$check) {
+                    $pdo->exec("ALTER TABLE erp_finance_transactions ADD COLUMN dest_amount DECIMAL(15,2) DEFAULT NULL");
+                    $pdo->exec("ALTER TABLE erp_finance_transactions ADD COLUMN dest_currency CHAR(3) DEFAULT NULL");
+                }
+
+                // Конвертируем 5 старых income/expense пар в 3 правильные записи:
+                // Было: tx1(expense RUB) tx2(income USD) tx3(expense USD) tx4(income CNY) tx5(expense CNY)
+                // Станет: tx1=transfer Тинькофф→USDT, tx3=transfer USDT→CNY, tx5=expense CNY→Condy
+
+                // tx1: expense 122473.48 RUB Тинькофф → transfer Тинькофф→USDT (dest: 1530.92 USD)
+                $pdo->exec("UPDATE erp_finance_transactions SET 
+                    type='transfer', to_account_id=7, dest_amount=1530.92, dest_currency='USD',
+                    counterparty='Слава', description='Обмен RUB→USDT через Славу, курс ~80 руб/USDT'
+                    WHERE id = 1");
+
+                // tx2: удаляем (поглощена tx1)
+                $pdo->exec("DELETE FROM erp_finance_transactions WHERE id = 2");
+
+                // tx3: expense 1530.92 USD USDT → transfer USDT→CNY (dest: 10502.45 CNY)
+                $pdo->exec("UPDATE erp_finance_transactions SET 
+                    type='transfer', to_account_id=8, dest_amount=10502.45, dest_currency='CNY',
+                    counterparty='Nadex', description='Обмен USDT→CNY через Nadex, курс 1 USDT = 6.8568 CNY'
+                    WHERE id = 3");
+
+                // tx4: удаляем (поглощена tx3)
+                $pdo->exec("DELETE FROM erp_finance_transactions WHERE id = 4");
+
+                // tx5: оставляем как expense, но описание подправим
+                $pdo->exec("UPDATE erp_finance_transactions SET 
+                    description='Оплата Condy, заказ 230919RC01 (KL157). 125 киёв x 84 CNY + переплата 2.45 CNY'
+                    WHERE id = 5");
+
+                // Убираем linked_id (теперь каждая запись самодостаточна)
+                $pdo->exec("UPDATE erp_finance_transactions SET linked_id = NULL WHERE id IN (1, 3, 5)");
+
+                // Связываем всю цепочку: обмен RUB→USDT + обмен USDT→CNY + оплата Condy
+                $pdo->exec("UPDATE erp_finance_transactions SET linked_id = 1 WHERE id IN (1, 3, 5)");
+
+                // Пересчитываем балансы счетов с нуля
+                $pdo->exec("UPDATE erp_finance_accounts SET balance = 0");
+                // Тинькофф: -122473.48 (transfer source)
+                $pdo->exec("UPDATE erp_finance_accounts SET balance = -122473.48 WHERE id = 3");
+                // USDT: +1530.92 (from tx1) - 1530.92 (from tx3) = 0
+                $pdo->exec("UPDATE erp_finance_accounts SET balance = 0 WHERE id = 7");
+                // CNY: +10502.45 (from tx3) - 10502.45 (from tx5) = 0
+                $pdo->exec("UPDATE erp_finance_accounts SET balance = 0 WHERE id = 8");
+            },
         ];
     }
 }

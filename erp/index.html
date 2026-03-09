@@ -522,31 +522,76 @@
                     <input type="date" class="form-input" v-model="financeFilter.from" @change="loadFinance">
                     <input type="date" class="form-input" v-model="financeFilter.to" @change="loadFinance">
                     <input class="form-input" placeholder="🔍 Поиск..." v-model="financeFilter.q" @input="debounceSearchFinance">
+                    <button v-if="linkingMode" class="btn btn-sm" style="background:var(--yellow);color:#000" @click="linkingMode=false;linkSourceId=null">
+                        <i class="ph ph-link-break"></i> Отмена связки
+                    </button>
                 </div>
 
                 <div class="table-wrap">
                     <table>
                         <thead>
-                            <tr><th>Дата</th><th>Тип</th><th>Сумма</th><th>Категория</th><th>Контрагент</th><th>Счёт</th><th>Описание</th><th style="width:80px"></th></tr>
+                            <tr><th>Дата</th><th>Тип</th><th>Сумма</th><th>Категория</th><th>Контрагент</th><th>Счёт</th><th>Описание</th><th style="width:100px"></th></tr>
                         </thead>
                         <tbody>
-                            <tr v-for="tx in finance.items" :key="tx.id">
-                                <td>{{ tx.date }}</td>
-                                <td><span :class="'badge badge-' + tx.type">{{ {income:'Доход',expense:'Расход',transfer:'Перевод'}[tx.type] }}</span></td>
-                                <td :style="tx.type==='income' ? 'color:var(--green)' : tx.type==='expense' ? 'color:var(--red)' : ''">
-                                    {{ tx.type === 'income' ? '+' : tx.type === 'expense' ? '-' : '' }}{{ formatMoney(tx.amount) }}
-                                </td>
-                                <td>{{ tx.category || '—' }}</td>
-                                <td>{{ tx.counterparty || '—' }}</td>
-                                <td>{{ tx.account_name || '—' }}</td>
-                                <td style="max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ tx.description || '—' }}</td>
-                                <td>
-                                    <div class="actions">
-                                        <button class="btn-icon" @click.stop="editFinance(tx)" title="Редактировать"><i class="ph ph-pencil-simple"></i></button>
-                                        <button class="btn-icon danger" @click.stop="confirmDelete('finance', tx)" title="Удалить"><i class="ph ph-trash"></i></button>
-                                    </div>
-                                </td>
-                            </tr>
+                            <template v-for="tx in financeGrouped" :key="tx.id">
+                                <!-- Разделитель перед группой -->
+                                <tr v-if="tx._groupPos === 'first'" class="tx-group-separator"><td colspan="8"></td></tr>
+                                <tr :class="{
+                                    'tx-group-row': tx._groupPos,
+                                    'tx-group-first': tx._groupPos === 'first',
+                                    'tx-group-last': tx._groupPos === 'last',
+                                    'tx-group-mid': tx._groupPos === 'mid',
+                                    'tx-link-target': linkingMode && tx.id !== linkSourceId,
+                                    'tx-link-source': linkingMode && tx.id === linkSourceId,
+                                }" @click="linkingMode && tx.id !== linkSourceId ? finishLink(tx.id) : null">
+                                    <td>
+                                        <span v-if="tx._groupPos === 'first'">{{ tx.date }}</span>
+                                        <span v-else-if="tx._groupPos" class="tx-group-arrow"><i class="ph ph-arrow-bend-down-right"></i></span>
+                                        <span v-else>{{ tx.date }}</span>
+                                    </td>
+                                    <td>
+                                        <span v-if="tx._groupPos === 'first'" class="badge badge-transfer">Перевод</span>
+                                        <span v-else-if="!tx._groupPos" :class="'badge badge-' + tx.type">{{ {income:'Доход',expense:'Расход',transfer:'Перевод'}[tx.type] }}</span>
+                                    </td>
+                                    <td :style="tx.type==='income' ? 'color:var(--green)' : tx.type==='expense' ? 'color:var(--red)' : 'color:var(--blue)'">
+                                        <template v-if="tx.type==='transfer'">
+                                            <span style="color:var(--red)">-{{ Math.abs(parseFloat(tx.amount)).toLocaleString('ru-RU', {minimumFractionDigits:2, maximumFractionDigits:2}) }} {{ tx.currency || 'RUB' }}</span>
+                                            <i class="ph ph-arrow-right" style="margin:0 4px;font-size:11px;color:var(--text2)"></i>
+                                            <span style="color:var(--green)">+{{ Math.abs(parseFloat(tx.dest_amount || tx.amount)).toLocaleString('ru-RU', {minimumFractionDigits:2, maximumFractionDigits:2}) }} {{ tx.dest_currency || tx.currency || 'RUB' }}</span>
+                                        </template>
+                                        <template v-else>
+                                            {{ tx.type === 'income' ? '+' : '-' }}{{ Math.abs(parseFloat(tx.amount)).toLocaleString('ru-RU', {minimumFractionDigits:2, maximumFractionDigits:2}) }} {{ tx.currency || 'RUB' }}
+                                        </template>
+                                    </td>
+                                    <td>{{ tx.category || '—' }}</td>
+                                    <td>{{ tx.counterparty_name || tx.counterparty || '—' }}</td>
+                                    <td>
+                                        <template v-if="tx._groupPos === 'first' && tx._groupItems">
+                                            <span style="color:var(--red)">{{ tx.account_name }}</span>
+                                            <i class="ph ph-arrow-right" style="margin:0 4px;color:var(--text2);font-size:11px"></i>
+                                            <span style="color:var(--green)">{{ tx._groupItems[tx._groupItems.length-1].to_account_name || tx._groupItems[tx._groupItems.length-1].account_name }}</span>
+                                        </template>
+                                        <template v-else-if="tx.type === 'transfer' && !tx._groupPos">
+                                            <span style="color:var(--red)">{{ tx.account_name }}</span>
+                                            <i class="ph ph-arrow-right" style="margin:0 4px;color:var(--text2);font-size:11px"></i>
+                                            <span style="color:var(--green)">{{ tx.to_account_name }}</span>
+                                        </template>
+                                        <template v-else-if="tx._groupPos">{{ tx.type === 'transfer' ? (tx.account_name + ' → ' + tx.to_account_name) : (tx.account_name || '—') }}</template>
+                                        <template v-else>{{ tx.account_name || '—' }}</template>
+                                    </td>
+                                    <td style="max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ tx.description || '—' }}</td>
+                                    <td>
+                                        <div class="actions">
+                                            <button v-if="!linkingMode && !tx.linked_id" class="btn-icon" @click.stop="startLink(tx.id)" title="Связать с другой транзакцией"><i class="ph ph-link"></i></button>
+                                            <button v-if="tx.linked_id" class="btn-icon" @click.stop="unlinkTx(tx.id)" title="Убрать связь"><i class="ph ph-link-break"></i></button>
+                                            <button class="btn-icon" @click.stop="editFinance(tx)" title="Редактировать"><i class="ph ph-pencil-simple"></i></button>
+                                            <button class="btn-icon danger" @click.stop="confirmDelete('finance', tx)" title="Удалить"><i class="ph ph-trash"></i></button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <!-- Разделитель после группы -->
+                                <tr v-if="tx._groupPos === 'last'" class="tx-group-separator"><td colspan="8"></td></tr>
+                            </template>
                             <tr v-if="!finance.items?.length"><td colspan="8" style="text-align:center;color:var(--text2)">Нет транзакций</td></tr>
                         </tbody>
                     </table>
@@ -1032,7 +1077,12 @@
                                 <td>
                                     <input type="checkbox" :checked="t.status==='done'" @change="toggleTask(t)">
                                 </td>
-                                <td :style="t.status==='done' ? 'text-decoration:line-through' : ''">{{ t.title }}</td>
+                                <td :style="t.status==='done' ? 'text-decoration:line-through' : ''">
+                                    {{ t.title }}
+                                    <span v-if="t.notes_count > 0" style="color:var(--text2);font-size:12px;margin-left:6px" :title="t.notes_count + ' заметок'">
+                                        <i class="ph ph-note"></i> {{ t.notes_count }}
+                                    </span>
+                                </td>
                                 <td><span :class="'badge badge-' + t.priority">{{ t.priority }}</span></td>
                                 <td><span :class="'badge badge-' + t.status">{{ {todo:'⬜',in_progress:'🔄',done:'✅',cancelled:'❌'}[t.status] }} {{ t.status }}</span></td>
                                 <td>{{ t.assignee || '—' }}</td>
@@ -1071,6 +1121,7 @@
                                 <div class="kanban-card-meta">
                                     <span :class="'badge badge-' + t.priority" style="font-size:11px">{{ t.priority }}</span>
                                     <span v-if="t.assignee" class="kanban-card-assignee"><i class="ph ph-user"></i> {{ t.assignee }}</span>
+                                    <span v-if="t.notes_count > 0" style="color:var(--text2);font-size:11px"><i class="ph ph-note"></i> {{ t.notes_count }}</span>
                                 </div>
                                 <div class="kanban-card-footer" v-if="t.due_date">
                                     <span :style="isOverdue(t) ? 'color:var(--red)' : 'color:var(--text2)'">
@@ -1359,6 +1410,7 @@
                             <label><input type="checkbox" :checked="supplierColVis.type" @change="toggleSupplierCol('type')" style="accent-color:var(--accent)"> Тип</label>
                             <label><input type="checkbox" :checked="supplierColVis.synonyms" @change="toggleSupplierCol('synonyms')" style="accent-color:var(--accent)"> Синонимы</label>
                             <label><input type="checkbox" :checked="supplierColVis.country" @change="toggleSupplierCol('country')" style="accent-color:var(--accent)"> Страна</label>
+                            <label><input type="checkbox" :checked="supplierColVis.currency" @change="toggleSupplierCol('currency')" style="accent-color:var(--accent)"> Валюта</label>
                             <label><input type="checkbox" :checked="supplierColVis.balance" @change="toggleSupplierCol('balance')" style="accent-color:var(--accent)"> Баланс</label>
                             <label><input type="checkbox" :checked="supplierColVis.phone" @change="toggleSupplierCol('phone')" style="accent-color:var(--accent)"> Телефон</label>
                             <label><input type="checkbox" :checked="supplierColVis.email" @change="toggleSupplierCol('email')" style="accent-color:var(--accent)"> Email</label>
@@ -1382,6 +1434,7 @@
                             <th v-if="supplierColVis.type">Тип</th>
                             <th v-if="supplierColVis.synonyms">Синонимы</th>
                             <th v-if="supplierColVis.country">Страна</th>
+                            <th v-if="supplierColVis.currency">Валюта</th>
                             <th v-if="supplierColVis.balance">Баланс</th>
                             <th v-if="supplierColVis.phone">Телефон</th>
                             <th v-if="supplierColVis.email">Email</th>
@@ -1395,7 +1448,8 @@
                                 <td v-if="supplierColVis.type"><span class="badge" :class="{'badge-done': s.type==='supplier', 'badge-expense': s.type==='customer', 'badge-transfer': s.type==='both'}">{{ {supplier:'Поставщик', customer:'Покупатель', both:'Оба'}[s.type] || s.type }}</span></td>
                                 <td v-if="supplierColVis.synonyms" style="font-size:12px;color:var(--text2);max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" :title="s.synonyms">{{ s.synonyms || '—' }}</td>
                                 <td v-if="supplierColVis.country">{{ s.country || '—' }}</td>
-                                <td v-if="supplierColVis.balance" :style="{ color: s.balance > 0 ? 'var(--red)' : s.balance < 0 ? 'var(--green)' : 'var(--text2)', fontWeight: s.balance != 0 ? 600 : 400 }">{{ s.balance != 0 ? formatMoney(Math.abs(s.balance)) + (s.balance > 0 ? ' долг' : ' переплата') : '—' }}</td>
+                                <td v-if="supplierColVis.currency">{{ s.currency || 'RUB' }}</td>
+                                <td v-if="supplierColVis.balance" :style="{ color: s.balance > 0 ? 'var(--red)' : s.balance < 0 ? 'var(--green)' : 'var(--text2)', fontWeight: s.balance != 0 ? 600 : 400 }">{{ s.balance != 0 ? formatAmount(s.balance, s.currency) : '—' }}</td>
                                 <td v-if="supplierColVis.phone">{{ s.phone || '—' }}</td>
                                 <td v-if="supplierColVis.email">{{ s.email || '—' }}</td>
                                 <td v-if="supplierColVis.products">{{ s.product_count || 0 }}</td>
@@ -1608,18 +1662,36 @@
                 </select>
             </div>
             <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
-                <div class="form-group"><label>Сумма *</label><input class="form-input" type="number" step="0.01" v-model="newFinance.amount"></div>
+                <div class="form-group"><label>Сумма списания *</label><input class="form-input" type="number" step="0.01" v-model="newFinance.amount"></div>
                 <div class="form-group"><label>Дата</label><input class="form-input" type="date" v-model="newFinance.date"></div>
             </div>
-            <div class="form-group"><label>Категория</label><input class="form-input" v-model="newFinance.category" placeholder="закупка, аренда, ЗП..."></div>
-            <div class="form-group"><label>Контрагент</label><input class="form-input" v-model="newFinance.counterparty"></div>
             <div class="form-group">
-                <label>Счёт</label>
+                <label>Счёт {{ newFinance.type === 'transfer' ? 'отправитель' : '' }}</label>
                 <select class="form-select" v-model="newFinance.account_id">
                     <option :value="null">—</option>
-                    <option v-for="acc in financeAccounts" :key="acc.id" :value="acc.id">{{ acc.name }}</option>
+                    <option v-for="acc in financeAccounts" :key="acc.id" :value="acc.id">{{ acc.name }} ({{ acc.currency }})</option>
                 </select>
             </div>
+            <template v-if="newFinance.type === 'transfer'">
+                <div class="form-group">
+                    <label>Счёт получатель</label>
+                    <select class="form-select" v-model="newFinance.to_account_id">
+                        <option :value="null">—</option>
+                        <option v-for="acc in financeAccounts" :key="acc.id" :value="acc.id">{{ acc.name }} ({{ acc.currency }})</option>
+                    </select>
+                </div>
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+                    <div class="form-group"><label>Сумма зачисления</label><input class="form-input" type="number" step="0.01" v-model="newFinance.dest_amount" placeholder="если другая валюта"></div>
+                    <div class="form-group"><label>Валюта зачисл.</label>
+                        <select class="form-select" v-model="newFinance.dest_currency">
+                            <option :value="null">— (та же)</option>
+                            <option value="RUB">RUB</option><option value="USD">USD</option><option value="CNY">CNY</option><option value="EUR">EUR</option>
+                        </select>
+                    </div>
+                </div>
+            </template>
+            <div class="form-group"><label>Категория</label><input class="form-input" v-model="newFinance.category" placeholder="закупка, аренда, ЗП..."></div>
+            <div class="form-group"><label>Контрагент</label><input class="form-input" v-model="newFinance.counterparty"></div>
             <div class="form-group"><label>Описание</label><textarea class="form-textarea" v-model="newFinance.description"></textarea></div>
             <div class="modal-buttons">
                 <button class="btn btn-ghost" @click="showModal=null">Отмена</button>
@@ -2028,18 +2100,36 @@
                 </select>
             </div>
             <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
-                <div class="form-group"><label>Сумма</label><input class="form-input" type="number" step="0.01" v-model="editData.amount"></div>
+                <div class="form-group"><label>Сумма {{ editData.type === 'transfer' ? 'списания' : '' }}</label><input class="form-input" type="number" step="0.01" v-model="editData.amount"></div>
                 <div class="form-group"><label>Дата</label><input class="form-input" type="date" v-model="editData.date"></div>
             </div>
-            <div class="form-group"><label>Категория</label><input class="form-input" v-model="editData.category"></div>
-            <div class="form-group"><label>Контрагент</label><input class="form-input" v-model="editData.counterparty"></div>
             <div class="form-group">
-                <label>Счёт</label>
+                <label>Счёт {{ editData.type === 'transfer' ? 'отправитель' : '' }}</label>
                 <select class="form-select" v-model="editData.account_id">
                     <option :value="null">—</option>
-                    <option v-for="acc in financeAccounts" :key="acc.id" :value="acc.id">{{ acc.name }}</option>
+                    <option v-for="acc in financeAccounts" :key="acc.id" :value="acc.id">{{ acc.name }} ({{ acc.currency }})</option>
                 </select>
             </div>
+            <template v-if="editData.type === 'transfer'">
+                <div class="form-group">
+                    <label>Счёт получатель</label>
+                    <select class="form-select" v-model="editData.to_account_id">
+                        <option :value="null">—</option>
+                        <option v-for="acc in financeAccounts" :key="acc.id" :value="acc.id">{{ acc.name }} ({{ acc.currency }})</option>
+                    </select>
+                </div>
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+                    <div class="form-group"><label>Сумма зачисления</label><input class="form-input" type="number" step="0.01" v-model="editData.dest_amount" placeholder="если другая валюта"></div>
+                    <div class="form-group"><label>Валюта зачисл.</label>
+                        <select class="form-select" v-model="editData.dest_currency">
+                            <option :value="null">— (та же)</option>
+                            <option value="RUB">RUB</option><option value="USD">USD</option><option value="CNY">CNY</option><option value="EUR">EUR</option>
+                        </select>
+                    </div>
+                </div>
+            </template>
+            <div class="form-group"><label>Категория</label><input class="form-input" v-model="editData.category"></div>
+            <div class="form-group"><label>Контрагент</label><input class="form-input" v-model="editData.counterparty"></div>
             <div class="form-group"><label>Описание</label><textarea class="form-textarea" v-model="editData.description"></textarea></div>
             <div class="modal-buttons">
                 <button class="btn btn-ghost" @click="showModal=null">Отмена</button>
@@ -2185,6 +2275,26 @@
                 <div class="form-group"><label>Срок</label><input class="form-input" type="date" v-model="editData.due_date"></div>
                 <div class="form-group"><label>Исполнитель</label><input class="form-input" v-model="editData.assignee"></div>
             </div>
+
+            <!-- Notes Section -->
+            <div class="form-group" style="margin-top:12px">
+                <label>📝 Заметки ({{ taskNotes.length }})</label>
+                <div style="display:flex;gap:8px;margin-bottom:8px">
+                    <input class="form-input" v-model="newNote" placeholder="Новая заметка..." @keyup.enter="addTaskNote">
+                    <button class="btn btn-primary" @click="addTaskNote" :disabled="!newNote.trim()">+</button>
+                </div>
+                <div v-if="taskNotes.length" style="max-height:200px;overflow-y:auto;display:flex;flex-direction:column;gap:6px">
+                    <div v-for="note in taskNotes" :key="note.id" style="padding:8px 10px;background:var(--bg2);border-radius:6px;display:flex;justify-content:space-between;align-items:flex-start;gap:8px">
+                        <div style="flex:1;min-width:0">
+                            <div style="white-space:pre-wrap;word-break:break-word">{{ note.content }}</div>
+                            <div style="font-size:11px;color:var(--text2);margin-top:4px">{{ formatDateTime(note.created_at) }}</div>
+                        </div>
+                        <button class="btn-icon btn-sm" @click="deleteTaskNote(note.id)" title="Удалить" style="flex-shrink:0"><i class="ph ph-trash"></i></button>
+                    </div>
+                </div>
+                <div v-else style="color:var(--text2);font-size:13px">Нет заметок</div>
+            </div>
+
             <div class="modal-buttons">
                 <button class="btn btn-ghost" @click="showModal=null">Отмена</button>
                 <button class="btn btn-primary" @click="saveTask">Сохранить</button>
@@ -2489,11 +2599,10 @@
                 <span class="badge" :class="{'badge-done': detailData.type==='supplier', 'badge-expense': detailData.type==='customer', 'badge-transfer': detailData.type==='both'}">{{ {supplier:'Поставщик', customer:'Покупатель', both:'Оба'}[detailData.type] || detailData.type }}</span>
             </div>
             <div v-if="detailData.synonyms" style="color:var(--text2);margin-bottom:12px;font-size:13px">Синонимы: {{ detailData.synonyms }}</div>
-            <div v-if="detailData.balance != null && detailData.balance != 0" style="margin-bottom:12px;padding:10px;border-radius:8px;background:var(--card-bg,var(--bg))">
-                <div style="font-size:13px;color:var(--text2)">Баланс</div>
-                <div :style="{ fontSize:'20px', fontWeight:700, color: detailData.balance > 0 ? 'var(--red)' : 'var(--green)' }">
-                    {{ formatMoney(Math.abs(detailData.balance)) }} {{ detailData.currency || 'RUB' }}
-                    <span style="font-size:13px;font-weight:400">{{ detailData.balance > 0 ? '(мы должны)' : '(переплата)' }}</span>
+            <div style="margin-bottom:12px;padding:10px;border-radius:8px;background:var(--card-bg,var(--bg))">
+                <div style="font-size:13px;color:var(--text2)">Баланс ({{ detailData.currency || 'RUB' }})</div>
+                <div :style="{ fontSize:'20px', fontWeight:700, color: detailData.balance > 0 ? 'var(--red)' : detailData.balance < 0 ? 'var(--green)' : 'var(--text2)' }">
+                    {{ detailData.balance != 0 ? formatAmount(detailData.balance, detailData.currency) : '0' }}
                 </div>
             </div>
             <div class="info-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:8px 20px;margin-bottom:16px">
@@ -2530,7 +2639,7 @@
                         <tr v-for="t in detailData.transactions" :key="t.id">
                             <td>{{ t.date }}</td>
                             <td><span class="badge" :class="{'badge-income': t.type==='income', 'badge-expense': t.type==='expense', 'badge-transfer': t.type==='transfer'}">{{ {income:'Доход',expense:'Расход',transfer:'Перевод'}[t.type] }}</span></td>
-                            <td style="font-weight:600">{{ formatMoney(t.amount) }} {{ t.currency }}</td>
+                            <td :style="{ fontWeight:600, color: t.type==='income' ? 'var(--green)' : t.type==='expense' ? 'var(--red)' : '' }">{{ t.type === 'income' ? '+' : t.type === 'expense' ? '-' : '' }}{{ Math.abs(parseFloat(t.amount)).toLocaleString('ru-RU', {minimumFractionDigits:2, maximumFractionDigits:2}) }} {{ t.currency || 'RUB' }}</td>
                             <td>{{ t.account_name || '—' }}</td>
                             <td style="font-size:12px;color:var(--text2)">{{ t.description || '—' }}</td>
                         </tr>
@@ -2602,7 +2711,7 @@
     </div>
 </div>
 
-<script src="js/erp.bundle.js"></script>
+<script src="js/erp.bundle.js?v=13"></script>
 </body>
 </html>
-<!-- v9 -->
+<!-- v13 transfer-dest-amount -->

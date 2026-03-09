@@ -1,4 +1,6 @@
 <?php
+require_once __DIR__ . '/counterparties.php';
+
 /**
  * ERP Module: Финансы
  * 
@@ -11,6 +13,8 @@
  * finance.account_create — новый счёт
  * finance.summary       — сводка (доходы/расходы/баланс)
  * finance.cashflow      — денежный поток по дням
+ * finance.link          — связать транзакции (перевод)
+ * finance.unlink        — разъединить транзакции
  */
 class ERP_Finance {
 
@@ -112,8 +116,8 @@ class ERP_Finance {
         try {
             $stmt = $pdo->prepare("
                 INSERT INTO erp_finance_transactions 
-                    (journal_id, date, type, amount, currency, account_id, to_account_id, category, subcategory, counterparty, counterparty_id, description)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                    (journal_id, date, type, amount, currency, account_id, to_account_id, dest_amount, dest_currency, category, subcategory, counterparty, counterparty_id, description)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             ");
             $stmt->execute([
                 $input['journal_id'] ?? null,
@@ -123,6 +127,8 @@ class ERP_Finance {
                 $input['currency'] ?? 'RUB',
                 $input['account_id'] ?? null,
                 $input['to_account_id'] ?? null,
+                $input['dest_amount'] ?? null,
+                $input['dest_currency'] ?? null,
                 $input['category'] ?? null,
                 $input['subcategory'] ?? null,
                 $input['counterparty'] ?? null,
@@ -133,6 +139,10 @@ class ERP_Finance {
 
             // Обновляем балансы счетов
             $this->updateAccountBalance($pdo, $type, $amount, $input);
+
+            // Обновляем баланс контрагента
+            $cpId = (int)($input['counterparty_id'] ?? 0);
+            if ($cpId) ERP_Counterparties::recalcBalance($pdo, $cpId);
 
             $pdo->commit();
             return ['ok' => true, 'id' => $id];
@@ -147,7 +157,7 @@ class ERP_Finance {
         $id = (int)($input['id'] ?? param('id'));
         if (!$id) errorResponse('id required');
 
-        $allowed = ['date', 'type', 'amount', 'currency', 'account_id', 'to_account_id', 'category', 'subcategory', 'counterparty', 'counterparty_id', 'description'];
+        $allowed = ['date', 'type', 'amount', 'currency', 'account_id', 'to_account_id', 'dest_amount', 'dest_currency', 'category', 'subcategory', 'counterparty', 'counterparty_id', 'description', 'linked_id'];
         $sets = [];
         $params = [];
         foreach ($allowed as $field) {
@@ -160,9 +170,17 @@ class ERP_Finance {
         $params[] = $id;
 
         $pdo = DB::get();
+        // Запоминаем старый counterparty_id
+        $oldCp = $pdo->prepare("SELECT counterparty_id FROM erp_finance_transactions WHERE id = ?");
+        $oldCp->execute([$id]);
+        $oldCpId = (int) ($oldCp->fetchColumn() ?: 0);
+
         $pdo->prepare("UPDATE erp_finance_transactions SET " . implode(', ', $sets) . " WHERE id = ?")->execute($params);
 
-        // TODO: пересчитать балансы счетов (для MVP пропускаем)
+        // Пересчитываем баланс контрагента (старого и нового)
+        $newCpId = (int)($input['counterparty_id'] ?? $oldCpId);
+        if ($oldCpId) ERP_Counterparties::recalcBalance($pdo, $oldCpId);
+        if ($newCpId && $newCpId !== $oldCpId) ERP_Counterparties::recalcBalance($pdo, $newCpId);
 
         return ['ok' => true, 'id' => $id];
     }
@@ -172,7 +190,16 @@ class ERP_Finance {
         if (!$id) errorResponse('id required');
 
         $pdo = DB::get();
+        // Запоминаем counterparty_id перед удалением
+        $old = $pdo->prepare("SELECT counterparty_id FROM erp_finance_transactions WHERE id = ?");
+        $old->execute([$id]);
+        $cpId = (int) ($old->fetchColumn() ?: 0);
+
         $pdo->prepare("DELETE FROM erp_finance_transactions WHERE id = ?")->execute([$id]);
+
+        // Пересчитываем баланс контрагента
+        if ($cpId) ERP_Counterparties::recalcBalance($pdo, $cpId);
+
         return ['ok' => true];
     }
 
@@ -286,6 +313,40 @@ class ERP_Finance {
         return ['period' => ['from' => $from, 'to' => $to], 'items' => $stmt->fetchAll()];
     }
 
+    /**
+     * Связать транзакции в группу (перевод)
+     * POST {ids: [1, 2]} — массив ID транзакций для связывания
+     */
+    public function link(): array {
+        $input = jsonInput();
+        $ids = $input['ids'] ?? [];
+        if (count($ids) < 2) errorResponse('Need at least 2 transaction IDs');
+        $ids = array_map('intval', $ids);
+
+        // linked_id = минимальный ID в группе
+        $linkedId = min($ids);
+        $pdo = DB::get();
+
+        $placeholders = implode(',', array_fill(0, count($ids), '?'));
+        $pdo->prepare("UPDATE erp_finance_transactions SET linked_id = ? WHERE id IN ({$placeholders})")
+            ->execute(array_merge([$linkedId], $ids));
+
+        return ['ok' => true, 'linked_id' => $linkedId];
+    }
+
+    /**
+     * Разъединить транзакцию из группы
+     */
+    public function unlink(): array {
+        $id = (int)(param('id') ?: (jsonInput()['id'] ?? 0));
+        if (!$id) errorResponse('id required');
+
+        $pdo = DB::get();
+        $pdo->prepare("UPDATE erp_finance_transactions SET linked_id = NULL WHERE id = ?")->execute([$id]);
+
+        return ['ok' => true];
+    }
+
     // ── Private ─────────────────────────────────────────
 
     private function updateAccountBalance(PDO $pdo, string $type, float $amount, array $input): void {
@@ -299,13 +360,16 @@ class ERP_Finance {
             $pdo->prepare("UPDATE erp_finance_accounts SET balance = balance - ? WHERE id = ?")
                 ->execute([$amount, $accId]);
         } elseif ($type === 'transfer') {
+            // Списываем source amount с источника
             if ($accId) {
                 $pdo->prepare("UPDATE erp_finance_accounts SET balance = balance - ? WHERE id = ?")
                     ->execute([$amount, $accId]);
             }
+            // Зачисляем dest_amount (или amount если нет) на назначение
             if ($toAccId) {
+                $destAmount = (float)($input['dest_amount'] ?? $amount);
                 $pdo->prepare("UPDATE erp_finance_accounts SET balance = balance + ? WHERE id = ?")
-                    ->execute([$amount, $toAccId]);
+                    ->execute([$destAmount, $toAccId]);
             }
         }
     }
