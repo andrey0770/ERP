@@ -1,0 +1,601 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<title>Каталог артикулов — Кии и Шары</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: 'Segoe UI', Arial, sans-serif; background: #f0f2f5; color: #333; padding: 24px; max-width: 960px; margin: 0 auto; }
+h1 { font-size: 22px; margin-bottom: 6px; }
+.subtitle { color: #666; font-size: 13px; margin-bottom: 20px; }
+
+/* Tabs */
+.tabs { display: flex; gap: 4px; margin-bottom: 20px; }
+.tab { padding: 10px 24px; border-radius: 8px 8px 0 0; cursor: pointer; font-weight: 600; font-size: 15px;
+       background: #ddd; color: #666; border: none; font-family: inherit; transition: all 0.2s; }
+.tab.active { background: #3f51b5; color: #fff; box-shadow: 0 2px 8px rgba(63,81,181,0.3); }
+.tab:hover:not(.active) { background: #c5cae9; }
+.tab-content { display: none; }
+.tab-content.active { display: block; }
+
+.section-title { font-size: 18px; font-weight: 700; margin: 24px 0 8px; color: #333; }
+.section-subtitle { font-size: 13px; color: #888; margin-bottom: 16px; }
+
+.format-box { background: #fff; border-radius: 10px; padding: 16px 20px; margin-bottom: 16px; box-shadow: 0 1px 4px rgba(0,0,0,0.08); }
+.format-box h3 { margin-bottom: 10px; font-size: 14px; }
+.fmt { display: flex; gap: 3px; margin-bottom: 6px; }
+.fmt div { padding: 10px 0; border-radius: 6px; text-align: center; font-weight: 700; font-size: 18px; letter-spacing: 2px; color: #fff; }
+.fmt .f1 { flex: 2; background: #3f51b5; }
+.fmt .f2 { flex: 1; background: #e65100; }
+.fmt .f3 { flex: 2; background: #6a1b9a; }
+.fmt .f4 { flex: 1; background: #00695c; }
+.fmt-labels { display: flex; gap: 3px; font-size: 11px; color: #888; text-align: center; }
+.fmt-labels div { flex: 1; }
+
+.legend { display: flex; gap: 14px; margin-bottom: 16px; flex-wrap: wrap; }
+.legend-item { display: flex; align-items: center; gap: 5px; font-size: 12px; }
+.legend-dot { width: 12px; height: 12px; border-radius: 3px; }
+
+/* Accordion */
+.acc { margin-bottom: 2px; }
+.acc-header {
+    display: flex; align-items: center; gap: 8px;
+    cursor: pointer; user-select: none;
+    border: none; background: none; width: 100%; text-align: left;
+    font-family: inherit; color: inherit; padding: 0;
+}
+.acc-header:hover { filter: brightness(0.97); }
+.acc-arrow { font-size: 10px; transition: transform 0.2s; width: 16px; text-align: center; flex-shrink: 0; }
+.acc-header.open .acc-arrow { transform: rotate(90deg); }
+.acc-body { display: none; }
+.acc-header.open + .acc-body { display: block; }
+
+.L1 > .acc-header {
+    background: #3f51b5; color: #fff; border-radius: 10px; padding: 12px 16px;
+    font-size: 15px; font-weight: 700; margin-bottom: 2px;
+    box-shadow: 0 2px 6px rgba(63,81,181,0.25);
+}
+.L1.balls > .acc-header { background: #00695c; box-shadow: 0 2px 6px rgba(0,105,92,0.25); }
+.L1 > .acc-body { padding: 4px 0; }
+
+.L2 > .acc-header {
+    background: #fff; border-radius: 8px; padding: 10px 16px; margin: 2px 0 2px 20px;
+    font-size: 14px; font-weight: 600; color: #e65100;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.06); border-left: 4px solid #e65100;
+}
+.L2 > .acc-body { padding: 2px 0 2px 20px; }
+
+.L3 > .acc-header {
+    border-radius: 6px; padding: 8px 14px; margin: 2px 0 2px 20px;
+    font-size: 13px; font-weight: 600;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.04);
+}
+.L3 > .acc-body { padding: 0 0 0 20px; }
+
+.L3.s-meilin > .acc-header { background: #e8f5e9; color: #2e7d32; border-left: 4px solid #4caf50; }
+.L3.s-smart > .acc-header { background: #e3f2fd; color: #1565c0; border-left: 4px solid #2196f3; }
+.L3.s-condi > .acc-header { background: #fff3e0; color: #e65100; border-left: 4px solid #ff9800; }
+.L3.s-fortuna > .acc-header { background: #f3e5f5; color: #7b1fa2; border-left: 4px solid #9c27b0; }
+.L3.s-aramith > .acc-header { background: #fce4ec; color: #c62828; border-left: 4px solid #e53935; }
+.L3.s-standard > .acc-header { background: #efebe9; color: #4e342e; border-left: 4px solid #795548; }
+.L3.s-champion > .acc-header { background: #e8eaf6; color: #283593; border-left: 4px solid #3f51b5; }
+
+.product-list { margin: 2px 0 6px 20px; }
+.product {
+    display: flex; align-items: center; gap: 8px;
+    padding: 5px 12px; border-radius: 4px; font-size: 13px;
+    background: #fff; margin: 1px 0; border-left: 3px solid transparent;
+}
+.product:hover { background: #f5f7ff; }
+.product.reserve { color: #bbb; font-style: italic; }
+.product.reserve .p-sku { color: #d0d0d0; }
+.product .p-sku {
+    font-family: 'Consolas', monospace; font-weight: 700; font-size: 14px;
+    letter-spacing: 1px; min-width: 56px; flex-shrink: 0;
+}
+.product .p-name { flex: 1; }
+.product .p-old { color: #999; font-size: 12px; width: 56px; text-align: right; flex-shrink: 0; }
+
+.product.s-meilin { border-left-color: #4caf50; }
+.product.s-smart { border-left-color: #2196f3; }
+.product.s-condi { border-left-color: #ff9800; }
+.product.s-fortuna { border-left-color: #9c27b0; }
+.product.s-aramith { border-left-color: #e53935; }
+.product.s-standard { border-left-color: #795548; }
+.product.s-champion { border-left-color: #3f51b5; }
+
+.badge { display: inline-block; padding: 2px 8px; border-radius: 10px; font-size: 11px; font-weight: 600; margin-left: 6px; }
+.badge-count { background: rgba(255,255,255,0.3); }
+.badge-reserve { background: rgba(255,255,255,0.15); font-weight: 400; }
+.L2 .badge-count { background: #fff3e0; color: #e65100; }
+.L2 .badge-reserve { background: #fafafa; color: #aaa; }
+
+.ball-note { font-size: 12px; color: #888; padding: 4px 16px 8px 40px; font-style: italic; }
+</style>
+</head>
+<body>
+
+<h1>🎱 Каталог артикулов</h1>
+<p class="subtitle">Единая система 5-значных числовых артикулов</p>
+
+<div class="tabs">
+    <button class="tab active" onclick="showTab('cues')">🎯 Кии (01–03)</button>
+    <button class="tab" onclick="showTab('balls')">⚪ Шары (40–47)</button>
+</div>
+
+<!-- ═══════════════ TAB: КИКИ ═══════════════ -->
+<div id="tab-cues" class="tab-content active">
+
+<div class="format-box">
+    <h3>Кии — структура артикула</h3>
+    <div class="fmt">
+        <div class="f1">CC</div>
+        <div class="f2">T</div>
+        <div class="f3">NN</div>
+    </div>
+    <div class="fmt-labels">
+        <div>01 Цельный · 02 Разборный · 03 3/4</div>
+        <div>1 Пирам · 2 Пул · 3 Снук · 4 Унив</div>
+        <div>01–15 Мейлин · 16–25 Smart · 26–40 Конди · 41+ Фортуна</div>
+    </div>
+</div>
+<div class="legend">
+    <div class="legend-item"><div class="legend-dot" style="background:#4caf50"></div> Мейлин</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#2196f3"></div> Smart</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#ff9800"></div> Конди</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#9c27b0"></div> Фортуна</div>
+</div>
+<div id="cues-root"></div>
+</div>
+
+<!-- ═══════════════ TAB: ШАРЫ ═══════════════ -->
+<div id="tab-balls" class="tab-content">
+
+<div class="format-box">
+    <h3>Шары-наборы (40–42) — структура артикула</h3>
+    <div class="fmt">
+        <div class="f1">CC</div>
+        <div class="f3" style="flex:3">NNN</div>
+    </div>
+    <div class="fmt-labels">
+        <div>40 Наборы РБ · 41 Наборы пул · 42 Наборы снукер</div>
+        <div style="flex:3">001–030 Aramith · 031–050 Standard · 051–070 Champion · 071+ резерв</div>
+    </div>
+</div>
+<div class="format-box">
+    <h3>Шары-одиночные (43–45) — структура артикула</h3>
+    <div class="fmt">
+        <div class="f1">CC</div>
+        <div class="f4">S</div>
+        <div class="f3">BB</div>
+    </div>
+    <div class="fmt-labels">
+        <div>43 Одиноч. РБ · 44 Одиноч. пул · 45 Одиноч. снукер</div>
+        <div>Серия (размер+бренд)</div>
+        <div>00=Биток · 01–15=Номер шара</div>
+    </div>
+</div>
+<div class="legend">
+    <div class="legend-item"><div class="legend-dot" style="background:#e53935"></div> Aramith (Saluc)</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#795548"></div> Standard</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#3f51b5"></div> Champion</div>
+</div>
+<div id="balls-root"></div>
+</div>
+
+<script>
+// ═══════════════ CUES DATA ═══════════════
+const cues = [
+  { code:'01', name:'Кий цельный', types: [
+    { t:'1', name:'Пирамида', suppliers: [
+      { s:'meilin', name:'Мейлин', items:[
+        {nn:'01', name:'Porter Ramin 158 см', old:'5865'},
+        {nn:'02'}, {nn:'03'}, {nn:'04'}, {nn:'05'},
+      ]},
+      { s:'smart', name:'Smart', items:[
+        {nn:'16', name:'Compositor 161 см', old:'9201'},
+        {nn:'17', name:'Compositor укороч. 122 см', old:'15549'},
+        {nn:'18', name:'Compositor укороч. 133 см', old:'15550'},
+        {nn:'19', name:'Тафгай карбон 158 см', old:'16505'},
+        {nn:'20'}, {nn:'21'}, {nn:'22'}, {nn:'23'}, {nn:'24'},
+      ]},
+      { s:'condi', name:'Конди', items:[
+        {nn:'26', name:'Crown 161 см (вар.1)', old:'16276'},
+        {nn:'27', name:'Crown 161 см (вар.2)', old:'13203'},
+        {nn:'28'}, {nn:'29'}, {nn:'30'}, {nn:'31'}, {nn:'32'},
+      ]},
+      { s:'fortuna', name:'Фортуна', items:[
+        {nn:'41', name:'Player Black 159 см', old:'13202'},
+        {nn:'42', name:'Player Brown 159 см', old:'15874'},
+      ]},
+    ]},
+    { t:'2', name:'Пул', suppliers: [
+      { s:'meilin', name:'Мейлин', items:[
+        {nn:'01', name:'Porter Ramin 150 см', old:'5866'},
+        {nn:'02'}, {nn:'03'}, {nn:'04'}, {nn:'05'},
+      ]},
+      { s:'smart', name:'Smart', items:[
+        {nn:'16', name:'Compositor 148 см', old:'15152'},
+        {nn:'17', name:'Тафгай карбон 147 см', old:'16506'},
+        {nn:'18', name:'Тафгай укороч. 122 см', old:'16508'},
+        {nn:'19', name:'Тафгай укороч. 133 см', old:'16507'},
+        {nn:'20'}, {nn:'21'}, {nn:'22'}, {nn:'23'}, {nn:'24'},
+      ]},
+      { s:'condi', name:'Конди', items:[
+        {nn:'26'}, {nn:'27'}, {nn:'28'}, {nn:'29'}, {nn:'30'},
+      ]},
+      { s:'fortuna', name:'Фортуна', items:[
+        {nn:'41', name:'Player Black 148 см', old:'16179'},
+        {nn:'42', name:'Player Brown 148 см', old:'13659'},
+        {nn:'43', name:'Player укороч. 101 см', old:'13676'},
+        {nn:'44', name:'Player укороч. 123 см', old:'13922'},
+      ]},
+    ]},
+    { t:'3', name:'Снукер', suppliers: [
+      { s:'meilin', name:'Мейлин', items:[
+        {nn:'01', name:'Oxford', old:'5398'},
+        {nn:'02', name:'Dandy 145 см', old:'16518'},
+        {nn:'03', name:'Bridge JDH 143 см', old:'16419'},
+        {nn:'04'}, {nn:'05'}, {nn:'06'}, {nn:'07'}, {nn:'08'},
+      ]},
+    ]},
+    { t:'4', name:'Универсальный', suppliers: [
+      { s:'meilin', name:'Мейлин', items:[ {nn:'01'}, {nn:'02'}, {nn:'03'} ]},
+    ]},
+  ]},
+  { code:'02', name:'Кий разборный (2 части)', types: [
+    { t:'1', name:'Пирамида', suppliers: [
+      { s:'meilin', name:'Мейлин', items:[ {nn:'01'}, {nn:'02'}, {nn:'03'}, {nn:'04'}, {nn:'05'} ]},
+      { s:'smart', name:'Smart', items:[ {nn:'16'}, {nn:'17'}, {nn:'18'}, {nn:'19'}, {nn:'20'} ]},
+      { s:'condi', name:'Конди', items:[
+        {nn:'26', name:'Maple Crown D-501R 163 см', old:'9334'},
+        {nn:'27', name:'Maple Crown D-502R 163 см', old:'9335'},
+        {nn:'28', name:'Maple Crown D-510R 163 см', old:'9336'},
+        {nn:'29'}, {nn:'30'}, {nn:'31'}, {nn:'32'}, {nn:'33'},
+      ]},
+      { s:'fortuna', name:'Фортуна', items:[
+        {nn:'41', name:'Player 162 см', old:'12845'},
+        {nn:'42', name:'Astro Atlas 161 см', old:'12466'},
+        {nn:'43', name:'Astro Excalibur 161 см', old:'9270'},
+        {nn:'44', name:'Astro Hercules 161 см', old:'9269'},
+        {nn:'45', name:'Astro Mystery (1)', old:'12485'},
+        {nn:'46', name:'Astro Mystery (2)', old:'12486'},
+        {nn:'47', name:'Astro Mystery (3)', old:'9267'},
+        {nn:'48', name:'Astro Orion 161 см', old:'9278'},
+        {nn:'49', name:'Astro Saturn 161 см', old:'9268'},
+        {nn:'50', name:'Astro Scorpion 161 см', old:'9414'},
+        {nn:'51', name:'Astro Sirius 161 см', old:'9470'},
+        {nn:'52', name:'Astro Taurus 161 см', old:'9279'},
+        {nn:'53', name:'Astro Titan 161 см', old:'12484'},
+        {nn:'54', name:'Astro Vega 161 см', old:'9356'},
+      ]},
+    ]},
+    { t:'2', name:'Пул', suppliers: [
+      { s:'meilin', name:'Мейлин', items:[
+        {nn:'01', name:'Porter Ramin 146 см', old:'16230'},
+        {nn:'02'}, {nn:'03'}, {nn:'04'}, {nn:'05'},
+      ]},
+      { s:'smart', name:'Smart', items:[ {nn:'16'}, {nn:'17'}, {nn:'18'}, {nn:'19'}, {nn:'20'} ]},
+      { s:'condi', name:'Конди', items:[
+        {nn:'26', name:'Maple Crown D-501 149 см', old:'9339'},
+        {nn:'27', name:'Maple Crown D-509 149 см', old:'16519'},
+        {nn:'28', name:'Maple Crown D-510 149 см', old:'9340'},
+        {nn:'29', name:'Maple Crown MA-01 151 см', old:'16501'},
+        {nn:'30', name:'Maple Crown MA-02 151 см', old:'16502'},
+        {nn:'31', name:'Maple Crown MA-03 151 см', old:'16503'},
+        {nn:'32'}, {nn:'33'}, {nn:'34'}, {nn:'35'}, {nn:'36'},
+      ]},
+      { s:'fortuna', name:'Фортуна', items:[
+        {nn:'41', name:'Player 148 см', old:'5199'},
+        {nn:'42', name:'Astro Atlas 148 см', old:'9139'},
+        {nn:'43', name:'Astro Excalibur 148 см', old:'9106'},
+        {nn:'44', name:'Astro Hercules 148 см', old:'9127'},
+        {nn:'45', name:'Astro Orion 148 см', old:'12396'},
+        {nn:'46', name:'Astro Saturn 148 см', old:'9094'},
+        {nn:'47', name:'Astro Scorpion 148 см', old:'9122'},
+        {nn:'48', name:'Astro Sirius 148 см', old:'12397'},
+        {nn:'49', name:'Astro Taurus 148 см', old:'12398'},
+        {nn:'50', name:'Astro Titan 148 см', old:'12399'},
+        {nn:'51', name:'Astro Vega 148 см', old:'12400'},
+      ]},
+    ]},
+    { t:'3', name:'Снукер', suppliers: [
+      { s:'meilin', name:'Мейлин', items:[
+        {nn:'01', name:'Bridge 3/4 143 см', old:'16418'},
+        {nn:'02', name:'Manchester 3/4', old:'9157'},
+        {nn:'03', name:'Liverpool (вар.1)', old:'12490'},
+        {nn:'04', name:'Liverpool (вар.2)', old:'9405'},
+        {nn:'05', name:'Bradford 3/4', old:'12487'},
+        {nn:'06', name:'Bradford Black 3/4', old:'13601'},
+        {nn:'07'}, {nn:'08'}, {nn:'09'}, {nn:'10'}, {nn:'11'},
+      ]},
+    ]},
+    { t:'4', name:'Универсальный', suppliers: [
+      { s:'meilin', name:'Мейлин', items:[ {nn:'01'}, {nn:'02'}, {nn:'03'} ]},
+    ]},
+  ]},
+  { code:'03', name:'Кий 3/4 (три части)', types: [
+    { t:'1', name:'Пирамида', suppliers: [
+      { s:'meilin', name:'Мейлин', items:[ {nn:'01'}, {nn:'02'}, {nn:'03'} ]},
+      { s:'condi', name:'Конди', items:[ {nn:'26'}, {nn:'27'}, {nn:'28'} ]},
+    ]},
+    { t:'2', name:'Пул', suppliers: [
+      { s:'meilin', name:'Мейлин', items:[ {nn:'01'}, {nn:'02'}, {nn:'03'} ]},
+    ]},
+    { t:'3', name:'Снукер', suppliers: [
+      { s:'meilin', name:'Мейлин', items:[ {nn:'01'}, {nn:'02'}, {nn:'03'} ]},
+    ]},
+    { t:'4', name:'Универсальный', suppliers: [
+      { s:'meilin', name:'Мейлин', items:[ {nn:'01'}, {nn:'02'}, {nn:'03'} ]},
+    ]},
+  ]},
+];
+
+// ═══════════════ BALLS DATA ═══════════════
+const ballSets = [
+  { code:'40', name:'Наборы шаров — Русский бильярд', cssExtra:'balls', suppliers: [
+    { s:'aramith', name:'Aramith (Saluc)', items:[
+      {nn:'001', name:'Aramith Standard 60,3мм бордовый биток', old:'9351'},
+      {nn:'002', name:'Aramith Premier 60,3мм бордовый биток', old:'1829'},
+      {nn:'003', name:'Aramith Standard 68мм бордовый биток', old:'9350'},
+      {nn:'004', name:'Aramith Premier 68мм бордовый биток', old:'1828'},
+      {nn:'005', name:'Aramith Standard 68мм жёлтый биток', old:'1830'},
+      {nn:'006', name:'Aramith Premier 68мм жёлтый биток', old:'5108'},
+      {nn:'007', name:'Aramith Super Pro-Cup Tournament 67мм', old:'6335'},
+      {nn:'008', name:'Aramith Super Pro-Cup Tournament SQ 67мм', old:'16152'},
+      {nn:'009'}, {nn:'010'}, {nn:'011'}, {nn:'012'},
+    ]},
+    { s:'standard', name:'Standard', items:[
+      {nn:'031', name:'Standard 57,2мм бордовый биток', old:'6342'},
+      {nn:'032', name:'Standard 60,3мм бордовый биток', old:'1833'},
+      {nn:'033', name:'Standard 68мм бордовый биток', old:'1834'},
+      {nn:'034', name:'Standard 68мм жёлтый биток', old:'11868'},
+      {nn:'035'}, {nn:'036'}, {nn:'037'},
+    ]},
+    { s:'champion', name:'Champion', items:[
+      {nn:'051', name:'Champion Pro 60,3мм бордовый биток', old:'13938'},
+      {nn:'052', name:'Champion Pro 68мм бордовый биток', old:'13939'},
+      {nn:'053', name:'Champion DeLuxe 68мм бордовый биток', old:'13940'},
+      {nn:'054'}, {nn:'055'}, {nn:'056'},
+    ]},
+  ]},
+  { code:'41', name:'Наборы шаров — Пул', cssExtra:'balls', suppliers: [
+    { s:'aramith', name:'Aramith (Saluc)', items:[
+      {nn:'001', name:'Aramith Standard 57,2мм', old:'3918'},
+      {nn:'002', name:'Aramith Continental 57,2мм', old:'1820'},
+      {nn:'003', name:'Aramith Economic 57,2мм', old:'1821'},
+      {nn:'004', name:'Aramith Premier 57,2мм', old:'1822'},
+      {nn:'005', name:'Aramith Premium 57,2мм', old:'1823'},
+      {nn:'006', name:'Aramith Super Pro 57,2мм', old:'1824'},
+      {nn:'007', name:'Aramith Tournament 57,2мм', old:'6871'},
+      {nn:'008', name:'Aramith Tournament Pro-Cup TV 57,2мм', old:'9054'},
+      {nn:'009', name:'Aramith Premium + чист. средства в кейсе', old:'12636'},
+      {nn:'010', name:'Aramith Super Pro + чист. средства в кейсе', old:'12637'},
+      {nn:'011', name:'Aramith Super Pro-Cup TV + чист. в кейсе', old:'12638'},
+      {nn:'012'}, {nn:'013'}, {nn:'014'}, {nn:'015'},
+    ]},
+    { s:'standard', name:'Standard', items:[
+      {nn:'031', name:'Standard 57,2мм', old:'1827'},
+      {nn:'032'}, {nn:'033'}, {nn:'034'},
+    ]},
+    { s:'champion', name:'Champion', items:[
+      {nn:'051', name:'Champion Pro Pool 57,2мм', old:'15658'},
+      {nn:'052'}, {nn:'053'}, {nn:'054'},
+    ]},
+  ]},
+  { code:'42', name:'Наборы шаров — Снукер', cssExtra:'balls', suppliers: [
+    { s:'aramith', name:'Aramith (Saluc)', items:[
+      {nn:'001', name:'Aramith Premier 52,4мм', old:'1835'},
+      {nn:'002'}, {nn:'003'}, {nn:'004'},
+    ]},
+    { s:'standard', name:'Standard', items:[
+      {nn:'031', name:'Standard 52,4мм', old:'1837'},
+      {nn:'032'}, {nn:'033'},
+    ]},
+  ]},
+];
+
+// Одиночные шары — серии S
+const singleSeries = {
+  '43': { // Русский бильярд
+    name: 'Одиночные шары — Русский бильярд',
+    note: 'S = серия (размер+бренд), BB = номер шара (00=биток, 01–15=номерной)',
+    series: [
+      { s: '1', label: 'Aramith 68мм', brand: 'aramith', balls: [
+        {bb:'00', name:'Биток белый 68мм'}, {bb:'01'}, {bb:'02'}, {bb:'03'}, {bb:'04'}, {bb:'05'},
+        {bb:'06'}, {bb:'07'}, {bb:'08'}, {bb:'09'}, {bb:'10'}, {bb:'11'}, {bb:'12'}, {bb:'13'}, {bb:'14'}, {bb:'15'},
+      ]},
+      { s: '2', label: 'Aramith 60,3мм', brand: 'aramith', balls: [
+        {bb:'00', name:'Биток белый 60,3мм'}, {bb:'01'}, {bb:'02'}, {bb:'03'},
+      ]},
+      { s: '3', label: 'Aramith 67мм', brand: 'aramith', balls: [
+        {bb:'00', name:'Биток белый 67мм'}, {bb:'01'}, {bb:'02'}, {bb:'03'},
+      ]},
+      { s: '4', label: 'Standard 68мм', brand: 'standard', balls: [
+        {bb:'00', name:'Биток белый 68мм'}, {bb:'01'}, {bb:'02'}, {bb:'03'},
+      ]},
+      { s: '5', label: 'Champion 68мм', brand: 'champion', balls: [
+        {bb:'00', name:'Биток белый 68мм'}, {bb:'01'}, {bb:'02'}, {bb:'03'},
+      ]},
+      { s: '6', label: 'Резерв', brand: 'standard', balls: [{bb:'00'}] },
+    ]
+  },
+  '44': { // Пул
+    name: 'Одиночные шары — Пул',
+    note: 'S = серия, BB = номер шара (00=биток, 01–15=номерной). Номер шара = номер на самом шаре!',
+    series: [
+      { s: '1', label: 'Aramith 57,2мм', brand: 'aramith', balls: [
+        {bb:'00', name:'Биток белый 57,2мм'},
+        {bb:'01', name:'Шар №1 (жёлтый сплошной)'},
+        {bb:'02', name:'Шар №2 (синий сплошной)'},
+        {bb:'03', name:'Шар №3 (красный сплошной)'},
+        {bb:'04', name:'Шар №4 (фиолет. сплошной)'},
+        {bb:'05', name:'Шар №5 (оранж. сплошной)'},
+        {bb:'06', name:'Шар №6 (зелёный сплошной)'},
+        {bb:'07', name:'Шар №7 (бордо сплошной)'},
+        {bb:'08', name:'Шар №8 (чёрный)'},
+        {bb:'09', name:'Шар №9 (жёлтый полосатый)'},
+        {bb:'10', name:'Шар №10 (синий полосатый)'},
+        {bb:'11', name:'Шар №11 (красный полосатый)'},
+        {bb:'12', name:'Шар №12 (фиолет. полосатый)'},
+        {bb:'13', name:'Шар №13 (оранж. полосатый)'},
+        {bb:'14', name:'Шар №14 (зелёный полосатый)'},
+        {bb:'15', name:'Шар №15 (бордо полосатый)'},
+      ]},
+      { s: '2', label: 'Standard 57,2мм', brand: 'standard', balls: [
+        {bb:'00', name:'Биток белый 57,2мм'}, {bb:'01'}, {bb:'02'}, {bb:'03'},
+      ]},
+      { s: '3', label: 'Champion 57,2мм', brand: 'champion', balls: [
+        {bb:'00', name:'Биток белый 57,2мм'}, {bb:'01'}, {bb:'02'}, {bb:'03'},
+      ]},
+      { s: '4', label: 'Резерв', brand: 'standard', balls: [{bb:'00'}] },
+    ]
+  },
+  '45': { // Снукер
+    name: 'Одиночные шары — Снукер',
+    note: 'S = серия, BB = цвет шара: 00=биток, 01=красный, 02=жёлтый, 03=зелёный, 04=коричневый, 05=синий, 06=розовый, 07=чёрный',
+    series: [
+      { s: '1', label: 'Aramith 52,4мм', brand: 'aramith', balls: [
+        {bb:'00', name:'Биток белый'},
+        {bb:'01', name:'Красный (red)'},
+        {bb:'02', name:'Жёлтый (yellow, 2 очка)'},
+        {bb:'03', name:'Зелёный (green, 3 очка)'},
+        {bb:'04', name:'Коричневый (brown, 4 очка)'},
+        {bb:'05', name:'Синий (blue, 5 очков)'},
+        {bb:'06', name:'Розовый (pink, 6 очков)'},
+        {bb:'07', name:'Чёрный (black, 7 очков)'},
+      ]},
+      { s: '2', label: 'Standard 52,4мм', brand: 'standard', balls: [
+        {bb:'00', name:'Биток белый'}, {bb:'01'}, {bb:'02'}, {bb:'03'},
+      ]},
+      { s: '3', label: 'Резерв', brand: 'standard', balls: [{bb:'00'}] },
+    ]
+  },
+};
+
+const reserves = [
+  { code:'46', name:'Резерв (шары)' },
+  { code:'47', name:'Резерв (шары)' },
+];
+
+// ═══════════════ RENDER HELPERS ═══════════════
+const supplierNames = { meilin:'Мейлин', smart:'Smart', condi:'Конди', fortuna:'Фортуна',
+                        aramith:'Aramith (Saluc)', standard:'Standard', champion:'Champion' };
+
+function cnt(items) {
+    let r=0, s=0;
+    items.forEach(i => i.name ? r++ : s++);
+    return {r,s};
+}
+
+function renderProducts(prefix, supplier) {
+    return '<div class="product-list">' + supplier.items.map(it => {
+        const sku = prefix + it.nn;
+        const res = !it.name;
+        return `<div class="product ${res?'reserve':''} s-${supplier.s}">
+            <span class="p-sku">${sku}</span>
+            <span class="p-name">${res ? '— резерв —' : it.name}</span>
+            <span class="p-old">${it.old||''}</span></div>`;
+    }).join('') + '</div>';
+}
+
+function renderSupplier(prefix, sup) {
+    const c = cnt(sup.items);
+    const lbl = c.r > 0 ? `${sup.name} — ${c.r} тов. + ${c.s} рез.` : `${sup.name} — ${c.s} резерв`;
+    return `<div class="acc L3 s-${sup.s}">
+        <div class="acc-header" onclick="toggle(this)"><span class="acc-arrow">&#9654;</span><span>${lbl}</span></div>
+        <div class="acc-body">${renderProducts(prefix, sup)}</div></div>`;
+}
+
+// ═══════════════ RENDER CUES ═══════════════
+function renderCues() {
+    return cues.map(cat => {
+        let tr=0, ts=0;
+        cat.types.forEach(t => t.suppliers.forEach(s => { const c=cnt(s.items); tr+=c.r; ts+=c.s; }));
+        const typesHtml = cat.types.map(type => {
+            let r2=0,s2=0;
+            type.suppliers.forEach(s => { const c=cnt(s.items); r2+=c.r; s2+=c.s; });
+            const supsHtml = type.suppliers.map(s => renderSupplier(cat.code + type.t, s)).join('');
+            return `<div class="acc L2">
+                <div class="acc-header" onclick="toggle(this)"><span class="acc-arrow">&#9654;</span>
+                <span>T=${type.t} ${type.name}</span>
+                <span class="badge badge-count">${r2} тов.</span><span class="badge badge-reserve">+${s2} рез.</span></div>
+                <div class="acc-body">${supsHtml}</div></div>`;
+        }).join('');
+        return `<div class="acc L1">
+            <div class="acc-header open" onclick="toggle(this)"><span class="acc-arrow">&#9654;</span>
+            <span>${cat.code} — ${cat.name}</span>
+            <span class="badge badge-count">${tr} товаров</span><span class="badge badge-reserve">+${ts} резерв</span></div>
+            <div class="acc-body">${typesHtml}</div></div>`;
+    }).join('');
+}
+
+// ═══════════════ RENDER BALL SETS ═══════════════
+function renderBallSets() {
+    return ballSets.map(cat => {
+        let tr=0, ts=0;
+        cat.suppliers.forEach(s => { const c=cnt(s.items); tr+=c.r; ts+=c.s; });
+        const supsHtml = cat.suppliers.map(s => renderSupplier(cat.code, s)).join('');
+        return `<div class="acc L1 ${cat.cssExtra||''}">
+            <div class="acc-header open" onclick="toggle(this)"><span class="acc-arrow">&#9654;</span>
+            <span>${cat.code} — ${cat.name}</span>
+            <span class="badge badge-count">${tr} товаров</span><span class="badge badge-reserve">+${ts} резерв</span></div>
+            <div class="acc-body">${supsHtml}</div></div>`;
+    }).join('');
+}
+
+// ═══════════════ RENDER SINGLE BALLS ═══════════════
+function renderSingleBalls() {
+    return Object.entries(singleSeries).map(([cc, data]) => {
+        let totalR=0, totalS=0;
+        data.series.forEach(ser => ser.balls.forEach(b => b.name ? totalR++ : totalS++));
+        const seriesHtml = data.series.map(ser => {
+            const c = {r:0,s:0};
+            ser.balls.forEach(b => b.name ? c.r++ : c.s++);
+            const lbl = c.r > 0 ? `S=${ser.s} ${ser.label} — ${c.r} шар. + ${c.s} рез.` : `S=${ser.s} ${ser.label} — ${c.s} резерв`;
+            const ballsHtml = '<div class="product-list">' + ser.balls.map(b => {
+                const sku = cc + ser.s + b.bb;
+                const res = !b.name;
+                return `<div class="product ${res?'reserve':''} s-${ser.brand}">
+                    <span class="p-sku">${sku}</span>
+                    <span class="p-name">${res ? '— резерв —' : b.name}</span>
+                    <span class="p-old"></span></div>`;
+            }).join('') + '</div>';
+            return `<div class="acc L3 s-${ser.brand}">
+                <div class="acc-header" onclick="toggle(this)"><span class="acc-arrow">&#9654;</span><span>${lbl}</span></div>
+                <div class="acc-body">${ballsHtml}</div></div>`;
+        }).join('');
+        return `<div class="acc L1 balls">
+            <div class="acc-header open" onclick="toggle(this)"><span class="acc-arrow">&#9654;</span>
+            <span>${cc} — ${data.name}</span>
+            <span class="badge badge-count">${totalR} шаров</span><span class="badge badge-reserve">+${totalS} резерв</span></div>
+            <div class="acc-body">
+                <div class="ball-note">${data.note}</div>
+                ${seriesHtml}
+            </div></div>`;
+    }).join('');
+}
+
+function renderReserves() {
+    return reserves.map(r =>
+        `<div class="acc L1 balls"><div class="acc-header" onclick="toggle(this)" style="opacity:0.5">
+            <span class="acc-arrow">&#9654;</span><span>${r.code} — ${r.name}</span></div>
+            <div class="acc-body"></div></div>`
+    ).join('');
+}
+
+// ═══════════════ INIT ═══════════════
+document.getElementById('cues-root').innerHTML = renderCues();
+document.getElementById('balls-root').innerHTML = renderBallSets() + renderSingleBalls() + renderReserves();
+
+function toggle(el) { el.classList.toggle('open'); }
+
+function showTab(name) {
+    document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    document.getElementById('tab-' + name).classList.add('active');
+    event.target.classList.add('active');
+}
+</script>
+</body>
+</html>
