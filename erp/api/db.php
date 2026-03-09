@@ -413,6 +413,12 @@ class DB {
                     ADD COLUMN IF NOT EXISTS cue_parts TINYINT DEFAULT NULL COMMENT 'Количество частей: 1, 2+',
                     ADD COLUMN IF NOT EXISTS cue_material VARCHAR(30) DEFAULT NULL COMMENT 'Материал: клён/рамин/композит'
             ",
+
+            // ── v022: Синонимы поставщиков ───────────────────
+            'v022_supplier_synonyms' => "
+                ALTER TABLE erp_suppliers
+                    ADD COLUMN IF NOT EXISTS synonyms TEXT DEFAULT NULL COMMENT 'Синонимы через запятую для поиска и сопоставления'
+            ",
         ];
     }
 }

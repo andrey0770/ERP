@@ -7,7 +7,7 @@ export function initPurchasing(ctx) {
     const supplierStats = reactive({ total_suppliers: 0, with_products: 0 });
     const supplierFilter = reactive({ q: '' });
     let supplierSearchTimer2 = null;
-    const newSupplierData = reactive({ name: '', alias: '', inn: '', phone: '', email: '', website: '', country: '', address: '', notes: '' });
+    const newSupplierData = reactive({ name: '', alias: '', synonyms: '', inn: '', phone: '', email: '', website: '', country: '', address: '', notes: '' });
 
     async function loadSuppliers2() {
         try {
@@ -50,7 +50,7 @@ export function initPurchasing(ctx) {
 
     async function saveSupplier2() {
         try {
-            await api('suppliers.update', { id: editData.id, name: editData.name, alias: editData.alias, inn: editData.inn, phone: editData.phone, email: editData.email, website: editData.website, country: editData.country, address: editData.address, notes: editData.notes });
+            await api('suppliers.update', { id: editData.id, name: editData.name, alias: editData.alias, synonyms: editData.synonyms, inn: editData.inn, phone: editData.phone, email: editData.email, website: editData.website, country: editData.country, address: editData.address, notes: editData.notes });
             toast('Поставщик обновлён', 'success');
             showModal.value = null;
             loadSuppliers2();

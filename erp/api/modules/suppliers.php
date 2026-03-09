@@ -17,9 +17,9 @@ class ERP_Suppliers {
         $params = [];
 
         if ($q = param('q')) {
-            $where[] = '(s.name LIKE ? OR s.alias LIKE ? OR s.country LIKE ?)';
+            $where[] = '(s.name LIKE ? OR s.alias LIKE ? OR s.synonyms LIKE ? OR s.country LIKE ?)';
             $like = "%{$q}%";
-            $params = array_merge($params, [$like, $like, $like]);
+            $params = array_merge($params, [$like, $like, $like, $like]);
         }
 
         $whereSQL = implode(' AND ', $where);
@@ -80,12 +80,13 @@ class ERP_Suppliers {
 
         $pdo = DB::get();
         $stmt = $pdo->prepare("
-            INSERT INTO erp_suppliers (name, alias, inn, phone, email, website, country, address, notes)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+            INSERT INTO erp_suppliers (name, alias, synonyms, inn, phone, email, website, country, address, notes)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         ");
         $stmt->execute([
             $name,
             trim($input['alias'] ?? '') ?: null,
+            trim($input['synonyms'] ?? '') ?: null,
             $input['inn'] ?? null,
             $input['phone'] ?? null,
             $input['email'] ?? null,
@@ -103,7 +104,7 @@ class ERP_Suppliers {
         $id = (int)($input['id'] ?? param('id'));
         if (!$id) errorResponse('id required');
 
-        $allowed = ['name', 'alias', 'inn', 'phone', 'email', 'website', 'country', 'address', 'notes', 'is_active'];
+        $allowed = ['name', 'alias', 'synonyms', 'inn', 'phone', 'email', 'website', 'country', 'address', 'notes', 'is_active'];
         $sets = [];
         $params = [];
         foreach ($allowed as $field) {

@@ -1327,7 +1327,7 @@
                         <h1>🚚 Поставщики</h1>
                         <div class="subtitle">Справочник поставщиков · {{ suppliersData.total || 0 }}</div>
                     </div>
-                    <button class="btn btn-primary" @click="newSupplierData = { name:'', alias:'', inn:'', phone:'', email:'', website:'', country:'', address:'', notes:'' }; showModal='supplierCreate'">+ Поставщик</button>
+                    <button class="btn btn-primary" @click="newSupplierData = { name:'', alias:'', synonyms:'', inn:'', phone:'', email:'', website:'', country:'', address:'', notes:'' }; showModal='supplierCreate'">+ Поставщик</button>
                 </div>
 
                 <div class="cards">
@@ -1347,11 +1347,12 @@
 
                 <div class="card">
                     <table class="table" v-if="suppliersData.items?.length">
-                        <thead><tr><th>Название</th><th>Сокращение</th><th>Страна</th><th>Телефон</th><th>Email</th><th>Товаров</th><th></th></tr></thead>
+                        <thead><tr><th>Название</th><th>Краткое</th><th>Синонимы</th><th>Страна</th><th>Телефон</th><th>Email</th><th>Товаров</th><th></th></tr></thead>
                         <tbody>
                             <tr v-for="s in suppliersData.items" :key="s.id" style="cursor:pointer" @click="showSupplierDetail2(s.id)">
                                 <td><strong>{{ s.name }}</strong></td>
                                 <td>{{ s.alias || '—' }}</td>
+                                <td style="font-size:12px;color:var(--text2);max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" :title="s.synonyms">{{ s.synonyms || '—' }}</td>
                                 <td>{{ s.country || '—' }}</td>
                                 <td>{{ s.phone || '—' }}</td>
                                 <td>{{ s.email || '—' }}</td>
@@ -2308,7 +2309,8 @@
         <div class="modal">
             <h2>🚚 Новый поставщик</h2>
             <div class="form-group"><label>Название *</label><input class="form-input" v-model="newSupplierData.name" placeholder="Полное наименование"></div>
-            <div class="form-group"><label>Сокращение (alias)</label><input class="form-input" v-model="newSupplierData.alias" placeholder="Короткое название"></div>
+            <div class="form-group"><label>Краткое название</label><input class="form-input" v-model="newSupplierData.alias" placeholder="Для документов и таблиц"></div>
+            <div class="form-group"><label>Синонимы</label><input class="form-input" v-model="newSupplierData.synonyms" placeholder="Варианты названий через запятую"></div>
             <div class="input-row">
                 <div class="form-group" style="flex:1"><label>Страна</label><input class="form-input" v-model="newSupplierData.country"></div>
                 <div class="form-group" style="flex:1"><label>ИНН</label><input class="form-input" v-model="newSupplierData.inn"></div>
@@ -2331,7 +2333,8 @@
     <div class="modal-overlay" v-if="showModal==='supplierDetail'" @click.self="showModal=null">
         <div class="modal" style="max-width:700px">
             <h2>{{ detailData.name }}</h2>
-            <div v-if="detailData.alias" style="color:var(--text2);margin-bottom:12px">{{ detailData.alias }}</div>
+            <div v-if="detailData.alias" style="color:var(--text2);margin-bottom:4px">Краткое: {{ detailData.alias }}</div>
+            <div v-if="detailData.synonyms" style="color:var(--text2);margin-bottom:12px;font-size:13px">Синонимы: {{ detailData.synonyms }}</div>
             <div class="info-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:8px 20px;margin-bottom:16px">
                 <div v-if="detailData.country"><strong>Страна:</strong> {{ detailData.country }}</div>
                 <div v-if="detailData.inn"><strong>ИНН:</strong> {{ detailData.inn }}</div>
@@ -2369,7 +2372,8 @@
         <div class="modal">
             <h2>✏️ Редактирование поставщика</h2>
             <div class="form-group"><label>Название</label><input class="form-input" v-model="editData.name"></div>
-            <div class="form-group"><label>Сокращение (alias)</label><input class="form-input" v-model="editData.alias"></div>
+            <div class="form-group"><label>Краткое название</label><input class="form-input" v-model="editData.alias" placeholder="Для документов и таблиц"></div>
+            <div class="form-group"><label>Синонимы</label><input class="form-input" v-model="editData.synonyms" placeholder="Варианты названий через запятую"></div>
             <div class="input-row">
                 <div class="form-group" style="flex:1"><label>Страна</label><input class="form-input" v-model="editData.country"></div>
                 <div class="form-group" style="flex:1"><label>ИНН</label><input class="form-input" v-model="editData.inn"></div>
