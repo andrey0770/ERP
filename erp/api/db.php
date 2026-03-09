@@ -419,6 +419,15 @@ class DB {
                 ALTER TABLE erp_suppliers
                     ADD COLUMN IF NOT EXISTS synonyms TEXT DEFAULT NULL COMMENT 'Синонимы через запятую для поиска и сопоставления'
             ",
+
+            // ── v023: Расширение складов ────────────────────
+            'v023_warehouses_extend' => "
+                ALTER TABLE erp_warehouses
+                    ADD COLUMN IF NOT EXISTS type ENUM('regular','transit') NOT NULL DEFAULT 'regular' COMMENT 'Тип: обычный или транзитный (в пути)',
+                    ADD COLUMN IF NOT EXISTS parent_id INT DEFAULT NULL COMMENT 'Родительский склад (для подскладов)',
+                    ADD COLUMN IF NOT EXISTS sort_order INT NOT NULL DEFAULT 0,
+                    ADD COLUMN IF NOT EXISTS notes VARCHAR(500) DEFAULT NULL
+            ",
         ];
     }
 }

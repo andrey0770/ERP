@@ -203,11 +203,96 @@ class ERP_Inventory {
     }
 
     /**
-     * Склады
+     * Склады — список
      */
     public function warehouses(): array {
         $pdo = DB::get();
-        return ['items' => $pdo->query("SELECT * FROM erp_warehouses WHERE is_active=1 ORDER BY name")->fetchAll()];
+        $rows = $pdo->query("
+            SELECT w.*, 
+                (SELECT COUNT(*) FROM erp_inventory i WHERE i.warehouse_id = w.id AND i.quantity > 0) as product_count,
+                (SELECT COALESCE(SUM(i.quantity),0) FROM erp_inventory i WHERE i.warehouse_id = w.id) as total_qty
+            FROM erp_warehouses w
+            WHERE w.is_active = 1
+            ORDER BY w.sort_order, w.name
+        ")->fetchAll();
+        return ['items' => $rows];
+    }
+
+    /**
+     * Склад — получить один
+     */
+    public function warehouse_get(): array {
+        $id = (int) param('id');
+        if (!$id) errorResponse('id required');
+        $pdo = DB::get();
+        $stmt = $pdo->prepare("SELECT * FROM erp_warehouses WHERE id = ?");
+        $stmt->execute([$id]);
+        $wh = $stmt->fetch();
+        if (!$wh) errorResponse('Warehouse not found', 404);
+        return $wh;
+    }
+
+    /**
+     * Склад — создать
+     */
+    public function warehouse_create(): array {
+        $input = jsonInput();
+        $name = trim($input['name'] ?? '');
+        if (!$name) errorResponse('name required');
+
+        $pdo = DB::get();
+        $pdo->prepare("
+            INSERT INTO erp_warehouses (name, address, type, parent_id, sort_order, notes)
+            VALUES (?, ?, ?, ?, ?, ?)
+        ")->execute([
+            $name,
+            $input['address'] ?? null,
+            $input['type'] ?? 'regular',
+            !empty($input['parent_id']) ? (int)$input['parent_id'] : null,
+            (int)($input['sort_order'] ?? 0),
+            $input['notes'] ?? null,
+        ]);
+        return ['ok' => true, 'id' => (int) $pdo->lastInsertId()];
+    }
+
+    /**
+     * Склад — обновить
+     */
+    public function warehouse_update(): array {
+        $input = jsonInput();
+        $id = (int)($input['id'] ?? param('id'));
+        if (!$id) errorResponse('id required');
+
+        $allowed = ['name', 'address', 'type', 'parent_id', 'sort_order', 'notes', 'is_active'];
+        $sets = [];
+        $params = [];
+        foreach ($allowed as $field) {
+            if (array_key_exists($field, $input)) {
+                $sets[] = "`{$field}` = ?";
+                $params[] = $input[$field];
+            }
+        }
+        if (empty($sets)) errorResponse('No fields to update');
+        $params[] = $id;
+
+        $pdo = DB::get();
+        $pdo->prepare("UPDATE erp_warehouses SET " . implode(', ', $sets) . " WHERE id = ?")->execute($params);
+        return ['ok' => true, 'id' => $id];
+    }
+
+    /**
+     * Склад — удалить (soft)
+     */
+    public function warehouse_delete(): array {
+        $id = (int) param('id');
+        if (!$id) errorResponse('id required');
+        $pdo = DB::get();
+        // Check if warehouse has stock
+        $qty = (int) $pdo->prepare("SELECT COALESCE(SUM(quantity),0) FROM erp_inventory WHERE warehouse_id = ?")->execute([$id]) ? 
+            $pdo->query("SELECT COALESCE(SUM(quantity),0) FROM erp_inventory WHERE warehouse_id = {$id}")->fetchColumn() : 0;
+        if ($qty > 0) errorResponse('Нельзя удалить склад с остатками');
+        $pdo->prepare("UPDATE erp_warehouses SET is_active = 0 WHERE id = ?")->execute([$id]);
+        return ['ok' => true];
     }
 
     // ── Private ─────────────────────────────────────────

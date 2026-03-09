@@ -672,11 +672,60 @@ function initInventory(ctx) {
         else if (tab === 'movements') { loadMovements(); }
     }
 
+    // ── Warehouses ──────────────────────────────────
+    const warehousesList = ref([]);
+    const newWarehouse = reactive({ name: '', address: '', type: 'regular', parent_id: null, sort_order: 0, notes: '' });
+    const editWarehouse = reactive({});
+
+    async function loadWarehouses() {
+        try {
+            const data = await api('inventory.warehouses');
+            warehousesList.value = data.items || [];
+        } catch (e) { toast('Ошибка загрузки складов: ' + e.message, 'error'); }
+    }
+
+    async function createWarehouse() {
+        if (!newWarehouse.name.trim()) return toast('Укажи название', 'error');
+        try {
+            await api('inventory.warehouse_create', { ...newWarehouse });
+            toast('Склад создан', 'success');
+            showModal.value = null;
+            Object.assign(newWarehouse, { name: '', address: '', type: 'regular', parent_id: null, sort_order: 0, notes: '' });
+            loadWarehouses();
+        } catch (e) { toast('Ошибка: ' + e.message, 'error'); }
+    }
+
+    function editWarehouseOpen(wh) {
+        Object.assign(editWarehouse, { ...wh });
+        showModal.value = 'warehouseEdit';
+    }
+
+    async function saveWarehouse() {
+        try {
+            await api('inventory.warehouse_update', { ...editWarehouse });
+            toast('Склад обновлён', 'success');
+            showModal.value = null;
+            loadWarehouses();
+        } catch (e) { toast('Ошибка: ' + e.message, 'error'); }
+    }
+
+    async function deleteWarehouse(id) {
+        if (!confirm('Удалить склад?')) return;
+        try {
+            await api('inventory.warehouse_delete', { id });
+            toast('Склад удалён', 'success');
+            loadWarehouses();
+        } catch (e) { toast('Ошибка: ' + e.message, 'error'); }
+    }
+
     return {
         inventoryList, movements, newMovement, loadInventory, submitMovement,
         adjustData, submitAdjust, transferData, submitTransfer,
         inventoryTab, switchInventoryTab, stockFilter, movementFilter, filteredInventory,
         debounceStockSearch, loadMovements,
+        // Warehouses
+        warehousesList, newWarehouse, editWarehouse,
+        loadWarehouses, createWarehouse, editWarehouseOpen, saveWarehouse, deleteWarehouse,
     };
 }
 
@@ -1387,7 +1436,7 @@ const app = createApp({
             document.addEventListener('mouseup', onUp);
         }
 
-        const routeGroups = { supplies: 'purchasing', receiving: 'purchasing', purchase_payments: 'purchasing', suppliers: 'purchasing', sales: 'sales', shipments: 'sales', returns: 'sales', incoming_payments: 'sales', profitability: 'sales', crm: 'sales', deals: 'sales', inventory: 'goods', finance: 'finance', reports: 'finance', tasks: 'tasks', tasks_my: 'tasks', tasks_from: 'tasks' };
+        const routeGroups = { supplies: 'purchasing', receiving: 'purchasing', suppliers: 'purchasing', sales: 'sales', shipments: 'sales', returns: 'sales', profitability: 'sales', crm: 'sales', deals: 'sales', inventory: 'goods', warehouses: 'goods', finance: 'finance', reports: 'finance', tasks: 'tasks', tasks_my: 'tasks', tasks_from: 'tasks' };
 
         function navigate(route) {
             currentRoute.value = route;
@@ -1443,6 +1492,7 @@ const app = createApp({
                 case 'crm':       crm.loadCrm(); break;
                 case 'deals':     crm.loadDeals(); crm.loadCrm(); break;
                 case 'suppliers': purchasing.loadSuppliers2(); break;
+                case 'warehouses': inventory.loadWarehouses(); break;
                 case 'settings':  settings.loadSettings(); break;
             }
         }

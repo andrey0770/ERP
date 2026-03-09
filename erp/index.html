@@ -49,9 +49,6 @@
                     <div :class="['nav-item', { active: currentRoute === 'receiving' }]" @click="navigate('receiving')">
                         <span class="icon"><i class="ph ph-package"></i></span><span class="nav-label">Приёмки</span>
                     </div>
-                    <div :class="['nav-item', { active: currentRoute === 'purchase_payments' }]" @click="navigate('purchase_payments')">
-                        <span class="icon"><i class="ph ph-credit-card"></i></span><span class="nav-label">Оплаты</span>
-                    </div>
                     <div :class="['nav-item', { active: currentRoute === 'suppliers' }]" @click="navigate('suppliers')">
                         <span class="icon"><i class="ph ph-address-book"></i></span><span class="nav-label">Поставщики</span>
                     </div>
@@ -74,9 +71,6 @@
                     <div :class="['nav-item', { active: currentRoute === 'returns' }]" @click="navigate('returns')">
                         <span class="icon"><i class="ph ph-arrow-u-up-left"></i></span><span class="nav-label">Возвраты</span>
                     </div>
-                    <div :class="['nav-item', { active: currentRoute === 'incoming_payments' }]" @click="navigate('incoming_payments')">
-                        <span class="icon"><i class="ph ph-money"></i></span><span class="nav-label">Поступления</span>
-                    </div>
                     <div :class="['nav-item', { active: currentRoute === 'profitability' }]" @click="navigate('profitability')">
                         <span class="icon"><i class="ph ph-chart-line-up"></i></span><span class="nav-label">Доходность</span>
                     </div>
@@ -98,6 +92,9 @@
                 <div :class="['nav-group-items', { expanded: expandedGroups.goods }]">
                     <div :class="['nav-item', { active: currentRoute === 'inventory' }]" @click="navigate('inventory')">
                         <span class="icon"><i class="ph ph-squares-four"></i></span><span class="nav-label">Каталог</span>
+                    </div>
+                    <div :class="['nav-item', { active: currentRoute === 'warehouses' }]" @click="navigate('warehouses')">
+                        <span class="icon"><i class="ph ph-warehouse"></i></span><span class="nav-label">Склады</span>
                     </div>
                 </div>
             </div>
@@ -1386,6 +1383,38 @@
                 </div>
             </template>
 
+            <!-- Warehouses (Склады) -->
+            <template v-if="currentRoute === 'warehouses'">
+                <div class="page-header">
+                    <div>
+                        <h1>🏭 Склады</h1>
+                        <div class="subtitle">{{ warehousesList.length }} складов</div>
+                    </div>
+                    <button class="btn btn-primary" @click="Object.assign(newWarehouse, { name:'', address:'', type:'regular', parent_id:null, sort_order:0, notes:'' }); showModal='warehouseCreate'">+ Склад</button>
+                </div>
+
+                <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:16px">
+                    <div class="card" v-for="wh in warehousesList" :key="wh.id" style="padding:16px">
+                        <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
+                            <i :class="['ph', wh.type==='transit' ? 'ph-airplane-tilt' : 'ph-warehouse']" style="font-size:20px;color:var(--accent)"></i>
+                            <strong style="font-size:15px">{{ wh.name }}</strong>
+                            <span v-if="wh.type==='transit'" style="font-size:10px;padding:2px 6px;border-radius:8px;background:var(--warning-bg,#fff3cd);color:var(--warning-text,#856404)">В пути</span>
+                        </div>
+                        <div v-if="wh.address" style="font-size:12px;color:var(--text2);margin-bottom:6px"><i class="ph ph-map-pin" style="margin-right:4px"></i>{{ wh.address }}</div>
+                        <div v-if="wh.notes" style="font-size:12px;color:var(--text2);margin-bottom:8px">{{ wh.notes }}</div>
+                        <div style="display:flex;gap:16px;font-size:13px;margin-bottom:10px">
+                            <span><strong>{{ wh.product_count || 0 }}</strong> товаров</span>
+                            <span><strong>{{ wh.total_qty || 0 }}</strong> шт</span>
+                        </div>
+                        <div class="actions" style="justify-content:flex-end">
+                            <button class="btn-icon" @click.stop="editWarehouseOpen(wh)" title="Редактировать"><i class="ph ph-pencil-simple"></i></button>
+                            <button class="btn-icon" @click.stop="deleteWarehouse(wh.id)" title="Удалить" style="color:var(--danger)"><i class="ph ph-trash"></i></button>
+                        </div>
+                    </div>
+                </div>
+                <div v-if="!warehousesList.length" style="color:var(--text2);padding:40px;text-align:center">Нет складов</div>
+            </template>
+
             <!-- Settings -->
             <template v-if="currentRoute === 'settings'">
                 <div class="page-header">
@@ -2322,6 +2351,60 @@
 
     <!-- ══ Confirm Delete Modal ═════════════════════════ -->
     <!-- Supplier Create -->
+    <!-- Warehouse Create -->
+    <div class="modal-overlay" v-if="showModal==='warehouseCreate'" @click.self="showModal=null">
+        <div class="modal" style="max-width:450px">
+            <h2>🏭 Новый склад</h2>
+            <div class="form-group"><label>Название *</label><input class="form-input" v-model="newWarehouse.name" placeholder="Название склада"></div>
+            <div class="form-group"><label>Адрес</label><input class="form-input" v-model="newWarehouse.address" placeholder="Адрес"></div>
+            <div class="input-row">
+                <div class="form-group" style="flex:1">
+                    <label>Тип</label>
+                    <select class="form-input" v-model="newWarehouse.type">
+                        <option value="regular">Обычный</option>
+                        <option value="transit">В пути (транзит)</option>
+                    </select>
+                </div>
+                <div class="form-group" style="flex:1">
+                    <label>Порядок</label>
+                    <input class="form-input" type="number" v-model.number="newWarehouse.sort_order">
+                </div>
+            </div>
+            <div class="form-group"><label>Примечания</label><textarea class="form-input" v-model="newWarehouse.notes" rows="2"></textarea></div>
+            <div class="modal-buttons">
+                <button class="btn btn-ghost" @click="showModal=null">Отмена</button>
+                <button class="btn btn-primary" @click="createWarehouse">💾 Создать</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Warehouse Edit -->
+    <div class="modal-overlay" v-if="showModal==='warehouseEdit'" @click.self="showModal=null">
+        <div class="modal" style="max-width:450px">
+            <h2>✏️ Редактирование склада</h2>
+            <div class="form-group"><label>Название</label><input class="form-input" v-model="editWarehouse.name"></div>
+            <div class="form-group"><label>Адрес</label><input class="form-input" v-model="editWarehouse.address"></div>
+            <div class="input-row">
+                <div class="form-group" style="flex:1">
+                    <label>Тип</label>
+                    <select class="form-input" v-model="editWarehouse.type">
+                        <option value="regular">Обычный</option>
+                        <option value="transit">В пути (транзит)</option>
+                    </select>
+                </div>
+                <div class="form-group" style="flex:1">
+                    <label>Порядок</label>
+                    <input class="form-input" type="number" v-model.number="editWarehouse.sort_order">
+                </div>
+            </div>
+            <div class="form-group"><label>Примечания</label><textarea class="form-input" v-model="editWarehouse.notes" rows="2"></textarea></div>
+            <div class="modal-buttons">
+                <button class="btn btn-ghost" @click="showModal=null">Отмена</button>
+                <button class="btn btn-primary" @click="saveWarehouse">💾 Сохранить</button>
+            </div>
+        </div>
+    </div>
+
     <div class="modal-overlay" v-if="showModal==='supplierCreate'" @click.self="showModal=null">
         <div class="modal">
             <h2>🚚 Новый поставщик</h2>
