@@ -1,371 +1,249 @@
 <?php
 /**
- * ERP Module: AI-анализ
+ * ERP Module: AI-ассистент (серверная часть)
  * 
- * ai.analyze    — разобрать текст и вернуть структурированные данные
- * ai.ask        — свободный вопрос по данным ERP
- * ai.providers  — список доступных AI провайдеров
- * 
- * Также вызывается из journal.create для автоматического разбора записей.
+ * ai.context  — схема БД + контекст для AI (вызывается фронтом при загрузке)
+ * ai.query    — выполнить SELECT-запрос от AI
+ * ai.execute  — выполнить подтверждённый план (INSERT/UPDATE/DELETE)
+ * ai.schema   — вернуть схему БД (отладка)
  */
 class ERP_Ai {
 
+    private const ALLOWED_TABLES = [
+        'erp_journal', 'erp_finance_accounts', 'erp_finance_transactions',
+        'erp_product_categories', 'erp_products', 'erp_warehouses',
+        'erp_inventory', 'erp_inventory_movements', 'erp_counterparties',
+        'erp_tasks', 'erp_task_notes', 'erp_contacts', 'erp_interactions',
+        'erp_deals', 'erp_supplies', 'erp_supply_items', 'erp_attachments',
+    ];
+
     /**
-     * Анализ текста из журнала:
-     * POST { "text": "Купил 50 кг мела для бильярда за 15000 у ИП Иванов, оплатил наличкой" }
-     * 
-     * AI возвращает:
-     * - category: finance|inventory|task|logistics|note
-     * - разбивку на составляющие для записи в соответствующие журналы
+     * GET — возвращает системный промпт (схема + контекст + правила)
+     * Фронт вызывает при загрузке страницы AI и кеширует
      */
-    public function analyze(): array {
+    public function context(): array {
+        $schema = $this->getDbSchema();
+        $context = $this->getQuickContext();
+        $systemPrompt = $this->buildSystemPrompt($schema, $context);
+        return ['ok' => true, 'system_prompt' => $systemPrompt];
+    }
+
+    /**
+     * POST { "queries": [{"sql":"SELECT ...","params":[]}] }
+     * Выполнить SELECT-запросы от AI
+     */
+    public function query(): array {
         $input = jsonInput();
-        $text = trim($input['text'] ?? '');
-        if (!$text) errorResponse('text required');
+        $queries = $input['queries'] ?? [];
+        if (empty($queries)) errorResponse('queries required');
 
-        $result = $this->callAI($this->buildAnalyzePrompt($text));
-        return ['ok' => true, 'analysis' => $result];
+        $pdo = DB::get();
+        $results = [];
+
+        foreach ($queries as $q) {
+            $sql = $q['sql'] ?? '';
+            $params = $q['params'] ?? [];
+
+            if (!preg_match('/^\s*SELECT\b/i', $sql)) {
+                $results[] = ['description' => $q['description'] ?? '', 'error' => 'Только SELECT разрешён'];
+                continue;
+            }
+            if (!$this->validateSql($sql)) {
+                $results[] = ['description' => $q['description'] ?? '', 'error' => 'Недопустимая таблица'];
+                continue;
+            }
+
+            try {
+                $stmt = $pdo->prepare($sql);
+                $stmt->execute($params);
+                $rows = $stmt->fetchAll();
+                $results[] = [
+                    'description' => $q['description'] ?? '',
+                    'columns' => $rows ? array_keys($rows[0]) : [],
+                    'rows' => $rows,
+                    'count' => count($rows),
+                ];
+            } catch (PDOException $e) {
+                $results[] = ['description' => $q['description'] ?? '', 'error' => $e->getMessage()];
+            }
+        }
+
+        return ['ok' => true, 'results' => $results];
     }
 
     /**
-     * Свободный вопрос к AI с контекстом ERP данных
-     * POST { "question": "Какие расходы за последний месяц?" }
+     * POST { "operations": [{"sql":"INSERT ...","params":[]}] }
+     * Выполнить подтверждённый план
      */
-    public function ask(): array {
+    public function execute(): array {
         $input = jsonInput();
-        $question = trim($input['question'] ?? '');
-        if (!$question) errorResponse('question required');
+        $operations = $input['operations'] ?? [];
+        if (empty($operations)) errorResponse('operations required');
 
-        // Собираем контекст из БД
-        $context = $this->gatherContext($question);
-        $result = $this->callAI($this->buildAskPrompt($question, $context));
+        $pdo = DB::get();
+        $results = [];
 
-        return ['ok' => true, 'answer' => $result];
-    }
-
-    /**
-     * Список AI провайдеров
-     */
-    public function providers(): array {
-        $cfg = require __DIR__ . '/../config.php';
-        $providers = [];
-        foreach ($cfg['ai'] as $name => $p) {
-            $providers[] = [
-                'name'       => $name,
-                'model'      => $p['model'],
-                'configured' => !empty($p['api_key']),
-                'active'     => ($name === $cfg['ai_provider']),
-            ];
-        }
-        return ['providers' => $providers];
-    }
-
-    // ── Вызывается из journal.create ────────────────────
-
-    public function analyzeJournalEntry(int $journalId, string $text): ?array {
-        $cfg = require __DIR__ . '/../config.php';
-        $provider = $cfg['ai'][$cfg['ai_provider']] ?? null;
-        if (!$provider || empty($provider['api_key'])) {
-            return null; // AI не настроен
-        }
-
+        $pdo->beginTransaction();
         try {
-            $analysis = $this->callAI($this->buildAnalyzePrompt($text));
-            if (!$analysis) return null;
+            foreach ($operations as $op) {
+                $sql = $op['sql'] ?? '';
+                $params = $op['params'] ?? [];
 
-            $parsed = is_string($analysis) ? json_decode($analysis, true) : $analysis;
+                if (!$this->validateSql($sql)) {
+                    throw new Exception("SQL заблокирован: недопустимые таблицы");
+                }
+                if (preg_match('/^\s*(DROP|TRUNCATE|GRANT|REVOKE)/i', $sql)) {
+                    throw new Exception("DDL запрещён: " . substr($sql, 0, 50));
+                }
 
-            // Сохраняем результат в журнал
-            $pdo = DB::get();
-            $pdo->prepare("UPDATE erp_journal SET ai_parsed = ?, category = ? WHERE id = ?")
-                ->execute([
-                    json_encode($parsed, JSON_UNESCAPED_UNICODE),
-                    $parsed['category'] ?? null,
-                    $journalId,
-                ]);
-
-            // Автоматически создаём записи в специализированных таблицах
-            $this->dispatchToModules($pdo, $journalId, $parsed);
-
-            return $parsed;
+                $stmt = $pdo->prepare($sql);
+                $stmt->execute($params);
+                $results[] = [
+                    'sql' => $sql,
+                    'affected_rows' => $stmt->rowCount(),
+                    'last_id' => $pdo->lastInsertId() ?: null,
+                ];
+            }
+            $pdo->commit();
+            return ['ok' => true, 'type' => 'executed', 'results' => $results, 'message' => 'Выполнено: ' . count($results) . ' операций'];
         } catch (Exception $e) {
-            return ['error' => $e->getMessage()];
+            $pdo->rollBack();
+            return ['ok' => false, 'type' => 'error', 'message' => 'Ошибка: ' . $e->getMessage()];
         }
+    }
+
+    public function schema(): array {
+        return ['ok' => true, 'schema' => $this->getDbSchema()];
     }
 
     // ── Private ─────────────────────────────────────────
 
-    private function buildAnalyzePrompt(string $text): string {
+    private function buildSystemPrompt(array $schema, array $context): string {
+        $schemaText = '';
+        foreach ($schema as $table => $columns) {
+            $cols = [];
+            foreach ($columns as $col) {
+                $c = $col['name'];
+                $t = $col['type'];
+                if ($col['key'] === 'PRI') $c = '*' . $c;
+                $cols[] = "{$c} {$t}";
+            }
+            $schemaText .= "{$table}(" . implode(', ', $cols) . ")\n";
+        }
+        $contextJSON = json_encode($context, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+
         return <<<PROMPT
-Ты — AI-помощник ERP системы для малого бизнеса (бильярдная тематика: продажа бильярдных столов, кийи, шары, аксессуары, а также спорттовары).
+Ты — AI-ассистент ERP-системы бильярдного бизнеса billiarder.ru.
+Ты работаешь с MySQL базой данных. Всегда отвечай по-русски.
+Ты умный, точный и лаконичный помощник. Ты знаешь SQL отлично.
 
-Проанализируй запись и верни JSON:
-
-{
-  "category": "finance|inventory|task|logistics|note",
-  "summary": "Краткое описание операции",
-  "finance": {
-    "type": "income|expense|transfer|null",
-    "amount": 0,
-    "currency": "RUB",
-    "category": "закупка|продажа|зарплата|аренда|транспорт|...",
-    "counterparty": "название или null",
-    "account_hint": "наличные|карта|расчётный счёт|null"
-  },
-  "inventory": {
-    "action": "purchase|sale|adjustment|null",
-    "items": [{"name": "...", "quantity": 0, "unit": "шт", "unit_price": 0}]
-  },
-  "task": {
-    "title": "...", 
-    "priority": "normal|high|urgent",
-    "due_date": "YYYY-MM-DD или null"
-  },
-  "tags": ["тег1", "тег2"]
-}
-
-Заполняй ТОЛЬКО релевантные секции, остальные ставь null.
-Сумму и количество бери из текста. Если не указано — null.
-
-Текст записи:
-{$text}
-PROMPT;
-    }
-
-    private function buildAskPrompt(string $question, array $context): string {
-        $contextJSON = json_encode($context, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);
-        return <<<PROMPT
-Ты — AI-аналитик ERP системы малого бизнеса. Отвечай по-русски, кратко и по делу.
-
-Данные из ERP:
+== СХЕМА БАЗЫ ДАННЫХ ==
+{$schemaText}
+== ТЕКУЩИЙ КОНТЕКСТ ==
 {$contextJSON}
 
-Вопрос пользователя:
-{$question}
+== БИЗНЕС-ПРАВИЛА ==
 
-Ответь на вопрос на основе предоставленных данных. Если данных недостаточно — скажи что нужно.
+Финансы (erp_finance_transactions):
+- type='income': доход (деньги пришли в бизнес от клиента)
+- type='expense': расход (деньги ушли из бизнеса поставщику/за услуги)
+- type='transfer': перевод между СВОИМИ счетами. Это ОДНА запись, НЕ пара income+expense!
+  account_id = откуда, to_account_id = куда
+  amount + currency = сумма СПИСАНИЯ
+  dest_amount + dest_currency = сумма ЗАЧИСЛЕНИЯ (если валюты разные)
+- linked_id связывает цепочки операций (обмен RUB→USDT, потом USDT→CNY, потом оплата CNY→поставщик)
+- Баланс контрагента = SUM(amount WHERE type='expense' AND counterparty=X) - SUM(amount WHERE type='income' AND counterparty=X)
+  Положительный = мы заплатили больше (аванс). Отрицательный = мы должны.
+
+Счета (erp_finance_accounts):
+- Тинькофф (card, RUB) — основной
+- USDT (crypto, USD) — крипто-кошелёк
+- CNY (other, CNY) — юаневый
+- Наличные (cash, RUB)
+- Расчётный счёт (bank, RUB)
+
+Контрагенты-посредники:
+- Слава — обмен RUB ↔ USDT
+- Nadex — обмен USDT ↔ CNY
+
+Поставки (erp_supplies + erp_supply_items):
+- status: draft, confirmed, shipped, delivered, cancelled
+- supply_items связаны с supplies через supply_id и с products через product_id
+
+Задачи (erp_tasks):
+- status: todo, in_progress, done, cancelled
+- priority: low, normal, high, urgent
+
+Товары (erp_products):
+- is_active=1 для активных
+- category_id ссылается на erp_product_categories
+
+== КРИТИЧЕСКИ ВАЖНЫЕ ПРАВИЛА ==
+
+1. ВСЕГДА используй параметризованные запросы: WHERE id = ? с params:[значение]. НИКОГДА не вставляй значения прямо в SQL.
+2. Используй ТОЛЬКО таблицы из схемы выше (erp_*).
+3. Для чтения данных — type=query с SELECT-запросами.
+4. Для изменения данных (INSERT/UPDATE/DELETE) — type=plan. Пользователь подтвердит перед выполнением.
+5. В message пиши понятное человеку описание что делаешь/нашёл.
+6. В queries/operations у каждого элемента пиши description — что делает этот запрос.
+7. Если нужно несколько запросов — группируй их в один ответ.
+8. Если не уверен что нужно пользователю — переспроси (type=text).
+9. Для агрегаций используй SUM, COUNT, GROUP BY и т.д. — минимизируй кол-во возвращаемых строк.
+10. Формат дат: YYYY-MM-DD. Для текущей даты используй CURDATE().
+
+== ФОРМАТ ОТВЕТА ==
+
+Отвечай СТРОГО валидным JSON. Без markdown, без ```json```, без пояснений вне JSON.
+
+Чтение данных:
+{"type":"query","message":"Описание что покажу","queries":[{"description":"Что делает запрос","sql":"SELECT ...","params":[]}]}
+
+Изменение данных:
+{"type":"plan","message":"Описание плана","operations":[{"description":"Что делает операция","sql":"INSERT/UPDATE/DELETE ...","params":[]}]}
+
+Текстовый ответ:
+{"type":"text","message":"Ответ пользователю"}
 PROMPT;
     }
 
-    /**
-     * Собрать контекст из БД для AI-ответа
-     */
-    private function gatherContext(string $question): array {
+    private function getDbSchema(): array {
         $pdo = DB::get();
-        $context = [];
-
-        // Финансовая сводка за текущий и прошлый месяц
-        $context['finance_this_month'] = $pdo->query("
-            SELECT type, SUM(amount) as total, COUNT(*) as cnt 
-            FROM erp_finance_transactions WHERE date >= DATE_FORMAT(CURDATE(), '%Y-%m-01')
-            GROUP BY type
-        ")->fetchAll();
-
-        $context['finance_last_month'] = $pdo->query("
-            SELECT type, SUM(amount) as total, COUNT(*) as cnt 
-            FROM erp_finance_transactions 
-            WHERE date >= DATE_FORMAT(DATE_SUB(CURDATE(), INTERVAL 1 MONTH), '%Y-%m-01')
-              AND date < DATE_FORMAT(CURDATE(), '%Y-%m-01')
-            GROUP BY type
-        ")->fetchAll();
-
-        // Последние 10 транзакций
-        $context['recent_transactions'] = $pdo->query("
-            SELECT date, type, amount, category, counterparty, description 
-            FROM erp_finance_transactions ORDER BY date DESC, id DESC LIMIT 10
-        ")->fetchAll();
-
-        // Счета
-        $context['accounts'] = $pdo->query("SELECT name, balance, currency FROM erp_finance_accounts WHERE is_active=1")->fetchAll();
-
-        // Задачи не выполненные
-        $context['open_tasks'] = $pdo->query("
-            SELECT title, status, priority, due_date FROM erp_tasks WHERE status NOT IN ('done','cancelled') ORDER BY due_date LIMIT 15
-        ")->fetchAll();
-
-        // Низкие остатки
-        $context['low_stock'] = $pdo->query("
-            SELECT p.name, p.sku, COALESCE(i.quantity,0) as stock, p.min_stock
-            FROM erp_products p LEFT JOIN erp_inventory i ON i.product_id=p.id AND i.warehouse_id=1
-            WHERE p.is_active=1 AND COALESCE(i.quantity,0) <= p.min_stock
-            LIMIT 20
-        ")->fetchAll();
-
-        // Общие счётчики
-        $context['totals'] = [
-            'products' => (int) $pdo->query("SELECT COUNT(*) FROM erp_products WHERE is_active=1")->fetchColumn(),
-            'journal_entries' => (int) $pdo->query("SELECT COUNT(*) FROM erp_journal")->fetchColumn(),
-            'open_tasks' => (int) $pdo->query("SELECT COUNT(*) FROM erp_tasks WHERE status NOT IN ('done','cancelled')")->fetchColumn(),
-        ];
-
-        return $context;
-    }
-
-    /**
-     * Вызов AI API (поддержка OpenAI, Anthropic, Gemini)
-     */
-    private function callAI(string $prompt): ?string {
         $cfg = require __DIR__ . '/../config.php';
-        $providerName = $cfg['ai_provider'];
-        $provider = $cfg['ai'][$providerName] ?? null;
+        $dbName = $cfg['db']['name'];
 
-        if (!$provider || empty($provider['api_key'])) {
-            throw new Exception('AI provider not configured. Set api_key in config.php');
-        }
+        $tables = $pdo->prepare("SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA = ? AND TABLE_NAME LIKE 'erp_%' ORDER BY TABLE_NAME");
+        $tables->execute([$dbName]);
 
-        switch ($providerName) {
-            case 'openai':
-                return $this->callOpenAI($provider, $prompt);
-            case 'anthropic':
-                return $this->callAnthropic($provider, $prompt);
-            case 'gemini':
-                return $this->callGemini($provider, $prompt);
-            default:
-                throw new Exception("Unknown AI provider: {$providerName}");
-        }
-    }
-
-    private function callOpenAI(array $p, string $prompt): string {
-        $body = json_encode([
-            'model'    => $p['model'],
-            'messages' => [
-                ['role' => 'system', 'content' => 'Отвечай JSON-ом когда просят JSON. Используй русский язык.'],
-                ['role' => 'user', 'content' => $prompt],
-            ],
-            'temperature'   => 0.3,
-            'max_tokens'    => 2000,
-            'response_format' => ['type' => 'json_object'],
-        ]);
-
-        $response = $this->httpPost($p['url'], $body, [
-            "Authorization: Bearer {$p['api_key']}",
-            "Content-Type: application/json",
-        ]);
-
-        $data = json_decode($response, true);
-        return $data['choices'][0]['message']['content'] ?? '';
-    }
-
-    private function callAnthropic(array $p, string $prompt): string {
-        $body = json_encode([
-            'model'      => $p['model'],
-            'max_tokens' => 2000,
-            'messages'   => [
-                ['role' => 'user', 'content' => $prompt],
-            ],
-        ]);
-
-        $response = $this->httpPost($p['url'], $body, [
-            "x-api-key: {$p['api_key']}",
-            "anthropic-version: 2023-06-01",
-            "Content-Type: application/json",
-        ]);
-
-        $data = json_decode($response, true);
-        return $data['content'][0]['text'] ?? '';
-    }
-
-    private function callGemini(array $p, string $prompt): string {
-        $url = $p['url'] . $p['model'] . ':generateContent?key=' . $p['api_key'];
-        $body = json_encode([
-            'contents' => [['parts' => [['text' => $prompt]]]],
-            'generationConfig' => ['temperature' => 0.3, 'maxOutputTokens' => 2000],
-        ]);
-
-        $response = $this->httpPost($url, $body, ["Content-Type: application/json"]);
-        $data = json_decode($response, true);
-        return $data['candidates'][0]['content']['parts'][0]['text'] ?? '';
-    }
-
-    private function httpPost(string $url, string $body, array $headers): string {
-        $ch = curl_init($url);
-        curl_setopt_array($ch, [
-            CURLOPT_POST           => true,
-            CURLOPT_POSTFIELDS     => $body,
-            CURLOPT_HTTPHEADER     => $headers,
-            CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_TIMEOUT        => 30,
-            CURLOPT_SSL_VERIFYPEER => true,
-        ]);
-        $response = curl_exec($ch);
-        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-        $error = curl_error($ch);
-        curl_close($ch);
-
-        if ($error) throw new Exception("AI API error: {$error}");
-        if ($httpCode >= 400) throw new Exception("AI API HTTP {$httpCode}: {$response}");
-
-        return $response;
-    }
-
-    /**
-     * Распределить AI-разбор по модулям
-     */
-    private function dispatchToModules(PDO $pdo, int $journalId, array $parsed): void {
-        // Финансовая транзакция
-        if (!empty($parsed['finance']) && $parsed['finance']['type']) {
-            $fin = $parsed['finance'];
-            if ($fin['amount']) {
-                $pdo->prepare("
-                    INSERT INTO erp_finance_transactions (journal_id, date, type, amount, currency, category, counterparty, description)
-                    VALUES (?, CURDATE(), ?, ?, ?, ?, ?, ?)
-                ")->execute([
-                    $journalId,
-                    $fin['type'],
-                    $fin['amount'],
-                    $fin['currency'] ?? 'RUB',
-                    $fin['category'] ?? null,
-                    $fin['counterparty'] ?? null,
-                    $parsed['summary'] ?? null,
-                ]);
+        $schema = [];
+        foreach ($tables->fetchAll(PDO::FETCH_COLUMN) as $table) {
+            if (!in_array($table, self::ALLOWED_TABLES)) continue;
+            $cols = $pdo->prepare("SELECT COLUMN_NAME, COLUMN_TYPE, COLUMN_KEY FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = ? AND TABLE_NAME = ? ORDER BY ORDINAL_POSITION");
+            $cols->execute([$dbName, $table]);
+            $schema[$table] = [];
+            foreach ($cols->fetchAll() as $col) {
+                $schema[$table][] = ['name' => $col['COLUMN_NAME'], 'type' => $col['COLUMN_TYPE'], 'key' => $col['COLUMN_KEY'] ?: null];
             }
         }
+        return $schema;
+    }
 
-        // Задача
-        if (!empty($parsed['task']) && !empty($parsed['task']['title'])) {
-            $task = $parsed['task'];
-            $pdo->prepare("
-                INSERT INTO erp_tasks (journal_id, title, priority, due_date)
-                VALUES (?, ?, ?, ?)
-            ")->execute([
-                $journalId,
-                $task['title'],
-                $task['priority'] ?? 'normal',
-                $task['due_date'] ?? null,
-            ]);
+    private function getQuickContext(): array {
+        $pdo = DB::get();
+        return [
+            'today' => date('Y-m-d'),
+            'accounts' => $pdo->query("SELECT id, name, currency, balance FROM erp_finance_accounts WHERE is_active=1")->fetchAll(),
+            'counterparties' => $pdo->query("SELECT id, name, type FROM erp_counterparties WHERE is_active=1 ORDER BY name")->fetchAll(),
+            'warehouses' => $pdo->query("SELECT id, name FROM erp_warehouses WHERE is_active=1")->fetchAll(),
+            'product_count' => (int)$pdo->query("SELECT COUNT(*) FROM erp_products WHERE is_active=1")->fetchColumn(),
+            'open_tasks' => (int)$pdo->query("SELECT COUNT(*) FROM erp_tasks WHERE status NOT IN ('done','cancelled')")->fetchColumn(),
+        ];
+    }
+
+    private function validateSql(string $sql): bool {
+        preg_match_all('/(?:FROM|JOIN|INTO|UPDATE|TABLE)\s+`?(\w+)`?/i', $sql, $matches);
+        foreach (($matches[1] ?? []) as $table) {
+            if (!str_starts_with($table, 'erp_')) return false;
         }
-
-        // Складские движения
-        if (!empty($parsed['inventory']) && !empty($parsed['inventory']['items'])) {
-            $action = $parsed['inventory']['action'] ?? 'purchase';
-            foreach ($parsed['inventory']['items'] as $item) {
-                // Ищем товар по имени (приблизительно)
-                $found = $pdo->prepare("SELECT id FROM erp_products WHERE name LIKE ? AND is_active=1 LIMIT 1");
-                $found->execute(['%' . ($item['name'] ?? '') . '%']);
-                $productId = $found->fetchColumn();
-
-                if ($productId && ($item['quantity'] ?? 0) > 0) {
-                    $qty = $action === 'sale' ? -$item['quantity'] : $item['quantity'];
-                    $pdo->prepare("
-                        INSERT INTO erp_inventory_movements (journal_id, product_id, warehouse_id, type, quantity, unit_price, reason)
-                        VALUES (?, ?, 1, ?, ?, ?, ?)
-                    ")->execute([
-                        $journalId,
-                        $productId,
-                        $action,
-                        $qty,
-                        $item['unit_price'] ?? null,
-                        $parsed['summary'] ?? null,
-                    ]);
-
-                    // Обновляем остаток
-                    $pdo->prepare("
-                        INSERT INTO erp_inventory (product_id, warehouse_id, quantity)
-                        VALUES (?, 1, ?)
-                        ON DUPLICATE KEY UPDATE quantity = quantity + ?
-                    ")->execute([$productId, max(0, $qty), $qty]);
-                }
-            }
-        }
+        return true;
     }
 }

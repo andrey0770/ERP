@@ -1,5 +1,5 @@
 // ── app.js — Vue app shell, routing, shared state ──
-import { api, formatMoney, formatAmount, formatDate, formatDateTime, sourceLabel, movementTypeLabel } from './core.js';
+import { api, apiUpload, formatMoney, formatAmount, formatDate, formatDateTime, sourceLabel, movementTypeLabel, initAttachments } from './core.js';
 import { initDashboard } from './dashboard.js';
 import { initCatalog } from './catalog.js';
 import { initInventory } from './inventory.js';
@@ -9,6 +9,7 @@ import { initCrm } from './crm.js';
 import { initFinance } from './finance.js';
 import { initTasks } from './tasks.js';
 import { initSettings } from './settings.js';
+import { initAi } from './ai.js';
 
 const { createApp, ref, reactive, computed, onMounted, nextTick, watch } = Vue;
 
@@ -46,7 +47,7 @@ const app = createApp({
             document.addEventListener('mouseup', onUp);
         }
 
-        const routeGroups = { supplies: 'purchasing', receiving: 'purchasing', suppliers: 'purchasing', sales: 'sales', shipments: 'sales', returns: 'sales', profitability: 'sales', customers: 'sales', crm: 'sales', deals: 'sales', inventory: 'goods', warehouses: 'goods', finance: 'finance', reports: 'finance', tasks: 'tasks', tasks_my: 'tasks', tasks_from: 'tasks' };
+        const routeGroups = { supplies: 'purchasing', receiving: 'purchasing', suppliers: 'purchasing', supplierPage: 'purchasing', sales: 'sales', shipments: 'sales', returns: 'sales', profitability: 'sales', customers: 'sales', crm: 'sales', deals: 'sales', inventory: 'goods', warehouses: 'goods', finance: 'finance', reports: 'finance', tasks: 'tasks', tasks_my: 'tasks', tasks_from: 'tasks' };
 
         function navigate(route) {
             currentRoute.value = route;
@@ -72,7 +73,7 @@ const app = createApp({
         const showModal = ref(null);
 
         // ── Shared context for modules ──────────────
-        const ctx = { api, toast, showModal, detailData, editData, deleteTarget, summaryData, formatMoney, formatAmount, formatDate, formatDateTime, sourceLabel, movementTypeLabel, ref, reactive, computed, watch, nextTick };
+        const ctx = { api, apiUpload, toast, navigate, showModal, detailData, editData, deleteTarget, summaryData, formatMoney, formatAmount, formatDate, formatDateTime, sourceLabel, movementTypeLabel, ref, reactive, computed, watch, nextTick };
 
         // ── Init all modules ────────────────────────
         const dashboard = initDashboard(ctx);
@@ -84,6 +85,8 @@ const app = createApp({
         const finance = initFinance(ctx);
         const tasks = initTasks(ctx);
         const settings = initSettings(ctx);
+        const ai = initAi(ctx);
+        const attachments = initAttachments(ctx);
 
         // ── Route data loader ───────────────────────
         function loadRouteData(route) {
@@ -106,6 +109,7 @@ const app = createApp({
                 case 'customers': purchasing.loadCounterparties('customer'); break;
                 case 'warehouses': inventory.loadWarehouses(); break;
                 case 'settings':  settings.loadSettings(); break;
+                case 'ai': ai.aiLoadContext(); break;
             }
         }
 
@@ -147,6 +151,12 @@ const app = createApp({
             loadRouteData(r);
         });
 
+        // ── AI text formatting ─────────────────────
+        function formatAiText(text) {
+            if (!text) return '';
+            return text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/\n/g, '<br>');
+        }
+
         // ── Return all to template ──────────────────
         return {
             // Navigation
@@ -158,7 +168,7 @@ const app = createApp({
             // Delete
             confirmDelete, executeDelete,
             // Formatting
-            formatMoney, formatAmount, formatDate, formatDateTime, sourceLabel, movementTypeLabel,
+            formatMoney, formatAmount, formatDate, formatDateTime, sourceLabel, movementTypeLabel, formatAiText,
             // Dashboard module
             ...dashboard,
             // Catalog module
@@ -177,6 +187,10 @@ const app = createApp({
             ...tasks,
             // Settings module
             ...settings,
+            // AI module
+            ...ai,
+            // Attachments
+            ...attachments,
         };
     }
 });

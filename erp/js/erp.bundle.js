@@ -34,15 +34,24 @@ async function api(action, data = null) {
 
     const url = `${API_BASE}?${params}`;
     const resp = await fetch(url, opts);
-    const json = await resp.json();
+    const rawText = await resp.text();
+    let json;
+    try {
+        json = JSON.parse(rawText);
+    } catch (e) {
+        if (resp.status === 504 || resp.status === 502) throw new Error('Сервер не отвечает (таймаут). Попробуйте ещё раз.');
+        throw new Error(`Сервер вернул не JSON (HTTP ${resp.status})`);
+    }
     if (!resp.ok || json.error) throw new Error(json.error || `HTTP ${resp.status}`);
     return json;
 }
 
 // ── Formatting helpers ──────────────────────────
-function formatMoney(val) {
+function formatMoney(val, currency) {
     const n = parseFloat(val) || 0;
-    return n.toLocaleString('ru-RU', { minimumFractionDigits: 0, maximumFractionDigits: 0 }) + ' ₽';
+    const sym = { RUB: '₽', CNY: '¥', USD: '$', USDT: 'USDT', EUR: '€' };
+    const s = sym[currency] || (currency ? currency : '₽');
+    return n.toLocaleString('ru-RU', { minimumFractionDigits: 0, maximumFractionDigits: 0 }) + ' ' + s;
 }
 
 function formatAmount(val, currency) {
@@ -72,6 +81,100 @@ function sourceLabel(src) {
 function movementTypeLabel(type) {
     const map = { purchase: 'Приход', sale: 'Расход', adjustment: 'Коррекция', transfer_in: 'Вход', transfer_out: 'Выход', return: 'Возврат' };
     return map[type] || type;
+}
+
+// ── File upload (multipart/form-data) ───────────
+async function apiUpload(action, formData) {
+    const params = new URLSearchParams({ action });
+    const opts = { method: 'POST', body: formData };
+    if (API_TOKEN) opts.headers = { 'Authorization': `Bearer ${API_TOKEN}` };
+    const url = `${API_BASE}?${params}`;
+    const resp = await fetch(url, opts);
+    const json = await resp.json();
+    if (!resp.ok || json.error) throw new Error(json.error || `HTTP ${resp.status}`);
+    return json;
+}
+
+// ── Attachments helper ──────────────────────────
+function initAttachments(ctx) {
+    const { api, apiUpload, toast, ref, reactive } = ctx;
+
+    const attachmentsCache = reactive({});
+    const attachDesc = ref('');
+    const attachUploading = ref(false);
+
+    function attachKey(entityType, entityId) { return `${entityType}_${entityId}`; }
+
+    async function loadAttachments(entityType, entityId) {
+        const key = attachKey(entityType, entityId);
+        try {
+            const data = await api('attachments.list', { entity_type: entityType, entity_id: entityId });
+            attachmentsCache[key] = data.items || [];
+        } catch (e) { attachmentsCache[key] = []; }
+        return attachmentsCache[key];
+    }
+
+    function getAttachments(entityType, entityId) {
+        return attachmentsCache[attachKey(entityType, entityId)] || [];
+    }
+
+    async function uploadAttachment(entityType, entityId, file, description) {
+        const fd = new FormData();
+        fd.append('file', file);
+        fd.append('entity_type', entityType);
+        fd.append('entity_id', entityId);
+        if (description) fd.append('description', description);
+        const result = await apiUpload('attachments.upload', fd);
+        await loadAttachments(entityType, entityId);
+        return result;
+    }
+
+    async function deleteAttachment(entityType, entityId, attachId) {
+        await api('attachments.delete', { id: attachId });
+        await loadAttachments(entityType, entityId);
+    }
+
+    async function updateAttachmentDesc(attachId, description) {
+        await api('attachments.update', { id: attachId, description });
+    }
+
+    async function handleSupplyAttach(event, supplyId) {
+        const file = event.target.files?.[0];
+        if (!file) return;
+        attachUploading.value = true;
+        try {
+            await uploadAttachment('supply', supplyId, file, attachDesc.value);
+            toast('Файл загружен', 'success');
+            attachDesc.value = '';
+        } catch (e) { toast('Ошибка загрузки: ' + e.message, 'error'); }
+        attachUploading.value = false;
+        event.target.value = '';
+    }
+
+    async function handleTxAttach(event, txId) {
+        const file = event.target.files?.[0];
+        if (!file) return;
+        attachUploading.value = true;
+        try {
+            await uploadAttachment('transaction', txId, file, attachDesc.value);
+            toast('Файл загружен', 'success');
+            attachDesc.value = '';
+        } catch (e) { toast('Ошибка загрузки: ' + e.message, 'error'); }
+        attachUploading.value = false;
+        event.target.value = '';
+    }
+
+    function triggerFileUpload(event) {
+        const wrap = event.currentTarget.closest('.attachment-upload');
+        if (wrap) wrap.querySelector('input[type=file]').click();
+    }
+
+    return {
+        attachmentsCache, attachDesc, attachUploading,
+        loadAttachments, getAttachments,
+        uploadAttachment, deleteAttachment, updateAttachmentDesc,
+        handleSupplyAttach, handleTxAttach, triggerFileUpload,
+    };
 }
 
 
@@ -218,7 +321,7 @@ function initCatalog(ctx) {
 
     async function saveProduct() {
         try {
-            await api('products.update', { id: editData.id, sku: editData.sku, name: editData.name, barcode: editData.barcode, alias: editData.alias, purchase_price: editData.purchase_price, sell_price: editData.sell_price, min_stock: editData.min_stock, ozon_product_id: editData.ozon_product_id, ozon_sku: editData.ozon_sku, supplier: editData.supplier, cue_type: editData.cue_type, cue_parts: editData.cue_parts, cue_material: editData.cue_material });
+            await api('products.update', { id: editData.id, sku: editData.sku, name: editData.name, barcode: editData.barcode, alias: editData.alias, product_code: editData.product_code, purchase_price: editData.purchase_price, sell_price: editData.sell_price, min_stock: editData.min_stock, ozon_product_id: editData.ozon_product_id, ozon_sku: editData.ozon_sku, supplier: editData.supplier, cue_type: editData.cue_type, cue_parts: editData.cue_parts, cue_material: editData.cue_material });
             toast('Товар обновлён', 'success');
             showModal.value = null;
             loadProducts();
@@ -238,7 +341,7 @@ function initCatalog(ctx) {
     const catalogLoading = ref(false);
     const colFilterOpen = ref(null);
     const colVisibleOpen = ref(false);
-    const defaultCols = { image: true, sku: true, alias: false, name: true, brand: true, supplier: true, purchase_price: true, sell_price: true, stock: true, source: true, cue_type: true, cue_parts: true, cue_material: true };
+    const defaultCols = { image: true, sku: true, product_code: false, alias: false, name: true, brand: true, supplier: true, purchase_price: true, sell_price: true, stock: true, source: true, cue_type: true, cue_parts: true, cue_material: true };
     const colVisible = reactive(JSON.parse(localStorage.getItem('catalogColVisible') || 'null') || { ...defaultCols });
 
     function toggleColVisible(col) {
@@ -741,7 +844,7 @@ function initInventory(ctx) {
 // ── purchasing.js ──
 // ── purchasing.js — Counterparties + Supply orders ──
 function initPurchasing(ctx) {
-    const { api, toast, showModal, detailData, editData, ref, reactive, computed } = ctx;
+    const { api, toast, navigate, showModal, detailData, editData, ref, reactive, computed } = ctx;
 
     // ── Counterparties (Контрагенты) ──────
     const suppliersData = reactive({ items: [], total: 0 });
@@ -757,7 +860,16 @@ function initPurchasing(ctx) {
         supplierColVis[col] = !supplierColVis[col];
         localStorage.setItem('supplierColVisible', JSON.stringify(supplierColVis));
     }
-    document.addEventListener('click', () => { supplierColVisOpen.value = false; });
+    document.addEventListener('click', () => { supplierColVisOpen.value = false; spProductColVisOpen.value = false; });
+
+    // Supplier page products column visibility
+    const spProductColVisOpen = ref(false);
+    const defaultSpProductCols = { image: true, article: true, product_code: true, alias: true, short_name: true, supplier_product_name: true, supplier_name: true, sku: false, name: false, brand: false, purchase_price: false, sell_price: false, stock: false };
+    const spProductColVis = reactive(JSON.parse(localStorage.getItem('spProductColVisible') || 'null') || { ...defaultSpProductCols });
+    function toggleSpProductCol(col) {
+        spProductColVis[col] = !spProductColVis[col];
+        localStorage.setItem('spProductColVisible', JSON.stringify(spProductColVis));
+    }
 
     const supplierCountries = computed(() => {
         const set = new Set();
@@ -835,6 +947,16 @@ function initPurchasing(ctx) {
     const supplyStats = reactive({ pending: 0, shipped: 0, received: 0, open_total: 0 });
     const supplyFilter = reactive({ status: '', q: '' });
     let supplySearchTimer = null;
+
+    // Column visibility for supplies
+    const supplyColVisOpen = ref(false);
+    const defaultSupplyCols = { number: true, date: true, supplier: true, items: true, amount: true, status: true, expected_date: true, files: true, notes: true };
+    const supplyColVis = reactive(JSON.parse(localStorage.getItem('supplyColVisible') || 'null') || { ...defaultSupplyCols });
+    function toggleSupplyCol(col) {
+        supplyColVis[col] = !supplyColVis[col];
+        localStorage.setItem('supplyColVisible', JSON.stringify(supplyColVis));
+    }
+    document.addEventListener('click', () => { supplyColVisOpen.value = false; });
     const newSupply = reactive({
         supplier_name: '', number: '', status: 'draft', expected_date: '',
         notes: '', items: [{ product_id: null, quantity: 1, unit_price: 0 }]
@@ -893,17 +1015,32 @@ function initPurchasing(ctx) {
 
     async function saveSupply() {
         try {
-            await api('supplies.update', { id: editData.id, supplier_name: editData.supplier_name, number: editData.number, status: editData.status, expected_date: editData.expected_date, notes: editData.notes });
+            await api('supplies.update', {
+                id: editData.id, supplier_name: editData.supplier_name, number: editData.number,
+                status: editData.status, expected_date: editData.expected_date, notes: editData.notes,
+                tracking_number: editData.tracking_number || null, cargo_places: editData.cargo_places || null,
+                cargo_weight: editData.cargo_weight || null, cargo_volume: editData.cargo_volume || null,
+                logistics_cost: editData.logistics_cost || null, logistics_currency: editData.logistics_currency || 'USD',
+                logistics_detail: editData.logistics_detail || null
+            });
             toast('Поставка обновлена', 'success');
             showModal.value = null;
             loadSupplies();
         } catch (e) { toast('Ошибка: ' + e.message, 'error'); }
     }
 
-    async function receiveSupply(id) {
+    const receiveData = reactive({ id: null, warehouse_id: 1 });
+
+    function startReceive(id) {
+        receiveData.id = id;
+        receiveData.warehouse_id = 1;
+        showModal.value = 'supplyReceive';
+    }
+
+    async function confirmReceive() {
         try {
-            await api('supplies.receive', { id });
-            toast('Поставка получена, товар оприходован', 'success');
+            await api('supplies.receive', { id: receiveData.id, warehouse_id: receiveData.warehouse_id });
+            toast('Поставка принята, товар зачислен на склад', 'success');
             showModal.value = null;
             loadSupplies();
         } catch (e) { toast('Ошибка: ' + e.message, 'error'); }
@@ -914,6 +1051,118 @@ function initPurchasing(ctx) {
         return map[status] || status;
     }
 
+    function openSupplyPage(id) {
+        // TODO: отдельная страница заказа — будет реализована позже
+        toast('Страница заказа — в разработке', 'info');
+    }
+
+    // ── Supplier Page (Страница поставщика) ─────
+    const supplierPageData = reactive({ id: null, name: '', alias: '', type: '', currency: 'RUB', balance: 0, country: '', inn: '', phone: '', email: '', website: '', address: '', notes: '', synonyms: '', products: [], transactions: [], supplies: [] });
+    const supplierPageTab = ref('products');
+    const supplierPageSelected = reactive([]);
+    const spFilter = reactive({ search: '', dateFrom: '', dateTo: '' });
+    const spLightbox = ref(null);
+    const spViewMode = ref('table');
+
+    const spMonthLabel = computed(() => {
+        if (!spFilter.dateFrom || !spFilter.dateTo) return '';
+        const d = new Date(spFilter.dateFrom + 'T00:00:00');
+        return d.toLocaleString('ru-RU', { month: 'long', year: 'numeric' });
+    });
+
+    function spSetMonth(offset) {
+        const now = new Date();
+        const d = new Date(now.getFullYear(), now.getMonth() + offset, 1);
+        const from = d.toISOString().slice(0, 10);
+        const last = new Date(d.getFullYear(), d.getMonth() + 1, 0);
+        const to = last.toISOString().slice(0, 10);
+        Object.assign(spFilter, { dateFrom: from, dateTo: to });
+    }
+
+    function spShiftMonth(dir) {
+        if (!spFilter.dateFrom) { spSetMonth(0); return; }
+        const d = new Date(spFilter.dateFrom + 'T00:00:00');
+        d.setMonth(d.getMonth() + dir);
+        const from = d.toISOString().slice(0, 10);
+        const last = new Date(d.getFullYear(), d.getMonth() + 1, 0);
+        const to = last.toISOString().slice(0, 10);
+        Object.assign(spFilter, { dateFrom: from, dateTo: to });
+    }
+
+    function spIsCurrentMonth(offset) {
+        if (!spFilter.dateFrom) return false;
+        const now = new Date();
+        const target = new Date(now.getFullYear(), now.getMonth() + offset, 1);
+        return spFilter.dateFrom === target.toISOString().slice(0, 10);
+    }
+
+    const spFilteredSupplies = computed(() => {
+        let list = supplierPageData.supplies || [];
+        if (spFilter.search) {
+            const q = spFilter.search.toLowerCase();
+            list = list.filter(s => (s.number || '').toLowerCase().includes(q));
+        }
+        if (spFilter.dateFrom) list = list.filter(s => (s.created_at || '') >= spFilter.dateFrom);
+        if (spFilter.dateTo) list = list.filter(s => (s.created_at || '').slice(0,10) <= spFilter.dateTo);
+        return list;
+    });
+
+    const spFilteredTransactions = computed(() => {
+        let list = supplierPageData.transactions || [];
+        if (spFilter.search) {
+            const q = spFilter.search.toLowerCase();
+            list = list.filter(t => (t.description || '').toLowerCase().includes(q) || (t.account_name || '').toLowerCase().includes(q));
+        }
+        if (spFilter.dateFrom) list = list.filter(t => (t.date || '') >= spFilter.dateFrom);
+        if (spFilter.dateTo) list = list.filter(t => (t.date || '') <= spFilter.dateTo);
+        return list;
+    });
+
+    async function openSupplierPage(id) {
+        try {
+            const data = await api('counterparties.get', { id });
+            Object.keys(supplierPageData).forEach(k => { if (data[k] !== undefined) supplierPageData[k] = data[k]; });
+            supplierPageSelected.length = 0;
+            Object.assign(spFilter, { search: '', dateFrom: '', dateTo: '' });
+            showModal.value = null;
+            ctx.navigate('supplierPage');
+        } catch (e) { toast(e.message, 'error'); }
+    }
+
+    function toggleSupplierProduct(productId) {
+        const idx = supplierPageSelected.indexOf(productId);
+        if (idx >= 0) supplierPageSelected.splice(idx, 1);
+        else supplierPageSelected.push(productId);
+    }
+
+    function toggleAllSupplierProducts() {
+        if (supplierPageSelected.length === supplierPageData.products.length) {
+            supplierPageSelected.length = 0;
+        } else {
+            supplierPageSelected.length = 0;
+            supplierPageData.products.forEach(p => supplierPageSelected.push(p.id));
+        }
+    }
+
+    function createOrderFromSelected() {
+        if (!supplierPageSelected.length) return toast('Выберите товары', 'error');
+        const selectedProducts = supplierPageData.products.filter(p => supplierPageSelected.includes(p.id));
+        Object.assign(newSupply, {
+            supplier_name: supplierPageData.name,
+            number: '',
+            status: 'draft',
+            expected_date: '',
+            notes: '',
+        });
+        newSupply.items = selectedProducts.map(p => ({
+            product_id: p.id,
+            product_name: p.alias || p.name,
+            quantity: 1,
+            unit_price: parseFloat(p.purchase_price) || 0,
+        }));
+        showModal.value = 'supplyCreate';
+    }
+
     return {
         // Suppliers
         suppliersData, supplierFilter, newSupplierData,
@@ -921,10 +1170,17 @@ function initPurchasing(ctx) {
         supplierCountries, filteredSuppliers, toggleCountryFilter,
         loadSuppliers2, loadCounterparties, debounceSearchSuppliers2, createSupplier2, showSupplierDetail2,
         editSupplier2, saveSupplier2,
+        // Supplier Page
+        supplierPageData, supplierPageTab, supplierPageSelected,
+        spFilter, spLightbox, spViewMode, spMonthLabel, spSetMonth, spShiftMonth, spIsCurrentMonth,
+        spProductColVisOpen, spProductColVis, toggleSpProductCol,
+        spFilteredSupplies, spFilteredTransactions,
+        openSupplierPage, toggleSupplierProduct, toggleAllSupplierProducts, createOrderFromSelected,
         // Supplies
         supplies, supplyStats, supplyFilter, newSupply,
-        loadSupplies, debounceSearchSupplies, createSupply, showSupplyDetail, supplyStatusLabel,
-        editSupplyFromDetail, saveSupply, receiveSupply,
+        supplyColVisOpen, supplyColVis, toggleSupplyCol,
+        loadSupplies, debounceSearchSupplies, createSupply, showSupplyDetail, supplyStatusLabel, openSupplyPage,
+        editSupplyFromDetail, saveSupply, receiveData, startReceive, confirmReceive,
     };
 }
 
@@ -1135,7 +1391,7 @@ function initFinance(ctx) {
 
     const finance = reactive({ items: [], total: 0 });
     const financeAccounts = ref([]);
-    const financeFilter = reactive({ type: '', from: '', to: '', q: '' });
+    const financeFilter = reactive({ type: '', status: '', from: '', to: '', q: '' });
     let financeSearchTimer = null;
     const newFinance = reactive({ type: 'expense', amount: null, date: new Date().toISOString().split('T')[0], category: '', counterparty: '', account_id: null, to_account_id: null, dest_amount: null, dest_currency: null, description: '' });
 
@@ -1281,6 +1537,22 @@ function initFinance(ctx) {
         } catch (e) { toast('Ошибка: ' + e.message, 'error'); }
     }
 
+    async function confirmTx(txId) {
+        try {
+            await api('finance.confirm', { id: txId });
+            toast('Транзакция подтверждена', 'success');
+            loadFinance();
+        } catch (e) { toast('Ошибка: ' + e.message, 'error'); }
+    }
+
+    async function rejectTx(txId) {
+        try {
+            await api('finance.reject', { id: txId });
+            toast('Черновик отклонён', 'success');
+            loadFinance();
+        } catch (e) { toast('Ошибка: ' + e.message, 'error'); }
+    }
+
     // Finance Account
     const newAccount = reactive({ name: '', type: 'bank', currency: 'RUB', balance: 0 });
 
@@ -1324,6 +1596,7 @@ function initFinance(ctx) {
         newAccount, createAccount,
         reportData,
         financeGrouped, linkingMode, linkSourceId, startLink, finishLink, unlinkTx,
+        confirmTx, rejectTx,
     };
 }
 
@@ -1532,8 +1805,229 @@ function initSettings(ctx) {
 }
 
 
+// ── ai.js ──
+// ── ai.js — AI-ассистент: чат через Cloudflare Worker → Claude ──
+
+const WORKER_URL = 'https://ai-proxy.andrey0770.workers.dev/';
+const WORKER_KEY = 'BILLIARDER_ERP_2026';
+const AI_MODEL = 'claude-sonnet-4-20250514';
+
+function initAi(ctx) {
+    const { ref, nextTick } = ctx;
+
+    const aiChat = ref([]);       // UI messages
+    const aiInput = ref('');
+    const aiLoading = ref(false);
+    const aiPendingPlan = ref(null);
+    const aiFiles = ref([]);
+
+    let msgId = 0;
+    let systemPrompt = '';
+    const apiHistory = [];         // raw messages для AI (user text + assistant JSON)
+
+    async function aiLoadContext() {
+        if (systemPrompt) return;
+        try {
+            const res = await api('ai.context');
+            if (res.ok) systemPrompt = res.system_prompt;
+        } catch (e) {
+            console.error('Failed to load AI context:', e);
+        }
+    }
+
+    function addMessage(role, content) {
+        aiChat.value.push({ id: ++msgId, role, ...content });
+        nextTick(() => {
+            const el = document.querySelector('.ai-messages');
+            if (el) el.scrollTop = el.scrollHeight;
+        });
+    }
+
+    function aiAttach() {
+        const input = document.createElement('input');
+        input.type = 'file';
+        input.accept = 'image/*,.pdf,.csv,.txt,.xlsx,.xls,.doc,.docx';
+        input.multiple = true;
+        input.onchange = () => {
+            Array.from(input.files).forEach(file => {
+                const reader = new FileReader();
+                reader.onload = () => {
+                    const dataUrl = reader.result;
+                    const base64 = dataUrl.split(',')[1];
+                    aiFiles.value.push({ name: file.name, type: file.type, size: file.size, dataUrl, base64 });
+                };
+                reader.readAsDataURL(file);
+            });
+        };
+        input.click();
+    }
+
+    function aiRemoveFile(idx) {
+        aiFiles.value.splice(idx, 1);
+    }
+
+    async function callWorker(messages) {
+        const resp = await fetch(WORKER_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'X-Proxy-Key': WORKER_KEY },
+            body: JSON.stringify({ messages, model: AI_MODEL }),
+        });
+        const data = await resp.json();
+        if (!resp.ok || data.error) {
+            throw new Error(data.error?.message || data.error || `HTTP ${resp.status}`);
+        }
+        return data.content || '';
+    }
+
+    function parseAiResponse(raw) {
+        let clean = raw.replace(/^```(?:json)?\s*\n?/gm, '').replace(/\n?```\s*$/gm, '').trim();
+        try {
+            const parsed = JSON.parse(clean);
+            if (parsed && parsed.type) return parsed;
+        } catch (e) {}
+        return { type: 'text', message: raw };
+    }
+
+    async function aiSend() {
+        const text = aiInput.value.trim();
+        const files = [...aiFiles.value];
+        if ((!text && !files.length) || aiLoading.value) return;
+
+        const images = files.filter(f => f.type.startsWith('image/'));
+        addMessage('user', {
+            text: text || (files.length ? '📎 ' + files.map(f => f.name).join(', ') : ''),
+            images: images.map(f => f.dataUrl),
+        });
+        aiInput.value = '';
+        aiFiles.value = [];
+        aiLoading.value = true;
+        aiPendingPlan.value = null;
+
+        try {
+            await aiLoadContext();
+
+            // Собираем messages: system + history + текущее
+            const messages = [];
+            if (systemPrompt) {
+                messages.push({ role: 'system', content: systemPrompt });
+            }
+
+            // Добавляем историю (ограничиваем последние 20)
+            const recent = apiHistory.slice(-20);
+            for (const m of recent) {
+                messages.push(m);
+            }
+
+            // Текущее сообщение пользователя
+            let userContent;
+            if (images.length > 0) {
+                // Claude vision format
+                const parts = [];
+                for (const img of images) {
+                    const mediaType = img.type || 'image/jpeg';
+                    parts.push({ type: 'image', source: { type: 'base64', media_type: mediaType, data: img.base64 } });
+                }
+                if (text) parts.push({ type: 'text', text });
+                userContent = parts;
+            } else {
+                userContent = text;
+            }
+            messages.push({ role: 'user', content: userContent });
+
+            // Сохраняем user в историю
+            apiHistory.push({ role: 'user', content: typeof userContent === 'string' ? userContent : text });
+
+            // Вызываем AI
+            const raw = await callWorker(messages);
+
+            // Сохраняем сырой ответ AI в историю (чтобы Claude видел свои прошлые JSON-ответы)
+            apiHistory.push({ role: 'assistant', content: raw });
+
+            const parsed = parseAiResponse(raw);
+
+            switch (parsed.type) {
+                case 'query': {
+                    const qRes = await api('ai.query', { queries: parsed.queries || [] });
+                    const results = qRes.results || [];
+                    addMessage('assistant', { text: parsed.message || '', type: 'query_result', results });
+                    // Добавляем результат запроса в историю чтобы AI знал что получилось
+                    const summary = results.map(r =>
+                        r.error ? `Ошибка: ${r.error}` :
+                        `${r.description || 'Результат'}: ${r.count} строк` + (r.rows && r.rows.length <= 20 ? ': ' + JSON.stringify(r.rows) : '')
+                    ).join('\n');
+                    apiHistory.push({ role: 'user', content: '[Результаты запросов]\n' + summary });
+                    break;
+                }
+
+                case 'plan':
+                    aiPendingPlan.value = parsed.operations || [];
+                    addMessage('assistant', { text: parsed.message || '', type: 'plan', plan: parsed.operations || [] });
+                    break;
+
+                default:
+                    addMessage('assistant', { text: parsed.message || raw, type: 'text' });
+            }
+        } catch (e) {
+            addMessage('assistant', { text: '❌ Ошибка: ' + e.message, type: 'error' });
+        } finally {
+            aiLoading.value = false;
+        }
+    }
+
+    async function aiConfirmPlan() {
+        if (!aiPendingPlan.value) return;
+        const operations = aiPendingPlan.value;
+        aiPendingPlan.value = null;
+        aiLoading.value = true;
+        addMessage('user', { text: '✅ Подтверждаю выполнение' });
+        apiHistory.push({ role: 'user', content: 'Пользователь подтвердил план. Выполняю.' });
+
+        try {
+            const res = await api('ai.execute', { operations });
+            if (res.ok) {
+                let summary = '✅ ' + res.message + '\n';
+                (res.results || []).forEach((r, i) => {
+                    summary += `\n${i + 1}. ${r.sql}\n   → строк: ${r.affected_rows}`;
+                    if (r.last_id) summary += `, ID: ${r.last_id}`;
+                });
+                addMessage('assistant', { text: summary, type: 'executed' });
+                apiHistory.push({ role: 'assistant', content: summary });
+            } else {
+                addMessage('assistant', { text: '❌ ' + (res.message || 'Ошибка'), type: 'error' });
+            }
+        } catch (e) {
+            addMessage('assistant', { text: '❌ Ошибка: ' + e.message, type: 'error' });
+        } finally {
+            aiLoading.value = false;
+        }
+    }
+
+    function aiRejectPlan() {
+        aiPendingPlan.value = null;
+        addMessage('user', { text: '❌ Отменяю' });
+        addMessage('assistant', { text: 'Хорошо, операция отменена.', type: 'text' });
+        apiHistory.push({ role: 'user', content: 'Пользователь отменил план.' });
+        apiHistory.push({ role: 'assistant', content: '{"type":"text","message":"Хорошо, операция отменена."}' });
+    }
+
+    function aiClearChat() {
+        aiChat.value = [];
+        aiPendingPlan.value = null;
+        apiHistory.length = 0;
+        msgId = 0;
+    }
+
+    return {
+        aiChat, aiInput, aiLoading, aiPendingPlan, aiFiles,
+        aiSend, aiConfirmPlan, aiRejectPlan, aiClearChat, aiAttach, aiRemoveFile,
+        aiLoadContext,
+    };
+}
+
+
 // ── app.js ──
 // ── app.js — Vue app shell, routing, shared state ──
+
 
 
 
@@ -1580,7 +2074,7 @@ const app = createApp({
             document.addEventListener('mouseup', onUp);
         }
 
-        const routeGroups = { supplies: 'purchasing', receiving: 'purchasing', suppliers: 'purchasing', sales: 'sales', shipments: 'sales', returns: 'sales', profitability: 'sales', customers: 'sales', crm: 'sales', deals: 'sales', inventory: 'goods', warehouses: 'goods', finance: 'finance', reports: 'finance', tasks: 'tasks', tasks_my: 'tasks', tasks_from: 'tasks' };
+        const routeGroups = { supplies: 'purchasing', receiving: 'purchasing', suppliers: 'purchasing', supplierPage: 'purchasing', sales: 'sales', shipments: 'sales', returns: 'sales', profitability: 'sales', customers: 'sales', crm: 'sales', deals: 'sales', inventory: 'goods', warehouses: 'goods', finance: 'finance', reports: 'finance', tasks: 'tasks', tasks_my: 'tasks', tasks_from: 'tasks' };
 
         function navigate(route) {
             currentRoute.value = route;
@@ -1606,7 +2100,7 @@ const app = createApp({
         const showModal = ref(null);
 
         // ── Shared context for modules ──────────────
-        const ctx = { api, toast, showModal, detailData, editData, deleteTarget, summaryData, formatMoney, formatAmount, formatDate, formatDateTime, sourceLabel, movementTypeLabel, ref, reactive, computed, watch, nextTick };
+        const ctx = { api, apiUpload, toast, navigate, showModal, detailData, editData, deleteTarget, summaryData, formatMoney, formatAmount, formatDate, formatDateTime, sourceLabel, movementTypeLabel, ref, reactive, computed, watch, nextTick };
 
         // ── Init all modules ────────────────────────
         const dashboard = initDashboard(ctx);
@@ -1618,6 +2112,8 @@ const app = createApp({
         const finance = initFinance(ctx);
         const tasks = initTasks(ctx);
         const settings = initSettings(ctx);
+        const ai = initAi(ctx);
+        const attachments = initAttachments(ctx);
 
         // ── Route data loader ───────────────────────
         function loadRouteData(route) {
@@ -1640,6 +2136,7 @@ const app = createApp({
                 case 'customers': purchasing.loadCounterparties('customer'); break;
                 case 'warehouses': inventory.loadWarehouses(); break;
                 case 'settings':  settings.loadSettings(); break;
+                case 'ai': ai.aiLoadContext(); break;
             }
         }
 
@@ -1681,6 +2178,12 @@ const app = createApp({
             loadRouteData(r);
         });
 
+        // ── AI text formatting ─────────────────────
+        function formatAiText(text) {
+            if (!text) return '';
+            return text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/\n/g, '<br>');
+        }
+
         // ── Return all to template ──────────────────
         return {
             // Navigation
@@ -1692,7 +2195,7 @@ const app = createApp({
             // Delete
             confirmDelete, executeDelete,
             // Formatting
-            formatMoney, formatAmount, formatDate, formatDateTime, sourceLabel, movementTypeLabel,
+            formatMoney, formatAmount, formatDate, formatDateTime, sourceLabel, movementTypeLabel, formatAiText,
             // Dashboard module
             ...dashboard,
             // Catalog module
@@ -1711,6 +2214,10 @@ const app = createApp({
             ...tasks,
             // Settings module
             ...settings,
+            // AI module
+            ...ai,
+            // Attachments
+            ...attachments,
         };
     }
 });

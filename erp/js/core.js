@@ -29,15 +29,24 @@ export async function api(action, data = null) {
 
     const url = `${API_BASE}?${params}`;
     const resp = await fetch(url, opts);
-    const json = await resp.json();
+    const rawText = await resp.text();
+    let json;
+    try {
+        json = JSON.parse(rawText);
+    } catch (e) {
+        if (resp.status === 504 || resp.status === 502) throw new Error('Сервер не отвечает (таймаут). Попробуйте ещё раз.');
+        throw new Error(`Сервер вернул не JSON (HTTP ${resp.status})`);
+    }
     if (!resp.ok || json.error) throw new Error(json.error || `HTTP ${resp.status}`);
     return json;
 }
 
 // ── Formatting helpers ──────────────────────────
-export function formatMoney(val) {
+export function formatMoney(val, currency) {
     const n = parseFloat(val) || 0;
-    return n.toLocaleString('ru-RU', { minimumFractionDigits: 0, maximumFractionDigits: 0 }) + ' ₽';
+    const sym = { RUB: '₽', CNY: '¥', USD: '$', USDT: 'USDT', EUR: '€' };
+    const s = sym[currency] || (currency ? currency : '₽');
+    return n.toLocaleString('ru-RU', { minimumFractionDigits: 0, maximumFractionDigits: 0 }) + ' ' + s;
 }
 
 export function formatAmount(val, currency) {
@@ -67,4 +76,98 @@ export function sourceLabel(src) {
 export function movementTypeLabel(type) {
     const map = { purchase: 'Приход', sale: 'Расход', adjustment: 'Коррекция', transfer_in: 'Вход', transfer_out: 'Выход', return: 'Возврат' };
     return map[type] || type;
+}
+
+// ── File upload (multipart/form-data) ───────────
+export async function apiUpload(action, formData) {
+    const params = new URLSearchParams({ action });
+    const opts = { method: 'POST', body: formData };
+    if (API_TOKEN) opts.headers = { 'Authorization': `Bearer ${API_TOKEN}` };
+    const url = `${API_BASE}?${params}`;
+    const resp = await fetch(url, opts);
+    const json = await resp.json();
+    if (!resp.ok || json.error) throw new Error(json.error || `HTTP ${resp.status}`);
+    return json;
+}
+
+// ── Attachments helper ──────────────────────────
+export function initAttachments(ctx) {
+    const { api, apiUpload, toast, ref, reactive } = ctx;
+
+    const attachmentsCache = reactive({});
+    const attachDesc = ref('');
+    const attachUploading = ref(false);
+
+    function attachKey(entityType, entityId) { return `${entityType}_${entityId}`; }
+
+    async function loadAttachments(entityType, entityId) {
+        const key = attachKey(entityType, entityId);
+        try {
+            const data = await api('attachments.list', { entity_type: entityType, entity_id: entityId });
+            attachmentsCache[key] = data.items || [];
+        } catch (e) { attachmentsCache[key] = []; }
+        return attachmentsCache[key];
+    }
+
+    function getAttachments(entityType, entityId) {
+        return attachmentsCache[attachKey(entityType, entityId)] || [];
+    }
+
+    async function uploadAttachment(entityType, entityId, file, description) {
+        const fd = new FormData();
+        fd.append('file', file);
+        fd.append('entity_type', entityType);
+        fd.append('entity_id', entityId);
+        if (description) fd.append('description', description);
+        const result = await apiUpload('attachments.upload', fd);
+        await loadAttachments(entityType, entityId);
+        return result;
+    }
+
+    async function deleteAttachment(entityType, entityId, attachId) {
+        await api('attachments.delete', { id: attachId });
+        await loadAttachments(entityType, entityId);
+    }
+
+    async function updateAttachmentDesc(attachId, description) {
+        await api('attachments.update', { id: attachId, description });
+    }
+
+    async function handleSupplyAttach(event, supplyId) {
+        const file = event.target.files?.[0];
+        if (!file) return;
+        attachUploading.value = true;
+        try {
+            await uploadAttachment('supply', supplyId, file, attachDesc.value);
+            toast('Файл загружен', 'success');
+            attachDesc.value = '';
+        } catch (e) { toast('Ошибка загрузки: ' + e.message, 'error'); }
+        attachUploading.value = false;
+        event.target.value = '';
+    }
+
+    async function handleTxAttach(event, txId) {
+        const file = event.target.files?.[0];
+        if (!file) return;
+        attachUploading.value = true;
+        try {
+            await uploadAttachment('transaction', txId, file, attachDesc.value);
+            toast('Файл загружен', 'success');
+            attachDesc.value = '';
+        } catch (e) { toast('Ошибка загрузки: ' + e.message, 'error'); }
+        attachUploading.value = false;
+        event.target.value = '';
+    }
+
+    function triggerFileUpload(event) {
+        const wrap = event.currentTarget.closest('.attachment-upload');
+        if (wrap) wrap.querySelector('input[type=file]').click();
+    }
+
+    return {
+        attachmentsCache, attachDesc, attachUploading,
+        loadAttachments, getAttachments,
+        uploadAttachment, deleteAttachment, updateAttachmentDesc,
+        handleSupplyAttach, handleTxAttach, triggerFileUpload,
+    };
 }

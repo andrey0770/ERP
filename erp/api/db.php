@@ -623,6 +623,78 @@ class DB {
                 // CNY: +10502.45 (from tx3) - 10502.45 (from tx5) = 0
                 $pdo->exec("UPDATE erp_finance_accounts SET balance = 0 WHERE id = 8");
             },
+
+            // ── v032: status (draft/confirmed) для транзакций ──
+            'v032_transaction_status' => function($pdo) {
+                $check = $pdo->query("SELECT COUNT(*) FROM INFORMATION_SCHEMA.COLUMNS 
+                    WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'erp_finance_transactions' AND COLUMN_NAME = 'status'")->fetchColumn();
+                if (!$check) {
+                    $pdo->exec("ALTER TABLE erp_finance_transactions ADD COLUMN status VARCHAR(20) NOT NULL DEFAULT 'confirmed'");
+                    $pdo->exec("ALTER TABLE erp_finance_transactions ADD INDEX idx_ft_status (status)");
+                }
+            },
+
+            // ── v033: Вложения (файлы, документы) ──
+            'v033_attachments' => "
+                CREATE TABLE IF NOT EXISTS erp_attachments (
+                    id INT AUTO_INCREMENT PRIMARY KEY,
+                    entity_type VARCHAR(50) NOT NULL COMMENT 'supply, transaction, task, order',
+                    entity_id INT NOT NULL,
+                    description VARCHAR(500) DEFAULT NULL COMMENT 'Описание файла',
+                    filename VARCHAR(255) NOT NULL COMMENT 'Оригинальное имя файла',
+                    s3_key VARCHAR(500) NOT NULL COMMENT 'Путь в S3',
+                    url VARCHAR(700) DEFAULT NULL COMMENT 'Публичная ссылка',
+                    file_type VARCHAR(100) DEFAULT NULL COMMENT 'MIME-тип',
+                    file_size INT DEFAULT NULL COMMENT 'Размер в байтах',
+                    uploaded_by VARCHAR(100) DEFAULT NULL COMMENT 'Кто загрузил',
+                    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+                    INDEX idx_attach_entity (entity_type, entity_id),
+                    INDEX idx_attach_created (created_at)
+                ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+            ",
+
+            'v034_supply_cargo_fields' => function($pdo) {
+                $cols = $pdo->query("SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA=DATABASE() AND TABLE_NAME='erp_supplies'")->fetchAll(PDO::FETCH_COLUMN);
+                $add = [];
+                if (!in_array('tracking_number', $cols)) $add[] = "ADD COLUMN tracking_number VARCHAR(100) DEFAULT NULL COMMENT 'Трекинг-номер груза'";
+                if (!in_array('cargo_places', $cols)) $add[] = "ADD COLUMN cargo_places INT DEFAULT NULL COMMENT 'Количество мест'";
+                if (!in_array('cargo_weight', $cols)) $add[] = "ADD COLUMN cargo_weight DECIMAL(10,2) DEFAULT NULL COMMENT 'Вес груза, кг'";
+                if (!in_array('cargo_volume', $cols)) $add[] = "ADD COLUMN cargo_volume DECIMAL(10,3) DEFAULT NULL COMMENT 'Объём груза, м³'";
+                if (!in_array('logistics_cost', $cols)) $add[] = "ADD COLUMN logistics_cost DECIMAL(12,2) DEFAULT NULL COMMENT 'Стоимость логистики'";
+                if (!in_array('logistics_currency', $cols)) $add[] = "ADD COLUMN logistics_currency VARCHAR(10) DEFAULT 'USD' COMMENT 'Валюта логистики'";
+                if (!in_array('logistics_detail', $cols)) $add[] = "ADD COLUMN logistics_detail VARCHAR(500) DEFAULT NULL COMMENT 'Детализация логистики'";
+                if (!empty($add)) {
+                    $pdo->exec("ALTER TABLE erp_supplies " . implode(', ', $add));
+                }
+            },
+
+            'v035_product_code' => function($pdo) {
+                $cols = $pdo->query("SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA=DATABASE() AND TABLE_NAME='erp_products'")->fetchAll(PDO::FETCH_COLUMN);
+                if (!in_array('product_code', $cols)) {
+                    $pdo->exec("ALTER TABLE erp_products ADD COLUMN product_code VARCHAR(50) DEFAULT NULL COMMENT 'Код товара (код поставщика)'");
+                }
+            },
+
+            'v036_product_article' => function($pdo) {
+                $cols = $pdo->query("SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA=DATABASE() AND TABLE_NAME='erp_products'")->fetchAll(PDO::FETCH_COLUMN);
+                if (!in_array('article', $cols)) {
+                    $pdo->exec("ALTER TABLE erp_products ADD COLUMN article VARCHAR(50) DEFAULT NULL COMMENT 'Внутренний артикул' AFTER product_code");
+                }
+            },
+
+            'v037_product_short_name' => function($pdo) {
+                $cols = $pdo->query("SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA=DATABASE() AND TABLE_NAME='erp_products'")->fetchAll(PDO::FETCH_COLUMN);
+                if (!in_array('short_name', $cols)) {
+                    $pdo->exec("ALTER TABLE erp_products ADD COLUMN short_name VARCHAR(200) DEFAULT NULL COMMENT 'Краткое название' AFTER alias");
+                }
+            },
+
+            'v038_supplier_product_name' => function($pdo) {
+                $cols = $pdo->query("SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA=DATABASE() AND TABLE_NAME='erp_products'")->fetchAll(PDO::FETCH_COLUMN);
+                if (!in_array('supplier_product_name', $cols)) {
+                    $pdo->exec("ALTER TABLE erp_products ADD COLUMN supplier_product_name VARCHAR(300) DEFAULT NULL COMMENT 'Наименование поставщика' AFTER supplier");
+                }
+            },
         ];
     }
 }

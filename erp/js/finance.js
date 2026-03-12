@@ -4,7 +4,7 @@ export function initFinance(ctx) {
 
     const finance = reactive({ items: [], total: 0 });
     const financeAccounts = ref([]);
-    const financeFilter = reactive({ type: '', from: '', to: '', q: '' });
+    const financeFilter = reactive({ type: '', status: '', from: '', to: '', q: '' });
     let financeSearchTimer = null;
     const newFinance = reactive({ type: 'expense', amount: null, date: new Date().toISOString().split('T')[0], category: '', counterparty: '', account_id: null, to_account_id: null, dest_amount: null, dest_currency: null, description: '' });
 
@@ -150,6 +150,22 @@ export function initFinance(ctx) {
         } catch (e) { toast('Ошибка: ' + e.message, 'error'); }
     }
 
+    async function confirmTx(txId) {
+        try {
+            await api('finance.confirm', { id: txId });
+            toast('Транзакция подтверждена', 'success');
+            loadFinance();
+        } catch (e) { toast('Ошибка: ' + e.message, 'error'); }
+    }
+
+    async function rejectTx(txId) {
+        try {
+            await api('finance.reject', { id: txId });
+            toast('Черновик отклонён', 'success');
+            loadFinance();
+        } catch (e) { toast('Ошибка: ' + e.message, 'error'); }
+    }
+
     // Finance Account
     const newAccount = reactive({ name: '', type: 'bank', currency: 'RUB', balance: 0 });
 
@@ -193,5 +209,6 @@ export function initFinance(ctx) {
         newAccount, createAccount,
         reportData,
         financeGrouped, linkingMode, linkSourceId, startLink, finishLink, unlinkTx,
+        confirmTx, rejectTx,
     };
 }

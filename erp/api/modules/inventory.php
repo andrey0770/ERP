@@ -31,7 +31,7 @@ class ERP_Inventory {
         $whereSQL = implode(' AND ', $where);
 
         $stmt = $pdo->prepare("
-            SELECT i.*, p.sku, p.name as product_name, p.unit, p.min_stock,
+            SELECT i.*, p.sku, p.alias, p.name as product_name, p.unit, p.min_stock,
                    w.name as warehouse_name
             FROM erp_inventory i
             JOIN erp_products p ON p.id = i.product_id
@@ -74,7 +74,7 @@ class ERP_Inventory {
         $limit = min((int)(param('limit', 100)), 500);
 
         $stmt = $pdo->prepare("
-            SELECT im.*, p.sku, p.name as product_name, w.name as warehouse_name
+            SELECT im.*, p.sku, p.alias, p.name as product_name, w.name as warehouse_name
             FROM erp_inventory_movements im
             JOIN erp_products p ON p.id = im.product_id
             JOIN erp_warehouses w ON w.id = im.warehouse_id

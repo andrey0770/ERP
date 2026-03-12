@@ -235,7 +235,7 @@ class ERP_Products {
         $id = (int)($input['id'] ?? param('id'));
         if (!$id) errorResponse('id required');
 
-        $allowed = ['name', 'sku', 'alias', 'barcode', 'brand', 'category_id', 'unit', 'purchase_price', 'sell_price', 'min_stock', 'ozon_product_id', 'ozon_sku', 'image_url', 'is_active', 'supplier', 'supplier_id', 'counterparty_id', 'cue_type', 'cue_parts', 'cue_material'];
+        $allowed = ['name', 'sku', 'alias', 'short_name', 'product_code', 'article', 'barcode', 'brand', 'category_id', 'unit', 'purchase_price', 'sell_price', 'min_stock', 'ozon_product_id', 'ozon_sku', 'image_url', 'is_active', 'supplier', 'supplier_product_name', 'supplier_id', 'counterparty_id', 'cue_type', 'cue_parts', 'cue_material'];
         $sets = [];
         $params = [];
         foreach ($allowed as $field) {

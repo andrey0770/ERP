@@ -8,10 +8,10 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
-    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/style.css?v=16">
 </head>
 <body>
-<div id="app">
+<div id="app" v-cloak>
     <!-- Toast notifications -->
     <div class="toast-container">
         <div v-for="t in toasts" :key="t.id" :class="'toast toast-' + t.type">{{ t.message }}</div>
@@ -471,7 +471,7 @@
                         <tbody>
                             <tr v-for="p in products.items" :key="p.id" :style="p.min_stock >= p.stock ? 'background:rgba(255,107,107,0.06)' : ''">
                                 <td style="font-family:monospace">{{ p.sku }}</td>
-                                <td>{{ p.name }}</td>
+                                <td>{{ p.alias || p.name }}</td>
                                 <td style="font-family:monospace;font-size:12px">{{ p.barcode || '—' }}</td>
                                 <td>{{ p.purchase_price ? formatMoney(p.purchase_price) : '—' }}</td>
                                 <td>{{ p.sell_price ? formatMoney(p.sell_price) : '—' }}</td>
@@ -519,6 +519,11 @@
                         <option value="expense">Расход</option>
                         <option value="transfer">Перевод</option>
                     </select>
+                    <select class="form-select" v-model="financeFilter.status" @change="loadFinance">
+                        <option value="">Все статусы</option>
+                        <option value="confirmed">Подтверждённые</option>
+                        <option value="draft">Черновики</option>
+                    </select>
                     <input type="date" class="form-input" v-model="financeFilter.from" @change="loadFinance">
                     <input type="date" class="form-input" v-model="financeFilter.to" @change="loadFinance">
                     <input class="form-input" placeholder="🔍 Поиск..." v-model="financeFilter.q" @input="debounceSearchFinance">
@@ -543,6 +548,7 @@
                                     'tx-group-mid': tx._groupPos === 'mid',
                                     'tx-link-target': linkingMode && tx.id !== linkSourceId,
                                     'tx-link-source': linkingMode && tx.id === linkSourceId,
+                                    'tx-draft': tx.status === 'draft',
                                 }" @click="linkingMode && tx.id !== linkSourceId ? finishLink(tx.id) : null">
                                     <td>
                                         <span v-if="tx._groupPos === 'first'">{{ tx.date }}</span>
@@ -550,7 +556,8 @@
                                         <span v-else>{{ tx.date }}</span>
                                     </td>
                                     <td>
-                                        <span v-if="tx._groupPos === 'first'" class="badge badge-transfer">Перевод</span>
+                                        <span v-if="tx.status === 'draft'" class="badge badge-draft">Черновик</span>
+                                        <span v-else-if="tx._groupPos === 'first'" class="badge badge-transfer">Перевод</span>
                                         <span v-else-if="!tx._groupPos" :class="'badge badge-' + tx.type">{{ {income:'Доход',expense:'Расход',transfer:'Перевод'}[tx.type] }}</span>
                                     </td>
                                     <td :style="tx.type==='income' ? 'color:var(--green)' : tx.type==='expense' ? 'color:var(--red)' : 'color:var(--blue)'">
@@ -582,6 +589,10 @@
                                     <td style="max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ tx.description || '—' }}</td>
                                     <td>
                                         <div class="actions">
+                                            <template v-if="tx.status === 'draft'">
+                                                <button class="btn-icon" style="color:var(--green)" @click.stop="confirmTx(tx.id)" title="Подтвердить"><i class="ph ph-check-circle"></i></button>
+                                                <button class="btn-icon danger" @click.stop="rejectTx(tx.id)" title="Отклонить"><i class="ph ph-x-circle"></i></button>
+                                            </template>
                                             <button v-if="!linkingMode && !tx.linked_id" class="btn-icon" @click.stop="startLink(tx.id)" title="Связать с другой транзакцией"><i class="ph ph-link"></i></button>
                                             <button v-if="tx.linked_id" class="btn-icon" @click.stop="unlinkTx(tx.id)" title="Убрать связь"><i class="ph ph-link-break"></i></button>
                                             <button class="btn-icon" @click.stop="editFinance(tx)" title="Редактировать"><i class="ph ph-pencil-simple"></i></button>
@@ -664,7 +675,7 @@
                             </div>
                             <div class="product-card-body">
                                 <div class="product-card-sku">{{ p.sku }}</div>
-                                <div class="product-card-name">{{ p.name }}</div>
+                                                <div class="product-card-name">{{ p.alias || p.name }}</div>
                                 <div class="product-card-brand" v-if="p.brand">{{ p.brand }}</div>
                                 <div class="product-card-prices">
                                     <span class="sell" v-if="p.sell_price">{{ formatMoney(p.sell_price) }}</span>
@@ -693,6 +704,11 @@
                                     <th v-if="colVisible.alias" style="width:120px">
                                         <div class="col-header">
                                             <span class="col-sort" @click="setCatalogSort('alias')">Псевдоним <i :class="['ph sort-icon', catalogFilter.sort==='alias' ? 'ph-sort-ascending active' : 'ph-arrows-down-up']"></i></span>
+                                        </div>
+                                    </th>
+                                    <th v-if="colVisible.product_code" style="width:100px">
+                                        <div class="col-header">
+                                            <span>Код товара</span>
                                         </div>
                                     </th>
                                     <th v-if="colVisible.name">
@@ -788,7 +804,8 @@
                                     </td>
                                     <td v-if="colVisible.sku" style="font-family:monospace;font-size:12px">{{ p.sku }}</td>
                                     <td v-if="colVisible.alias" style="font-size:12px;font-weight:600;color:var(--accent2)">{{ p.alias || '—' }}</td>
-                                    <td v-if="colVisible.name" style="font-weight:500;white-space:normal;min-width:200px">{{ p.name }}</td>
+                                    <td v-if="colVisible.product_code" style="font-size:12px;font-family:monospace;color:var(--text2)">{{ p.product_code || '—' }}</td>
+                                    <td v-if="colVisible.name" style="font-weight:500;white-space:normal;min-width:200px">{{ p.alias || p.name }}</td>
                                     <td v-if="colVisible.brand" style="font-size:12px;color:var(--accent2)">{{ p.brand || '—' }}</td>
                                     <td v-if="colVisible.supplier" style="font-size:12px;color:var(--text2)">{{ p.supplier_alias || p.supplier || '—' }}</td>
                                     <td v-if="colVisible.purchase_price">{{ p.purchase_price ? formatMoney(p.purchase_price) : '—' }}</td>
@@ -844,7 +861,7 @@
                                 <tr v-for="inv in filteredInventory" :key="inv.id" 
                                     :style="inv.min_stock >= inv.quantity ? 'background:rgba(255,107,107,0.06)' : ''">
                                     <td style="font-family:monospace">{{ inv.sku }}</td>
-                                    <td>{{ inv.product_name }}</td>
+                                    <td>{{ inv.alias || inv.product_name }}</td>
                                     <td>{{ inv.warehouse_name }}</td>
                                     <td :style="inv.min_stock >= inv.quantity ? 'color:var(--red);font-weight:600' : ''">{{ inv.quantity }} {{ inv.unit }}</td>
                                     <td>{{ inv.reserved || 0 }}</td>
@@ -885,7 +902,7 @@
                                 <tr v-for="m in movements" :key="m.id">
                                     <td>{{ formatDateTime(m.created_at) }}</td>
                                     <td><span class="badge" :class="m.quantity > 0 ? 'badge-income' : 'badge-expense'">{{ movementTypeLabel(m.type) }}</span></td>
-                                    <td>{{ m.product_name }}</td>
+                                    <td>{{ m.alias || m.product_name }}</td>
                                     <td :style="m.quantity > 0 ? 'color:var(--green)' : 'color:var(--red)'">{{ m.quantity > 0 ? '+' : '' }}{{ m.quantity }}</td>
                                     <td>{{ m.unit_price ? formatMoney(m.unit_price) : '—' }}</td>
                                     <td>{{ m.warehouse_name }}</td>
@@ -924,7 +941,10 @@
                     </div>
                     <div class="card">
                         <div class="card-label">Общая сумма (откр.)</div>
-                        <div class="card-value">{{ formatMoney(supplyStats.open_total || 0) }}</div>
+                        <div class="card-value" v-if="supplyStats.open_totals?.length">
+                            <span v-for="(ot, i) in supplyStats.open_totals" :key="ot.currency">{{ i > 0 ? ' + ' : '' }}{{ formatMoney(ot.total, ot.currency) }}</span>
+                        </div>
+                        <div class="card-value" v-else>0</div>
                     </div>
                 </div>
 
@@ -940,28 +960,53 @@
                         <option value="cancelled">Отменено</option>
                     </select>
                     <input class="form-input" type="text" v-model="supplyFilter.q" placeholder="Поиск..." @input="debounceSearchSupplies">
+                    <div class="col-toggle-wrap">
+                        <div class="col-toggle-btn" @click.stop="supplyColVisOpen = !supplyColVisOpen"><i class="ph ph-columns"></i> Столбцы</div>
+                        <div class="col-toggle-popup" v-if="supplyColVisOpen" @click.stop>
+                            <label><input type="checkbox" :checked="supplyColVis.number" @change="toggleSupplyCol('number')" style="accent-color:var(--accent)"> №</label>
+                            <label><input type="checkbox" :checked="supplyColVis.date" @change="toggleSupplyCol('date')" style="accent-color:var(--accent)"> Дата</label>
+                            <label><input type="checkbox" :checked="supplyColVis.supplier" @change="toggleSupplyCol('supplier')" style="accent-color:var(--accent)"> Поставщик</label>
+                            <label><input type="checkbox" :checked="supplyColVis.items" @change="toggleSupplyCol('items')" style="accent-color:var(--accent)"> Позиций</label>
+                            <label><input type="checkbox" :checked="supplyColVis.amount" @change="toggleSupplyCol('amount')" style="accent-color:var(--accent)"> Сумма</label>
+                            <label><input type="checkbox" :checked="supplyColVis.status" @change="toggleSupplyCol('status')" style="accent-color:var(--accent)"> Статус</label>
+                            <label><input type="checkbox" :checked="supplyColVis.expected_date" @change="toggleSupplyCol('expected_date')" style="accent-color:var(--accent)"> Ожид. дата</label>
+                            <label><input type="checkbox" :checked="supplyColVis.files" @change="toggleSupplyCol('files')" style="accent-color:var(--accent)"> Файлы</label>
+                            <label><input type="checkbox" :checked="supplyColVis.notes" @change="toggleSupplyCol('notes')" style="accent-color:var(--accent)"> Примечание</label>
+                        </div>
+                    </div>
                 </div>
 
                 <!-- Supplies table -->
                 <div class="table-wrap">
                     <table>
                         <thead>
-                            <tr><th>№</th><th>Дата</th><th>Поставщик</th><th>Позиций</th><th>Сумма</th><th>Статус</th><th>Ожид. дата</th><th>Примечание</th></tr>
+                            <tr>
+                                <th v-if="supplyColVis.number">№</th>
+                                <th v-if="supplyColVis.date">Дата</th>
+                                <th v-if="supplyColVis.supplier">Поставщик</th>
+                                <th v-if="supplyColVis.items">Позиций</th>
+                                <th v-if="supplyColVis.amount">Сумма</th>
+                                <th v-if="supplyColVis.status">Статус</th>
+                                <th v-if="supplyColVis.expected_date">Ожид. дата</th>
+                                <th v-if="supplyColVis.files"><i class="ph ph-paperclip"></i></th>
+                                <th v-if="supplyColVis.notes">Примечание</th>
+                            </tr>
                         </thead>
                         <tbody>
-                            <tr v-for="s in supplies.items" :key="s.id" style="cursor:pointer" @click="showSupplyDetail(s.id)">
-                                <td style="font-family:monospace">{{ s.number || '#' + s.id }}</td>
-                                <td>{{ formatDate(s.created_at) }}</td>
-                                <td><strong>{{ s.supplier_name || '—' }}</strong></td>
-                                <td>{{ s.item_count || 0 }}</td>
-                                <td>{{ formatMoney(s.total_amount) }}</td>
-                                <td>
+                            <tr v-for="s in supplies.items" :key="s.id" style="cursor:pointer" @click="showSupplyDetail(s.id); loadAttachments('supply', s.id)">
+                                <td v-if="supplyColVis.number" style="font-family:monospace" @click.stop="openSupplyPage(s.id)" class="link-cell">{{ s.number || '#' + s.id }}</td>
+                                <td v-if="supplyColVis.date">{{ formatDate(s.created_at) }}</td>
+                                <td v-if="supplyColVis.supplier" @click.stop="s.counterparty_id && openSupplierPage(s.counterparty_id)" :class="{'link-cell': s.counterparty_id}"><strong>{{ s.supplier_alias || s.supplier_name || '—' }}</strong></td>
+                                <td v-if="supplyColVis.items">{{ s.item_count || 0 }}</td>
+                                <td v-if="supplyColVis.amount">{{ formatMoney(s.total_amount, s.currency) }}</td>
+                                <td v-if="supplyColVis.status">
                                     <span :class="'badge badge-supply-' + s.status">{{ supplyStatusLabel(s.status) }}</span>
                                 </td>
-                                <td>{{ formatDate(s.expected_date) }}</td>
-                                <td style="max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ s.notes || '—' }}</td>
+                                <td v-if="supplyColVis.expected_date">{{ formatDate(s.expected_date) }}</td>
+                                <td v-if="supplyColVis.files" style="text-align:center"><i v-if="s.file_count > 0" class="ph ph-paperclip" style="color:var(--accent)" :title="s.file_count + ' файл(ов)'"></i></td>
+                                <td v-if="supplyColVis.notes" style="max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ s.notes || '—' }}</td>
                             </tr>
-                            <tr v-if="!supplies.items?.length"><td colspan="8" style="text-align:center;color:var(--text2)">Нет поставок</td></tr>
+                            <tr v-if="!supplies.items?.length"><td :colspan="Object.values(supplyColVis).filter(Boolean).length" style="text-align:center;color:var(--text2)">Нет поставок</td></tr>
                         </tbody>
                     </table>
                 </div>
@@ -1009,7 +1054,7 @@
                         <tbody>
                             <tr v-for="s in sales.items" :key="s.id">
                                 <td>{{ formatDateTime(s.created_at) }}</td>
-                                <td>{{ s.product_name || '—' }}</td>
+                                <td>{{ s.alias || s.product_name || '—' }}</td>
                                 <td>{{ s.quantity }}</td>
                                 <td>{{ formatMoney(s.unit_price) }}</td>
                                 <td style="color:var(--green);font-weight:600">{{ formatMoney(s.quantity * s.unit_price) }}</td>
@@ -1145,23 +1190,107 @@
             <template v-if="currentRoute === 'ai'">
                 <div class="page-header">
                     <div>
-                        <h1>🤖 AI Помощник</h1>
-                        <div class="subtitle">Задай вопрос о состоянии дел</div>
+                        <h1><i class="ph ph-robot"></i> AI Ассистент</h1>
+                        <div class="subtitle">Спроси что угодно или дай команду на запись данных</div>
+                    </div>
+                    <div class="page-actions">
+                        <button class="btn btn-ghost" @click="aiClearChat" title="Очистить чат">
+                            <i class="ph ph-trash"></i> Очистить
+                        </button>
                     </div>
                 </div>
 
                 <div class="ai-chat">
                     <div class="ai-messages" ref="aiMessages">
-                        <div v-for="msg in aiChat" :key="msg.id" :class="'ai-msg ' + msg.role">
-                            <pre>{{ msg.text }}</pre>
+                        <div v-if="!aiChat.length" class="ai-welcome">
+                            <div class="ai-welcome-icon"><i class="ph ph-robot"></i></div>
+                            <h3>Привет! Я AI-помощник ERP</h3>
+                            <p>Могу показать данные, создать записи, обновить информацию</p>
+                            <div class="ai-hints">
+                                <div class="ai-hint" @click="aiInput = 'Покажи все открытые задачи'; aiSend()">📋 Открытые задачи</div>
+                                <div class="ai-hint" @click="aiInput = 'Покажи балансы всех счетов'; aiSend()">💰 Балансы счетов</div>
+                                <div class="ai-hint" @click="aiInput = 'Какие расходы за этот месяц?'; aiSend()">📊 Расходы за месяц</div>
+                                <div class="ai-hint" @click="aiInput = 'Покажи последние 10 поставок'; aiSend()">📦 Последние поставки</div>
+                            </div>
                         </div>
-                        <div v-if="aiLoading" class="ai-msg assistant"><span class="spinner"></span> Думаю...</div>
+
+                        <template v-for="msg in aiChat" :key="msg.id">
+                            <!-- User message -->
+                            <div v-if="msg.role === 'user'" class="ai-msg user">
+                                <div v-if="msg.images && msg.images.length" class="ai-msg-images">
+                                    <img v-for="(src, ii) in msg.images" :key="ii" :src="src" class="ai-msg-img">
+                                </div>
+                                <div v-if="msg.text">{{ msg.text }}</div>
+                            </div>
+
+                            <!-- Assistant: plain text -->
+                            <div v-else-if="msg.type === 'text' || msg.type === 'error' || msg.type === 'executed'" class="ai-msg assistant" :class="{ 'ai-error': msg.type === 'error', 'ai-success': msg.type === 'executed' }">
+                                <div class="ai-msg-text" v-html="formatAiText(msg.text)"></div>
+                            </div>
+
+                            <!-- Assistant: query results -->
+                            <div v-else-if="msg.type === 'query_result'" class="ai-msg assistant">
+                                <div class="ai-msg-text" v-if="msg.text">{{ msg.text }}</div>
+                                <div v-for="(res, ri) in msg.results" :key="ri" class="ai-result-block">
+                                    <div class="ai-result-desc" v-if="res.description">{{ res.description }}</div>
+                                    <div v-if="res.error" class="ai-result-error">❌ {{ res.error }}</div>
+                                    <div v-else-if="res.rows && res.rows.length" class="ai-table-wrap">
+                                        <table class="ai-table">
+                                            <thead><tr><th v-for="col in res.columns" :key="col">{{ col }}</th></tr></thead>
+                                            <tbody>
+                                                <tr v-for="(row, rowi) in res.rows" :key="rowi">
+                                                    <td v-for="col in res.columns" :key="col">{{ row[col] }}</td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                        <div class="ai-result-count">Строк: {{ res.count }}</div>
+                                    </div>
+                                    <div v-else class="ai-result-empty">Нет данных</div>
+                                </div>
+                            </div>
+
+                            <!-- Assistant: plan awaiting confirmation -->
+                            <div v-else-if="msg.type === 'plan'" class="ai-msg assistant ai-plan">
+                                <div class="ai-msg-text">{{ msg.text }}</div>
+                                <div class="ai-plan-ops">
+                                    <div v-for="(op, oi) in msg.plan" :key="oi" class="ai-plan-op">
+                                        <div class="ai-plan-op-desc">{{ oi + 1 }}. {{ op.description }}</div>
+                                        <code class="ai-plan-sql">{{ op.sql }}</code>
+                                        <div v-if="op.params && op.params.length" class="ai-plan-params">Параметры: {{ op.params.join(', ') }}</div>
+                                    </div>
+                                </div>
+                                <div v-if="aiPendingPlan" class="ai-plan-actions">
+                                    <button class="btn btn-primary" @click="aiConfirmPlan"><i class="ph ph-check"></i> Выполнить</button>
+                                    <button class="btn btn-ghost" @click="aiRejectPlan"><i class="ph ph-x"></i> Отмена</button>
+                                </div>
+                            </div>
+                        </template>
+
+                        <div v-if="aiLoading" class="ai-msg assistant ai-thinking">
+                            <span class="spinner"></span> Думаю...
+                        </div>
                     </div>
-                    <div class="input-row">
-                        <input class="form-input" v-model="aiQuestion" 
-                               placeholder="Например: Какие основные расходы за этот месяц? Какие задачи просрочены?"
-                               @keydown.enter="askAI">
-                        <button class="btn btn-primary" @click="askAI" :disabled="!aiQuestion.trim() || aiLoading">Спросить</button>
+
+                    <!-- File preview -->
+                    <div v-if="aiFiles.length" class="ai-files-preview">
+                        <div v-for="(f, fi) in aiFiles" :key="fi" class="ai-file-chip">
+                            <img v-if="f.type.startsWith('image/')" :src="f.dataUrl" class="ai-file-thumb">
+                            <i v-else class="ph ph-file"></i>
+                            <span class="ai-file-name">{{ f.name }}</span>
+                            <button class="ai-file-remove" @click="aiRemoveFile(fi)">&times;</button>
+                        </div>
+                    </div>
+                    <div class="ai-input-row">
+                        <button class="btn btn-ghost ai-attach-btn" @click="aiAttach" :disabled="aiLoading" title="Прикрепить файл">
+                            <i class="ph ph-paperclip"></i>
+                        </button>
+                        <input class="form-input ai-input" v-model="aiInput"
+                               placeholder="Спроси что-нибудь или дай команду..."
+                               @keydown.enter="aiSend"
+                               :disabled="aiLoading">
+                        <button class="btn btn-primary ai-send-btn" @click="aiSend" :disabled="(!aiInput.trim() && !aiFiles.length) || aiLoading">
+                            <i class="ph ph-paper-plane-right"></i>
+                        </button>
                     </div>
                 </div>
             </template>
@@ -1442,7 +1571,7 @@
                             <th></th>
                         </tr></thead>
                         <tbody>
-                            <tr v-for="s in filteredSuppliers" :key="s.id" style="cursor:pointer" @click="showSupplierDetail2(s.id)">
+                            <tr v-for="s in filteredSuppliers" :key="s.id" style="cursor:pointer" @click="openSupplierPage(s.id)">
                                 <td v-if="supplierColVis.name"><strong>{{ s.name }}</strong></td>
                                 <td v-if="supplierColVis.alias">{{ s.alias || '—' }}</td>
                                 <td v-if="supplierColVis.type"><span class="badge" :class="{'badge-done': s.type==='supplier', 'badge-expense': s.type==='customer', 'badge-transfer': s.type==='both'}">{{ {supplier:'Поставщик', customer:'Покупатель', both:'Оба'}[s.type] || s.type }}</span></td>
@@ -1462,6 +1591,236 @@
                         </tbody>
                     </table>
                     <div v-else style="color:var(--text2);padding:20px;text-align:center">Нет контрагентов</div>
+                </div>
+            </template>
+
+            <!-- ═══ Supplier Page (Страница поставщика) ═══ -->
+            <template v-if="currentRoute === 'supplierPage' && supplierPageData.id">
+                <!-- Header -->
+                <div class="supplier-page-header">
+                    <div class="supplier-page-back" @click="navigate('suppliers')" title="Назад"><i class="ph ph-arrow-left"></i></div>
+                    <div class="supplier-page-info">
+                        <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+                            <h1 style="margin:0">{{ supplierPageData.name }}</h1>
+                            <span v-if="supplierPageData.alias" style="color:var(--text2);font-size:16px">({{ supplierPageData.alias }})</span>
+                            <span class="badge" :class="{'badge-done': supplierPageData.type==='supplier', 'badge-expense': supplierPageData.type==='customer', 'badge-transfer': supplierPageData.type==='both'}">{{ {supplier:'Поставщик', customer:'Покупатель', both:'Оба'}[supplierPageData.type] || supplierPageData.type }}</span>
+                            <button class="btn btn-sm btn-ghost" @click="editSupplier2(supplierPageData)" style="margin-left:auto"><i class="ph ph-pencil-simple"></i> Редактировать</button>
+                        </div>
+                        <div class="supplier-page-meta">
+                            <div v-if="supplierPageData.country"><i class="ph ph-globe"></i> {{ supplierPageData.country }}</div>
+                            <div v-if="supplierPageData.phone"><i class="ph ph-phone"></i> {{ supplierPageData.phone }}</div>
+                            <div v-if="supplierPageData.email"><i class="ph ph-envelope"></i> {{ supplierPageData.email }}</div>
+                            <div v-if="supplierPageData.website"><i class="ph ph-link"></i> {{ supplierPageData.website }}</div>
+                            <div v-if="supplierPageData.inn"><i class="ph ph-identification-card"></i> ИНН {{ supplierPageData.inn }}</div>
+                        </div>
+                        <div v-if="supplierPageData.address" style="font-size:13px;color:var(--text2);margin-top:4px"><i class="ph ph-map-pin"></i> {{ supplierPageData.address }}</div>
+                        <div v-if="supplierPageData.notes" style="font-size:13px;color:var(--text2);margin-top:4px">{{ supplierPageData.notes }}</div>
+                    </div>
+                    <div class="supplier-page-balance">
+                        <div style="font-size:12px;color:var(--text2)">Баланс</div>
+                        <div :style="{ fontSize:'22px', fontWeight:700, color: supplierPageData.balance > 0 ? 'var(--red)' : supplierPageData.balance < 0 ? 'var(--green)' : 'var(--text2)' }">
+                            {{ supplierPageData.balance != 0 ? formatAmount(supplierPageData.balance, supplierPageData.currency) : '0 ' + (supplierPageData.currency || 'RUB') }}
+                        </div>
+                        <div style="font-size:11px;color:var(--text2)" v-if="supplierPageData.balance > 0">мы заплатили авансом</div>
+                        <div style="font-size:11px;color:var(--text2)" v-else-if="supplierPageData.balance < 0">мы должны</div>
+                    </div>
+                </div>
+
+                <!-- Tabs -->
+                <div class="tabs" style="margin-top:16px">
+                    <div class="tab" :class="{active: supplierPageTab === 'products'}" @click="supplierPageTab = 'products'">📦 Товары ({{ supplierPageData.products?.length || 0 }})</div>
+                    <div class="tab" :class="{active: supplierPageTab === 'orders'}" @click="supplierPageTab = 'orders'">🚚 Заказы ({{ supplierPageData.supplies?.length || 0 }})</div>
+                    <div class="tab" :class="{active: supplierPageTab === 'payments'}" @click="supplierPageTab = 'payments'">💰 Оплаты ({{ supplierPageData.transactions?.length || 0 }})</div>
+                    <div class="tab" :class="{active: supplierPageTab === 'receivings'}" @click="supplierPageTab = 'receivings'">� Движения товара</div>
+                </div>
+
+                <!-- Tab: Товары -->
+                <div v-if="supplierPageTab === 'products'">
+                    <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;flex-wrap:wrap">
+                        <div v-if="supplierPageSelected.length" style="display:flex;gap:8px">
+                            <button class="btn btn-sm btn-primary" @click="createOrderFromSelected"><i class="ph ph-shopping-cart-simple"></i> Заказ ({{ supplierPageSelected.length }})</button>
+                        </div>
+                        <div style="margin-left:auto;display:flex;gap:6px;align-items:center">
+                            <div class="col-toggle-wrap">
+                                <div class="col-toggle-btn" @click.stop="spProductColVisOpen = !spProductColVisOpen"><i class="ph ph-columns"></i> Столбцы</div>
+                                <div class="col-toggle-popup" v-if="spProductColVisOpen" @click.stop>
+                                    <label><input type="checkbox" :checked="spProductColVis.image" @change="toggleSpProductCol('image')"> Фото</label>
+                                    <label><input type="checkbox" :checked="spProductColVis.article" @change="toggleSpProductCol('article')"> Артикул</label>
+                                    <label><input type="checkbox" :checked="spProductColVis.product_code" @change="toggleSpProductCol('product_code')"> Код товара</label>
+                                    <label><input type="checkbox" :checked="spProductColVis.alias" @change="toggleSpProductCol('alias')"> Псевдоним</label>
+                                    <label><input type="checkbox" :checked="spProductColVis.short_name" @change="toggleSpProductCol('short_name')"> Краткое название</label>
+                                    <label><input type="checkbox" :checked="spProductColVis.supplier_product_name" @change="toggleSpProductCol('supplier_product_name')"> Наименование у поставщика</label>
+                                    <label><input type="checkbox" :checked="spProductColVis.supplier_name" @change="toggleSpProductCol('supplier_name')"> Поставщик</label>
+                                    <label><input type="checkbox" :checked="spProductColVis.sku" @change="toggleSpProductCol('sku')"> SKU</label>
+                                    <label><input type="checkbox" :checked="spProductColVis.name" @change="toggleSpProductCol('name')"> Полное название</label>
+                                    <label><input type="checkbox" :checked="spProductColVis.brand" @change="toggleSpProductCol('brand')"> Бренд</label>
+                                    <label><input type="checkbox" :checked="spProductColVis.purchase_price" @change="toggleSpProductCol('purchase_price')"> Закупка</label>
+                                    <label><input type="checkbox" :checked="spProductColVis.sell_price" @change="toggleSpProductCol('sell_price')"> Продажа</label>
+                                    <label><input type="checkbox" :checked="spProductColVis.stock" @change="toggleSpProductCol('stock')"> Остаток</label>
+                                </div>
+                            </div>
+                            <button class="btn-icon" :class="{active: spViewMode === 'table'}" @click="spViewMode = 'table'" title="Таблица"><i class="ph ph-list"></i></button>
+                            <button class="btn-icon" :class="{active: spViewMode === 'grid'}" @click="spViewMode = 'grid'" title="Плитка"><i class="ph ph-grid-four"></i></button>
+                        </div>
+                    </div>
+
+                    <!-- Table view -->
+                    <div class="table-wrap" v-if="supplierPageData.products?.length && spViewMode === 'table'">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th style="width:36px"><input type="checkbox" :checked="supplierPageSelected.length === supplierPageData.products.length && supplierPageData.products.length > 0" @change="toggleAllSupplierProducts()" style="accent-color:var(--accent)"></th>
+                                    <th v-if="spProductColVis.image" style="width:48px"></th><th>Название</th><th v-if="spProductColVis.article">Артикул</th><th v-if="spProductColVis.product_code">Код товара</th><th v-if="spProductColVis.alias">Псевдоним</th><th v-if="spProductColVis.short_name">Краткое название</th><th v-if="spProductColVis.supplier_product_name">Наим. у поставщика</th><th v-if="spProductColVis.supplier_name">Поставщик</th><th v-if="spProductColVis.sku">SKU</th><th v-if="spProductColVis.name">Полное название</th><th v-if="spProductColVis.brand">Бренд</th><th v-if="spProductColVis.purchase_price">Закупка</th><th v-if="spProductColVis.sell_price">Продажа</th><th v-if="spProductColVis.stock">Остаток</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr v-for="p in supplierPageData.products" :key="p.id" :class="{'row-selected': supplierPageSelected.includes(p.id)}" style="cursor:pointer" @click="toggleSupplierProduct(p.id)">
+                                    <td><input type="checkbox" :checked="supplierPageSelected.includes(p.id)" @click.stop @change="toggleSupplierProduct(p.id)" style="accent-color:var(--accent)"></td>
+                                    <td v-if="spProductColVis.image" @click.stop="p.image_url && (spLightbox = p.image_url)">
+                                        <div class="sp-thumb" v-if="p.image_url"><img :src="p.image_url" :alt="p.alias || p.name"></div>
+                                        <div class="sp-thumb sp-thumb-empty" v-else><i class="ph ph-package"></i></div>
+                                    </td>
+                                    <td style="font-weight:600">{{ p.short_name || p.alias || p.name }}</td>
+                                    <td v-if="spProductColVis.article" style="font-family:monospace;font-size:12px">{{ p.article || '—' }}</td>
+                                    <td v-if="spProductColVis.product_code" style="font-family:monospace;font-size:12px">{{ p.product_code || '—' }}</td>
+                                    <td v-if="spProductColVis.alias" style="font-size:12px">{{ p.alias || '—' }}</td>
+                                    <td v-if="spProductColVis.short_name" style="font-size:12px">{{ p.short_name || '—' }}</td>
+                                    <td v-if="spProductColVis.supplier_product_name" style="font-size:12px">{{ p.supplier_product_name || '—' }}</td>
+                                    <td v-if="spProductColVis.supplier_name" style="color:var(--text2)">{{ p.supplier || '—' }}</td>
+                                    <td v-if="spProductColVis.sku" style="font-family:monospace;color:var(--text2);font-size:12px">{{ p.sku }}</td>
+                                    <td v-if="spProductColVis.name" style="color:var(--text2);font-size:12px">{{ p.name }}</td>
+                                    <td v-if="spProductColVis.brand" style="color:var(--text2)">{{ p.brand || '—' }}</td>
+                                    <td v-if="spProductColVis.purchase_price">{{ p.purchase_price ? formatMoney(p.purchase_price, supplierPageData.currency) : '—' }}</td>
+                                    <td v-if="spProductColVis.sell_price">{{ p.sell_price ? formatMoney(p.sell_price) : '—' }}</td>
+                                    <td v-if="spProductColVis.stock" :style="{fontWeight:500, color: p.stock > 0 ? 'var(--green)' : 'var(--text2)'}">{{ p.stock }}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Grid view -->
+                    <div class="sp-grid" v-if="supplierPageData.products?.length && spViewMode === 'grid'">
+                        <div v-for="p in supplierPageData.products" :key="p.id" class="sp-tile" :class="{'sp-tile-selected': supplierPageSelected.includes(p.id)}" @click="toggleSupplierProduct(p.id)">
+                            <div class="sp-tile-check"><input type="checkbox" :checked="supplierPageSelected.includes(p.id)" @click.stop @change="toggleSupplierProduct(p.id)" style="accent-color:var(--accent)"></div>
+                            <div class="sp-tile-img" @click.stop="p.image_url && (spLightbox = p.image_url)">
+                                <img v-if="p.image_url" :src="p.image_url" :alt="p.alias || p.name">
+                                <i v-else class="ph ph-package" style="font-size:36px;color:var(--text2)"></i>
+                            </div>
+                            <div class="sp-tile-name">{{ p.alias || p.name }}</div>
+                            <div class="sp-tile-sku">{{ p.sku }}</div>
+                            <div class="sp-tile-prices">
+                                <span v-if="p.purchase_price">{{ formatMoney(p.purchase_price, supplierPageData.currency) }}</span>
+                                <span v-if="p.sell_price" style="color:var(--green)">{{ formatMoney(p.sell_price) }}</span>
+                            </div>
+                            <div class="sp-tile-stock" :style="{color: p.stock > 0 ? 'var(--green)' : 'var(--text2)'}">Ост: {{ p.stock }}</div>
+                        </div>
+                    </div>
+
+                    <div v-if="!supplierPageData.products?.length" style="color:var(--text2);padding:32px;text-align:center">Нет товаров</div>
+                </div>
+
+                <!-- Tab: Заказы -->
+                <div v-if="supplierPageTab === 'orders'">
+                    <div class="sp-filter-bar">
+                        <input type="text" v-model="spFilter.search" placeholder="Поиск..." class="input sp-search-input">
+                        <div class="sp-period-pills">
+                            <button class="sp-pill" :class="{active: spIsCurrentMonth(0)}" @click="spSetMonth(0)">Этот месяц</button>
+                            <button class="sp-pill" :class="{active: spIsCurrentMonth(-1)}" @click="spSetMonth(-1)">Прошлый</button>
+                        </div>
+                        <div class="sp-month-nav" v-if="spFilter.dateFrom && spMonthLabel">
+                            <button class="sp-month-arrow" @click="spShiftMonth(-1)"><i class="ph ph-caret-left"></i></button>
+                            <span class="sp-month-label">{{ spMonthLabel }}</span>
+                            <button class="sp-month-arrow" @click="spShiftMonth(1)"><i class="ph ph-caret-right"></i></button>
+                        </div>
+                        <div class="sp-date-range">
+                            <input type="date" v-model="spFilter.dateFrom" class="input sp-date-input">
+                            <span class="sp-date-sep">—</span>
+                            <input type="date" v-model="spFilter.dateTo" class="input sp-date-input">
+                        </div>
+                        <button v-if="spFilter.search || spFilter.dateFrom || spFilter.dateTo" class="sp-pill reset" @click="Object.assign(spFilter, {search:'', dateFrom:'', dateTo:''})"><i class="ph ph-x"></i> Сброс</button>
+                    </div>
+                    <div class="table-wrap" v-if="spFilteredSupplies.length">
+                        <table>
+                            <thead><tr><th>№</th><th>Дата</th><th>Сумма</th><th>Статус</th></tr></thead>
+                            <tbody>
+                                <tr v-for="s in spFilteredSupplies" :key="s.id" style="cursor:pointer" @click="showSupplyDetail(s.id); loadAttachments('supply', s.id)">
+                                    <td class="link-cell" style="font-family:monospace">{{ s.number || '#'+s.id }}</td>
+                                    <td>{{ formatDate(s.created_at) }}</td>
+                                    <td style="font-weight:600">{{ formatMoney(s.total_amount, supplierPageData.currency) }}</td>
+                                    <td><span :class="'badge badge-supply-' + s.status">{{ supplyStatusLabel(s.status) }}</span></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div v-else style="color:var(--text2);padding:32px;text-align:center">Нет заказов</div>
+                </div>
+
+                <!-- Tab: Оплаты -->
+                <div v-if="supplierPageTab === 'payments'">
+                    <div class="sp-filter-bar">
+                        <input type="text" v-model="spFilter.search" placeholder="Поиск..." class="input sp-search-input">
+                        <div class="sp-period-pills">
+                            <button class="sp-pill" :class="{active: spIsCurrentMonth(0)}" @click="spSetMonth(0)">Этот месяц</button>
+                            <button class="sp-pill" :class="{active: spIsCurrentMonth(-1)}" @click="spSetMonth(-1)">Прошлый</button>
+                        </div>
+                        <div class="sp-month-nav" v-if="spFilter.dateFrom && spMonthLabel">
+                            <button class="sp-month-arrow" @click="spShiftMonth(-1)"><i class="ph ph-caret-left"></i></button>
+                            <span class="sp-month-label">{{ spMonthLabel }}</span>
+                            <button class="sp-month-arrow" @click="spShiftMonth(1)"><i class="ph ph-caret-right"></i></button>
+                        </div>
+                        <div class="sp-date-range">
+                            <input type="date" v-model="spFilter.dateFrom" class="input sp-date-input">
+                            <span class="sp-date-sep">—</span>
+                            <input type="date" v-model="spFilter.dateTo" class="input sp-date-input">
+                        </div>
+                        <button v-if="spFilter.search || spFilter.dateFrom || spFilter.dateTo" class="sp-pill reset" @click="Object.assign(spFilter, {search:'', dateFrom:'', dateTo:''})"><i class="ph ph-x"></i> Сброс</button>
+                    </div>
+                    <div class="table-wrap" v-if="spFilteredTransactions.length">
+                        <table>
+                            <thead><tr><th>Дата</th><th>Тип</th><th>Сумма</th><th>Счёт</th><th>Описание</th></tr></thead>
+                            <tbody>
+                                <tr v-for="t in spFilteredTransactions" :key="t.id">
+                                    <td>{{ t.date }}</td>
+                                    <td><span class="badge" :class="{'badge-income': t.type==='income', 'badge-expense': t.type==='expense', 'badge-transfer': t.type==='transfer'}">{{ {income:'Доход',expense:'Расход',transfer:'Перевод'}[t.type] }}</span></td>
+                                    <td :style="{ fontWeight:600, color: t.type==='income' ? 'var(--green)' : t.type==='expense' ? 'var(--red)' : '' }">{{ formatAmount(t.amount, t.currency) }}</td>
+                                    <td>{{ t.account_name || '—' }}</td>
+                                    <td style="font-size:12px;color:var(--text2)">{{ t.description || '—' }}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div v-else style="color:var(--text2);padding:32px;text-align:center">Нет операций</div>
+                </div>
+
+                <!-- Tab: Движения товара -->
+                <div v-if="supplierPageTab === 'receivings'">
+                    <div class="sp-filter-bar">
+                        <input type="text" v-model="spFilter.search" placeholder="Поиск..." class="input sp-search-input">
+                        <div class="sp-period-pills">
+                            <button class="sp-pill" :class="{active: spIsCurrentMonth(0)}" @click="spSetMonth(0)">Этот месяц</button>
+                            <button class="sp-pill" :class="{active: spIsCurrentMonth(-1)}" @click="spSetMonth(-1)">Прошлый</button>
+                        </div>
+                        <div class="sp-month-nav" v-if="spFilter.dateFrom && spMonthLabel">
+                            <button class="sp-month-arrow" @click="spShiftMonth(-1)"><i class="ph ph-caret-left"></i></button>
+                            <span class="sp-month-label">{{ spMonthLabel }}</span>
+                            <button class="sp-month-arrow" @click="spShiftMonth(1)"><i class="ph ph-caret-right"></i></button>
+                        </div>
+                        <div class="sp-date-range">
+                            <input type="date" v-model="spFilter.dateFrom" class="input sp-date-input">
+                            <span class="sp-date-sep">—</span>
+                            <input type="date" v-model="spFilter.dateTo" class="input sp-date-input">
+                        </div>
+                        <button v-if="spFilter.search || spFilter.dateFrom || spFilter.dateTo" class="sp-pill reset" @click="Object.assign(spFilter, {search:'', dateFrom:'', dateTo:''})"><i class="ph ph-x"></i> Сброс</button>
+                    </div>
+                    <div style="color:var(--text2);padding:32px;text-align:center">Раздел в разработке</div>
+                </div>
+
+                <!-- Lightbox -->
+                <div v-if="spLightbox" class="modal-overlay" @click="spLightbox = null" style="z-index:200">
+                    <div style="position:relative;max-width:90vw;max-height:90vh" @click.stop>
+                        <img :src="spLightbox" style="max-width:90vw;max-height:90vh;border-radius:12px;box-shadow:0 8px 32px rgba(0,0,0,0.4)">
+                        <button class="btn-icon" @click="spLightbox = null" style="position:absolute;top:-12px;right:-12px;background:var(--card-bg);border-radius:50%;width:32px;height:32px;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 8px rgba(0,0,0,0.2)"><i class="ph ph-x"></i></button>
+                    </div>
                 </div>
             </template>
 
@@ -1803,7 +2162,7 @@
                 <label>Товар *</label>
                 <select class="form-select" v-model="newMovement.product_id">
                     <option :value="null">Выбрать...</option>
-                    <option v-for="p in allProducts" :key="p.id" :value="p.id">{{ p.sku }} — {{ p.name }}</option>
+                    <option v-for="p in allProducts" :key="p.id" :value="p.id">{{ p.sku }} — {{ p.alias || p.name }}</option>
                 </select>
             </div>
             <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
@@ -1912,7 +2271,7 @@
                 <label>Товар *</label>
                 <select class="form-select" v-model="newMovement.product_id">
                     <option :value="null">Выбрать...</option>
-                    <option v-for="p in allProducts" :key="p.id" :value="p.id">{{ p.sku }} — {{ p.name }} ({{ p.stock }})</option>
+                    <option v-for="p in allProducts" :key="p.id" :value="p.id">{{ p.sku }} — {{ p.alias || p.name }} ({{ p.stock }})</option>
                 </select>
             </div>
             <div class="form-group"><label>Количество *</label><input class="form-input" type="number" v-model="newMovement.quantity"></div>
@@ -1951,7 +2310,7 @@
                     <div class="form-group" style="margin-bottom:0">
                         <select class="form-select" v-model="item.product_id" style="font-size:12px">
                             <option :value="null">Товар...</option>
-                            <option v-for="p in allProducts" :key="p.id" :value="p.id">{{ p.sku }} — {{ p.name }}</option>
+                            <option v-for="p in allProducts" :key="p.id" :value="p.id">{{ p.sku }} — {{ p.alias || p.name }}</option>
                         </select>
                     </div>
                     <div class="form-group" style="margin-bottom:0">
@@ -2043,7 +2402,10 @@
         <div class="modal">
             <h2>✏️ Редактировать товар</h2>
             <div class="form-group"><label>SKU (артикул)</label><input class="form-input" v-model="editData.sku"></div>
-            <div class="form-group"><label>Псевдоним (короткое имя для склада)</label><input class="form-input" v-model="editData.alias" placeholder="CND 501 pool"></div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+                <div class="form-group"><label>Псевдоним (короткое имя)</label><input class="form-input" v-model="editData.alias" placeholder="D501-PL"></div>
+                <div class="form-group"><label>Код товара (код поставщика)</label><input class="form-input" v-model="editData.product_code" placeholder="D501-PL"></div>
+            </div>
             <div class="form-group"><label>Название</label><input class="form-input" v-model="editData.name"></div>
             <div class="form-group"><label>Штрихкод</label><input class="form-input" v-model="editData.barcode"></div>
             <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
@@ -2210,7 +2572,7 @@
                 <label>Товар *</label>
                 <select class="form-select" v-model="adjustData.product_id">
                     <option :value="null">Выбрать...</option>
-                    <option v-for="p in allProducts" :key="p.id" :value="p.id">{{ p.sku }} — {{ p.name }} (тек: {{ p.stock }})</option>
+                    <option v-for="p in allProducts" :key="p.id" :value="p.id">{{ p.sku }} — {{ p.alias || p.name }} (тек: {{ p.stock }})</option>
                 </select>
             </div>
             <div class="form-group"><label>Новое фактическое количество *</label><input class="form-input" type="number" v-model="adjustData.quantity" placeholder="Реальное количество на складе"></div>
@@ -2230,7 +2592,7 @@
                 <label>Товар *</label>
                 <select class="form-select" v-model="transferData.product_id">
                     <option :value="null">Выбрать...</option>
-                    <option v-for="p in allProducts" :key="p.id" :value="p.id">{{ p.sku }} — {{ p.name }}</option>
+                    <option v-for="p in allProducts" :key="p.id" :value="p.id">{{ p.sku }} — {{ p.alias || p.name }}</option>
                 </select>
             </div>
             <div class="form-group"><label>Количество *</label><input class="form-input" type="number" v-model="transferData.quantity"></div>
@@ -2430,9 +2792,23 @@
                 <div class="label">Статус</div><div class="value"><span :class="'badge badge-supply-'+detailData.status">{{ supplyStatusLabel(detailData.status) }}</span></div>
                 <div class="label">Дата создания</div><div class="value">{{ formatDateTime(detailData.created_at) }}</div>
                 <div class="label">Ожидаемая дата</div><div class="value">{{ formatDate(detailData.expected_date) }}</div>
-                <div class="label">Общая сумма</div><div class="value" style="font-weight:700">{{ formatMoney(detailData.total_amount) }}</div>
-                <div class="label">Примечание</div><div class="value">{{ detailData.notes || '—' }}</div>
+                <div class="label">Общая сумма</div><div class="value" style="font-weight:700">{{ formatMoney(detailData.total_amount, detailData.currency) }}</div>
+                <div class="label">Примечание</div><div class="value" style="white-space:pre-line">{{ detailData.notes || '—' }}</div>
             </div>
+
+            <!-- Данные груза -->
+            <div class="detail-section" v-if="detailData.tracking_number || detailData.cargo_weight || detailData.logistics_cost">
+                <h3><i class="ph ph-truck"></i> Данные груза</h3>
+                <div class="detail-grid">
+                    <template v-if="detailData.tracking_number"><div class="label">Трекинг</div><div class="value" style="font-family:monospace;font-weight:600">{{ detailData.tracking_number }}</div></template>
+                    <template v-if="detailData.cargo_places"><div class="label">Мест</div><div class="value">{{ detailData.cargo_places }}</div></template>
+                    <template v-if="detailData.cargo_weight"><div class="label">Вес</div><div class="value">{{ detailData.cargo_weight }} кг</div></template>
+                    <template v-if="detailData.cargo_volume"><div class="label">Объём</div><div class="value">{{ detailData.cargo_volume }} м³</div></template>
+                    <template v-if="detailData.logistics_cost"><div class="label">Логистика</div><div class="value" style="font-weight:600">{{ formatMoney(detailData.logistics_cost, detailData.logistics_currency || 'USD') }}</div></template>
+                    <template v-if="detailData.logistics_detail"><div class="label">Детали</div><div class="value" style="font-size:12px;color:var(--text2)">{{ detailData.logistics_detail }}</div></template>
+                </div>
+            </div>
+
             <div class="detail-section" v-if="detailData.items?.length">
                 <h3>📦 Позиции ({{ detailData.items.length }})</h3>
                 <div class="table-wrap">
@@ -2441,17 +2817,40 @@
                         <tbody>
                             <tr v-for="item in detailData.items" :key="item.id">
                                 <td style="font-family:monospace">{{ item.sku || '—' }}</td>
-                                <td>{{ item.product_name || 'Товар #'+item.product_id }}</td>
+                                <td>{{ item.alias || item.product_name || 'Товар #'+item.product_id }}</td>
                                 <td>{{ item.quantity }} {{ item.unit || 'шт' }}</td>
-                                <td>{{ formatMoney(item.unit_price) }}</td>
-                                <td style="font-weight:600">{{ formatMoney(item.quantity * item.unit_price) }}</td>
+                                <td>{{ formatMoney(item.unit_price, detailData.currency) }}</td>
+                                <td style="font-weight:600">{{ formatMoney(item.quantity * item.unit_price, detailData.currency) }}</td>
                             </tr>
                         </tbody>
                     </table>
                 </div>
             </div>
+
+            <!-- Вложения -->
+            <div class="detail-section">
+                <h3><i class="ph ph-paperclip"></i> Файлы</h3>
+                <div class="attachments-list" v-if="getAttachments('supply', detailData.id).length">
+                    <div class="attachment-item" v-for="att in getAttachments('supply', detailData.id)" :key="att.id">
+                        <a :href="att.url" target="_blank" class="attachment-link">
+                            <img v-if="att.file_type && att.file_type.startsWith('image/')" :src="att.url" class="attachment-thumb">
+                            <i v-else class="ph ph-file-text attachment-icon"></i>
+                            <span class="attachment-name">{{ att.description || att.filename }}</span>
+                        </a>
+                        <span class="attachment-size">{{ (att.file_size / 1024).toFixed(0) }} KB</span>
+                        <button class="btn-icon danger" @click.stop="deleteAttachment('supply', detailData.id, att.id)" title="Удалить"><i class="ph ph-trash"></i></button>
+                    </div>
+                </div>
+                <div v-else style="color:var(--text2);font-size:13px;margin-bottom:8px">Нет файлов</div>
+                <div class="attachment-upload">
+                    <input type="file" style="display:none" @change="handleSupplyAttach($event, detailData.id)">
+                    <input type="text" class="form-input" style="flex:1" placeholder="Описание файла..." v-model="attachDesc">
+                    <button class="btn btn-sm" @click="triggerFileUpload($event)"><i class="ph ph-upload-simple"></i> Загрузить</button>
+                </div>
+            </div>
+
             <div class="modal-buttons">
-                <button class="btn btn-success" v-if="detailData.status && !['received','cancelled'].includes(detailData.status)" @click="receiveSupply(detailData.id)">📥 Получено (оприходовать)</button>
+                <button class="btn btn-success" v-if="detailData.status && !['received','cancelled'].includes(detailData.status)" @click="startReceive(detailData.id)">📥 Принять поставку</button>
                 <button class="btn btn-ghost" @click="editSupplyFromDetail" v-if="detailData.status !== 'received'">✏️ Редактировать</button>
                 <button class="btn btn-danger" style="margin-right:auto" v-if="['draft','cancelled'].includes(detailData.status)" @click="confirmDelete('supply', detailData)">🗑 Удалить</button>
                 <button class="btn btn-ghost" @click="showModal=null">Закрыть</button>
@@ -2482,9 +2881,46 @@
                 <div class="form-group"><label>Ожидаемая дата</label><input class="form-input" type="date" v-model="editData.expected_date"></div>
             </div>
             <div class="form-group"><label>Примечание</label><textarea class="form-textarea" v-model="editData.notes" rows="2"></textarea></div>
+            <details class="cargo-details" :open="editData.tracking_number || editData.cargo_weight ? true : undefined">
+                <summary style="cursor:pointer;font-weight:600;margin:10px 0 8px"><i class="ph ph-package"></i> Данные груза</summary>
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+                    <div class="form-group"><label>Трекинг-номер</label><input class="form-input" v-model="editData.tracking_number" placeholder="BLKL157-0307-2"></div>
+                    <div class="form-group"><label>Кол-во мест</label><input class="form-input" type="number" v-model="editData.cargo_places" min="0"></div>
+                    <div class="form-group"><label>Вес (кг)</label><input class="form-input" type="number" step="0.01" v-model="editData.cargo_weight" min="0"></div>
+                    <div class="form-group"><label>Объём (м³)</label><input class="form-input" type="number" step="0.001" v-model="editData.cargo_volume" min="0"></div>
+                    <div class="form-group"><label>Стоимость логистики</label><input class="form-input" type="number" step="0.01" v-model="editData.logistics_cost" min="0"></div>
+                    <div class="form-group">
+                        <label>Валюта логистики</label>
+                        <select class="form-select" v-model="editData.logistics_currency">
+                            <option value="USD">USD</option>
+                            <option value="CNY">CNY</option>
+                            <option value="RUB">RUB</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group"><label>Детали логистики</label><input class="form-input" v-model="editData.logistics_detail" placeholder="transport $219 + insurance $30 + packaging $45"></div>
+            </details>
             <div class="modal-buttons">
                 <button class="btn btn-ghost" @click="showModal=null">Отмена</button>
                 <button class="btn btn-primary" @click="saveSupply">Сохранить</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ══ Supply Receive Modal (warehouse picker) ══════ -->
+    <div class="modal-overlay" v-if="showModal==='supplyReceive'" @click.self="showModal=null">
+        <div class="modal" style="max-width:400px">
+            <h2>📥 Приёмка поставки</h2>
+            <p style="color:var(--text2);margin-bottom:16px">Выберите склад, на который будет принят товар по поставке <strong>{{ detailData.number || '#'+detailData.id }}</strong></p>
+            <div class="form-group">
+                <label>Склад *</label>
+                <select class="form-select" v-model="receiveData.warehouse_id">
+                    <option v-for="w in warehousesList" :key="w.id" :value="w.id">{{ w.name }}</option>
+                </select>
+            </div>
+            <div class="modal-buttons">
+                <button class="btn btn-ghost" @click="showModal='supplyDetail'">Назад</button>
+                <button class="btn btn-success" @click="confirmReceive">📥 Принять</button>
             </div>
         </div>
     </div>
@@ -2711,7 +3147,7 @@
     </div>
 </div>
 
-<script src="js/erp.bundle.js?v=13"></script>
+<script src="js/erp.bundle.js?v=16"></script>
 </body>
 </html>
 <!-- v13 transfer-dest-amount -->

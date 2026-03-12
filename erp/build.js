@@ -22,6 +22,7 @@ const files = [
     'finance.js',
     'tasks.js',
     'settings.js',
+    'ai.js',
     'app.js',
 ];
 

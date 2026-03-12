@@ -15,6 +15,8 @@ require_once __DIR__ . '/counterparties.php';
  * finance.cashflow      — денежный поток по дням
  * finance.link          — связать транзакции (перевод)
  * finance.unlink        — разъединить транзакции
+ * finance.confirm       — подтвердить черновик
+ * finance.reject        — отклонить (удалить) черновик
  */
 class ERP_Finance {
 
@@ -48,6 +50,10 @@ class ERP_Finance {
             $where[] = '(ft.description LIKE ? OR ft.counterparty LIKE ? OR ft.category LIKE ?)';
             $like = "%{$q}%";
             $params = array_merge($params, [$like, $like, $like]);
+        }
+        if ($status = param('status')) {
+            $where[] = 'ft.status = ?';
+            $params[] = $status;
         }
 
         $whereSQL = implode(' AND ', $where);
@@ -114,10 +120,13 @@ class ERP_Finance {
         $pdo = DB::get();
         $pdo->beginTransaction();
         try {
+            $status = $input['status'] ?? 'confirmed';
+            if (!in_array($status, ['draft', 'confirmed'])) $status = 'confirmed';
+
             $stmt = $pdo->prepare("
                 INSERT INTO erp_finance_transactions 
-                    (journal_id, date, type, amount, currency, account_id, to_account_id, dest_amount, dest_currency, category, subcategory, counterparty, counterparty_id, description)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                    (journal_id, date, type, amount, currency, account_id, to_account_id, dest_amount, dest_currency, category, subcategory, counterparty, counterparty_id, description, status)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             ");
             $stmt->execute([
                 $input['journal_id'] ?? null,
@@ -134,18 +143,19 @@ class ERP_Finance {
                 $input['counterparty'] ?? null,
                 $input['counterparty_id'] ?? null,
                 $input['description'] ?? null,
+                $status,
             ]);
             $id = (int) $pdo->lastInsertId();
 
-            // Обновляем балансы счетов
-            $this->updateAccountBalance($pdo, $type, $amount, $input);
-
-            // Обновляем баланс контрагента
-            $cpId = (int)($input['counterparty_id'] ?? 0);
-            if ($cpId) ERP_Counterparties::recalcBalance($pdo, $cpId);
+            // Обновляем балансы только для подтверждённых
+            if ($status === 'confirmed') {
+                $this->updateAccountBalance($pdo, $type, $amount, $input);
+                $cpId = (int)($input['counterparty_id'] ?? 0);
+                if ($cpId) ERP_Counterparties::recalcBalance($pdo, $cpId);
+            }
 
             $pdo->commit();
-            return ['ok' => true, 'id' => $id];
+            return ['ok' => true, 'id' => $id, 'status' => $status];
         } catch (Exception $e) {
             $pdo->rollBack();
             throw $e;
@@ -157,7 +167,7 @@ class ERP_Finance {
         $id = (int)($input['id'] ?? param('id'));
         if (!$id) errorResponse('id required');
 
-        $allowed = ['date', 'type', 'amount', 'currency', 'account_id', 'to_account_id', 'dest_amount', 'dest_currency', 'category', 'subcategory', 'counterparty', 'counterparty_id', 'description', 'linked_id'];
+        $allowed = ['date', 'type', 'amount', 'currency', 'account_id', 'to_account_id', 'dest_amount', 'dest_currency', 'category', 'subcategory', 'counterparty', 'counterparty_id', 'description', 'linked_id', 'status'];
         $sets = [];
         $params = [];
         foreach ($allowed as $field) {
@@ -253,7 +263,7 @@ class ERP_Finance {
                    SUM(amount) as total_amount,
                    COUNT(*) as count
             FROM erp_finance_transactions
-            WHERE date BETWEEN ? AND ?
+            WHERE date BETWEEN ? AND ? AND status = 'confirmed'
             GROUP BY type
         ");
         $stmt->execute([$from, $to]);
@@ -269,7 +279,7 @@ class ERP_Finance {
         $topExpenses = $pdo->prepare("
             SELECT category, SUM(amount) as total, COUNT(*) as cnt
             FROM erp_finance_transactions
-            WHERE type = 'expense' AND date BETWEEN ? AND ? AND category IS NOT NULL
+            WHERE type = 'expense' AND date BETWEEN ? AND ? AND category IS NOT NULL AND status = 'confirmed'
             GROUP BY category
             ORDER BY total DESC
             LIMIT 10
@@ -304,7 +314,7 @@ class ERP_Finance {
                    SUM(CASE WHEN type='income' THEN amount ELSE 0 END) as income,
                    SUM(CASE WHEN type='expense' THEN amount ELSE 0 END) as expense
             FROM erp_finance_transactions
-            WHERE date BETWEEN ? AND ?
+            WHERE date BETWEEN ? AND ? AND status = 'confirmed'
             GROUP BY date
             ORDER BY date
         ");
@@ -344,6 +354,56 @@ class ERP_Finance {
         $pdo = DB::get();
         $pdo->prepare("UPDATE erp_finance_transactions SET linked_id = NULL WHERE id = ?")->execute([$id]);
 
+        return ['ok' => true];
+    }
+
+    /**
+     * Подтвердить черновик → confirmed
+     * POST {id: N}
+     */
+    public function confirm(): array {
+        $id = (int)(param('id') ?: (jsonInput()['id'] ?? 0));
+        if (!$id) errorResponse('id required');
+
+        $pdo = DB::get();
+        $tx = $pdo->prepare("SELECT * FROM erp_finance_transactions WHERE id = ? AND status = 'draft'");
+        $tx->execute([$id]);
+        $row = $tx->fetch();
+        if (!$row) errorResponse('Draft not found');
+
+        $pdo->beginTransaction();
+        try {
+            $pdo->prepare("UPDATE erp_finance_transactions SET status = 'confirmed' WHERE id = ?")->execute([$id]);
+
+            // Обновляем балансы
+            $this->updateAccountBalance($pdo, $row['type'], (float)$row['amount'], $row);
+            $cpId = (int)($row['counterparty_id'] ?? 0);
+            if ($cpId) ERP_Counterparties::recalcBalance($pdo, $cpId);
+
+            $pdo->commit();
+            return ['ok' => true, 'id' => $id, 'status' => 'confirmed'];
+        } catch (Exception $e) {
+            $pdo->rollBack();
+            throw $e;
+        }
+    }
+
+    /**
+     * Отклонить (удалить) черновик
+     * POST {id: N}
+     */
+    public function reject(): array {
+        $id = (int)(param('id') ?: (jsonInput()['id'] ?? 0));
+        if (!$id) errorResponse('id required');
+
+        $pdo = DB::get();
+        $tx = $pdo->prepare("SELECT status FROM erp_finance_transactions WHERE id = ?");
+        $tx->execute([$id]);
+        $row = $tx->fetch();
+        if (!$row) errorResponse('Not found');
+        if ($row['status'] !== 'draft') errorResponse('Can only reject drafts');
+
+        $pdo->prepare("DELETE FROM erp_finance_transactions WHERE id = ? AND status = 'draft'")->execute([$id]);
         return ['ok' => true];
     }
 

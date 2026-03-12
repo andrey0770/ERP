@@ -52,8 +52,12 @@ class ERP_Supplies {
         $stmt = $pdo->prepare("
             SELECT s.*,
                    (SELECT COUNT(*) FROM erp_supply_items si WHERE si.supply_id = s.id) as item_count,
-                   (SELECT COALESCE(SUM(si.quantity * si.unit_price), 0) FROM erp_supply_items si WHERE si.supply_id = s.id) as total_amount
+                   (SELECT COALESCE(SUM(si.quantity * si.unit_price), 0) FROM erp_supply_items si WHERE si.supply_id = s.id) as total_amount,
+                   (SELECT COUNT(*) FROM erp_attachments a WHERE a.entity_type = 'supply' AND a.entity_id = s.id) as file_count,
+                   COALESCE(cp.currency, 'RUB') as currency,
+                   cp.alias as supplier_alias
             FROM erp_supplies s
+            LEFT JOIN erp_counterparties cp ON cp.id = s.counterparty_id
             WHERE {$whereSQL}
             ORDER BY s.created_at DESC
             LIMIT {$limit} OFFSET {$offset}
@@ -73,14 +77,19 @@ class ERP_Supplies {
 
         $pdo = DB::get();
 
-        $stmt = $pdo->prepare("SELECT * FROM erp_supplies WHERE id = ?");
+        $stmt = $pdo->prepare("
+            SELECT s.*, COALESCE(cp.currency, 'RUB') as currency
+            FROM erp_supplies s
+            LEFT JOIN erp_counterparties cp ON cp.id = s.counterparty_id
+            WHERE s.id = ?
+        ");
         $stmt->execute([$id]);
         $supply = $stmt->fetch();
         if (!$supply) errorResponse('Supply not found', 404);
 
         // Позиции
         $items = $pdo->prepare("
-            SELECT si.*, p.sku, p.name as product_name, p.unit
+            SELECT si.*, p.sku, p.alias, p.name as product_name, p.unit
             FROM erp_supply_items si
             LEFT JOIN erp_products p ON p.id = si.product_id
             WHERE si.supply_id = ?
@@ -94,7 +103,7 @@ class ERP_Supplies {
     }
 
     /**
-     * Создать поставку
+     * Создать поставку (auto-generates number as ALIAS-YYYY-N)
      * POST: { supplier_name, number?, status?, expected_date?, notes?, items: [{product_id, quantity, unit_price}] }
      */
     public function create(): array {
@@ -106,12 +115,35 @@ class ERP_Supplies {
         $pdo->beginTransaction();
 
         try {
+            // Resolve counterparty
+            $cp = $pdo->prepare("SELECT id, alias, name FROM erp_counterparties WHERE name = ? OR alias = ? LIMIT 1");
+            $cp->execute([$supplierName, $supplierName]);
+            $counterparty = $cp->fetch();
+            $counterpartyId = $counterparty ? (int)$counterparty['id'] : null;
+
+            // Auto-generate number: ALIAS-YYYY-N
+            $number = $input['number'] ?? null;
+            if (!$number && $counterparty) {
+                $prefix = $counterparty['alias'] ?: $counterparty['name'];
+                $year = date('Y');
+                $pattern = $prefix . '-' . $year . '-%';
+                $maxNum = $pdo->prepare("SELECT number FROM erp_supplies WHERE number LIKE ? ORDER BY id DESC LIMIT 1");
+                $maxNum->execute([$pattern]);
+                $lastNumber = $maxNum->fetchColumn();
+                $seq = 1;
+                if ($lastNumber && preg_match('/-(\d+)$/', $lastNumber, $m)) {
+                    $seq = (int)$m[1] + 1;
+                }
+                $number = $prefix . '-' . $year . '-' . $seq;
+            }
+
             $pdo->prepare("
-                INSERT INTO erp_supplies (supplier_name, number, status, expected_date, notes)
-                VALUES (?, ?, ?, ?, ?)
+                INSERT INTO erp_supplies (supplier_name, counterparty_id, number, status, expected_date, notes)
+                VALUES (?, ?, ?, ?, ?, ?)
             ")->execute([
                 $supplierName,
-                $input['number'] ?? null,
+                $counterpartyId,
+                $number,
                 $input['status'] ?? 'draft',
                 $input['expected_date'] ?? null,
                 $input['notes'] ?? null,
@@ -168,7 +200,7 @@ class ERP_Supplies {
 
         $fields = [];
         $params = [];
-        foreach (['supplier_name', 'number', 'status', 'expected_date', 'notes'] as $field) {
+        foreach (['supplier_name', 'number', 'status', 'expected_date', 'notes', 'tracking_number', 'cargo_places', 'cargo_weight', 'cargo_volume', 'logistics_cost', 'logistics_currency', 'logistics_detail'] as $field) {
             if (array_key_exists($field, $input)) {
                 $fields[] = "{$field} = ?";
                 $params[] = $input[$field];
@@ -225,13 +257,16 @@ class ERP_Supplies {
             FROM erp_supplies
         ")->fetch();
 
-        // Сумма открытых поставок
-        $openTotal = $pdo->query("
-            SELECT COALESCE(SUM(si.quantity * si.unit_price), 0) as total
+        // Сумма открытых поставок по валютам
+        $openTotals = $pdo->query("
+            SELECT COALESCE(cp.currency, 'RUB') as currency,
+                   COALESCE(SUM(si.quantity * si.unit_price), 0) as total
             FROM erp_supply_items si
             JOIN erp_supplies s ON s.id = si.supply_id
+            LEFT JOIN erp_counterparties cp ON cp.id = s.counterparty_id
             WHERE s.status NOT IN ('received', 'cancelled')
-        ")->fetchColumn();
+            GROUP BY COALESCE(cp.currency, 'RUB')
+        ")->fetchAll();
 
         return [
             'pending'   => (int)($stats['pending'] ?? 0),
@@ -239,7 +274,7 @@ class ERP_Supplies {
             'received'  => (int)($stats['received'] ?? 0),
             'cancelled' => (int)($stats['cancelled'] ?? 0),
             'total'     => (int)($stats['total'] ?? 0),
-            'open_total' => (float)$openTotal,
+            'open_totals' => $openTotals,
         ];
     }
 

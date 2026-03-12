@@ -68,7 +68,7 @@ class ERP_Counterparties {
 
         // Товары контрагента
         $products = $pdo->prepare("
-            SELECT p.id, p.sku, p.alias, p.name, p.brand, p.sell_price, p.purchase_price,
+            SELECT p.id, p.sku, p.alias, p.short_name, p.name, p.brand, p.product_code, p.article, p.supplier, p.supplier_product_name, p.sell_price, p.purchase_price, p.image_url,
                    COALESCE((SELECT SUM(i.quantity) FROM erp_inventory i WHERE i.product_id = p.id), 0) as stock
             FROM erp_products p
             WHERE p.counterparty_id = ? AND p.is_active = 1
@@ -197,7 +197,7 @@ class ERP_Counterparties {
             SELECT COALESCE(
                 SUM(CASE WHEN ft.type = 'expense' THEN ft.amount ELSE 0 END) -
                 SUM(CASE WHEN ft.type = 'income' THEN ft.amount ELSE 0 END), 0)
-            FROM erp_finance_transactions ft WHERE ft.counterparty_id = ?
+            FROM erp_finance_transactions ft WHERE ft.counterparty_id = ? AND ft.status = 'confirmed'
         ");
         $stmt->execute([$counterpartyId]);
         $balance = $stmt->fetchColumn();
